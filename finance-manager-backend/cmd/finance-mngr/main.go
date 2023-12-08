@@ -1,8 +1,12 @@
 package main
 
 import (
+	"finance-manager-backend/cmd/finance-mngr/internal/authentication"
+	"finance-manager-backend/cmd/finance-mngr/internal/handlers"
+	"finance-manager-backend/cmd/finance-mngr/internal/jsonutils"
 	"finance-manager-backend/cmd/finance-mngr/internal/repository"
 	"finance-manager-backend/cmd/finance-mngr/internal/repository/dbrepo"
+	"finance-manager-backend/cmd/finance-mngr/internal/validation"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,47 +19,20 @@ type application struct {
 	DSN          string
 	Domain       string
 	DB           repository.DatabaseRepo
-	auth         Auth
+	auth         authentication.Auth
 	JWTSecret    string
 	JWTIssuer    string
 	JWTAudience  string
 	CookieDomain string
 	FrontendUrl  string
+	Handler      handlers.FinanceManagerHandler
+	JSONUtil     jsonutils.JSONUtils
 }
 
 func main() {
 	//set application config
 	var app application
-	config := FinanceManagerConfig{
-		DSN: env_value{
-			envName:    "DSN",
-			defaultVal: "host=localhost port=5432 user=postgres password=postgres dbname=financemanager sslmode=disable timezone=UTC connect_timeout=5",
-		},
-		JWTSecret: env_value{
-			envName:    "JWTSecret",
-			defaultVal: "verysecret",
-		},
-		JWTIssuer: env_value{
-			envName:    "JWTIssuer",
-			defaultVal: "fm.com",
-		},
-		JWTAudience: env_value{
-			envName:    "JWTAudience",
-			defaultVal: "fm.com",
-		},
-		CookieDomain: env_value{
-			envName:    "CookieDomain",
-			defaultVal: "localhost",
-		},
-		Domain: env_value{
-			envName:    "Domain",
-			defaultVal: "fm.com",
-		},
-		FrontendUrl: env_value{
-			envName:    "FrontendUrl",
-			defaultVal: "http://localhost:3000",
-		},
-	}
+	var config = getDefaultConfig()
 
 	//Attempt to read values from the environment
 	app.DSN = getEnvFromEnvValue(config.DSN)
@@ -72,19 +49,27 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
-	defer app.DB.Connection().Close()
-
-	app.auth = Auth{
+	app.auth = authentication.Auth{
 		Issuer:        app.JWTIssuer,
 		Audience:      app.JWTAudience,
 		Secret:        app.auth.Secret,
-		TokenExpiry:   time.Minute * 15,
+		TokenExpiry:   time.Minute * 60,
 		RefreshExpiry: time.Hour * 24,
 		CookiePath:    "/",
 		CookieName:    "Host-refresh_token",
 		CookieDomain:  app.CookieDomain,
 	}
+
+	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
+	app.JSONUtil = &jsonutils.JSONUtil{}
+	app.Handler = handlers.FinanceManagerHandler{
+		JSONUtil:  &jsonutils.JSONUtil{},
+		DB:        app.DB,
+		Auth:      app.auth,
+		Validator: &validation.FinanceManagerValidator{DB: app.DB},
+	}
+
+	defer app.DB.Connection().Close()
 
 	app.Domain = "example.com"
 

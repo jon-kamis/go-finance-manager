@@ -14,6 +14,7 @@ const Input = forwardRef((props, ref) => {
                 name={props.name}
                 placeholder={props.placeholder}
                 onChange={props.onChange}
+                onClick={props.onClick}
                 autoComplete={props.autoComplete}
                 value={props.value}
             />

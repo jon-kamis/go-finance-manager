@@ -1,0 +1,17 @@
+.navMenu {
+    background-color: #1f1fed;
+    border-color: black;
+    border-left: 5px;
+    border-right: 5px;
+    padding-top: 0.5vh;
+}
+
+.navMenu p {
+    color: white;
+    text-align: center;
+}
+
+.navMenu p:hover {
+    background-color: white;
+    color: black;
+}

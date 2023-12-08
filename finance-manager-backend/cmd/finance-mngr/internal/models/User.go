@@ -9,11 +9,11 @@ import (
 
 type User struct {
 	ID           int       `json:"id"`
-	Username     string    `json:"user_name"`
-	FirstName    string    `json:"first_name"`
-	LastName     string    `json:"last_name"`
+	Username     string    `json:"username"`
+	FirstName    string    `json:"firstName"`
+	LastName     string    `json:"lastName"`
 	Email        string    `json:"email"`
-	Password     string    `json:"-"`
+	Password     string    `json:"password"`
 	CreateDt     time.Time `json:"-"`
 	LastUpdateDt time.Time `json:"-"`
 }

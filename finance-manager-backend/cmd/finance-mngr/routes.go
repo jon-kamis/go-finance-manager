@@ -14,17 +14,26 @@ func (app *application) routes() http.Handler {
 	mux.Use(middleware.Recoverer)
 	mux.Use(app.enableCORS)
 
-	mux.Get("/", app.Home)
+	mux.Get("/", app.Handler.Home)
 
-	mux.Post("/authenticate", app.authenticate)
-	mux.Get("/refresh", app.refreshToken)
-	mux.Get("/logout", app.logout)
-
-	mux.Get("/users/{id}", app.GetUserByID)
-
-	mux.Route("/admin", func(mux chi.Router) {
+	mux.Post("/authenticate", app.Handler.Authenticate)
+	mux.Get("/refresh", app.Handler.RefreshToken)
+	mux.Get("/logout", app.Handler.Logout)
+	mux.Post("/register", app.Handler.Register)
+	mux.Route("/users", func(mux chi.Router) {
 		mux.Use(app.authRequired)
 
+		mux.Get("/all", app.Handler.GetAllUsers)
+		mux.Get("/{userId}", app.Handler.GetUserByID)
+
+		mux.Get("/{userId}/loans", app.Handler.GetAllUserLoans)
+		mux.Post("/{userId}/loans", app.Handler.SaveLoan)
+		mux.Get("/{userId}/loan-summary", app.Handler.GetLoanSummary)
+		mux.Get("/{userId}/loans/{loanId}", app.Handler.GetLoanById)
+		mux.Put("/{userId}/loans/{loanId}", app.Handler.UpdateLoan)
+		mux.Delete("/{userId}/loans/{loanId}", app.Handler.DeleteLoanById)
+		mux.Post("/{userId}/loans/{loanId}/calculate", app.Handler.CalculateLoan)
+		mux.Post("/{userId}/loans/{loanId}/compare-payments", app.Handler.CompareLoanPayments)
 	})
 
 	return mux

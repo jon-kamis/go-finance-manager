@@ -2,50 +2,55 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import App from './App';
+import ManageLoan from './components/ManageLoan';
 import ErrorPage from './components/ErrorPage';
 import Home from './components/Home';
-import Movies from './components/Movies';
-import Genres from './components/Genres';
-import ManageCatalog from './components/ManageCatalog';
-import GraphQL from './components/GraphQL';
+import Users from './components/Users';
+import Loans from './components/Loans';
 import Login from './components/Login';
-import EditMovie from './components/EditMovie';
-import Movie from './components/Movie';
+import NewLoan from './components/NewLoan';
+import Register from './components/Register';
+import ManageUser from './components/ManageUser';
+import About from './components/About';
 
-const router = createBrowserRouter ([
+const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    errorElement: <ErrorPage/>,
+    errorElement: <ErrorPage />,
     children: [
-      {index: true, element: <Home/>},
+      { index: true, element: <Home /> },
       {
-        path: "/movies",
-        element: <Movies/>
+        path: "/about",
+        element: <About />
       },
       {
-        path: "/movies/:id",
-        element: <Movie/>
+        path: "/users",
+        element: <Users />
       },
       {
-        path: "/genres",
-        element: <Genres/>
-      },
-      {
-        path: "/admin/movie/0",
-        element: <EditMovie/>
-      },
-      {
-        path: "/manage-catalog",
-        element: <ManageCatalog/>
-      },
-      {
-        path: "/graphql",
-        element: <GraphQL/>
+        path: "admin/users/:id",
+        element: <ManageUser />
       },
       {
         path: "/login",
-        element: <Login/>
+        element: <Login />
+      },
+      {
+        path: "/register",
+        element: <Register />
+      },
+      {
+        path: "/users/:userId/loans",
+        element: <Loans />
+      },
+      {
+        path: "/users/:userId/loans/new",
+        element: <NewLoan />
+      },
+      {
+        path: "/users/:userId/loans/:loanId",
+        element: <ManageLoan />
       }
     ]
   }
@@ -53,7 +58,7 @@ const router = createBrowserRouter ([
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+ <React.StrictMode>
     <RouterProvider router={router}/>
   </React.StrictMode>
 );

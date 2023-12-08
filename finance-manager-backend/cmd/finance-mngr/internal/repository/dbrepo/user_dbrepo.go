@@ -2,8 +2,10 @@ package dbrepo
 
 import (
 	"context"
+	"database/sql"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -86,7 +88,7 @@ func (m *PostgresDBRepo) GetUserByUsernameOrEmail(username string, email string)
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	method := "user_dbrepo.GetUserByUsername"
+	method := "user_dbrepo.GetUserByUsernameOrEmail"
 	fmt.Println("[ENTER " + method + "]")
 
 	query := `select id, username, email, first_name, last_name, password,
@@ -120,7 +122,7 @@ func (m *PostgresDBRepo) GetUserByUsernameOrEmail(username string, email string)
 	return &user, nil
 }
 
-func (m *PostgresDBRepo) InsertUser(user models.User) error {
+func (m *PostgresDBRepo) InsertUser(user models.User) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -133,7 +135,7 @@ func (m *PostgresDBRepo) InsertUser(user models.User) error {
 	if bcErr != nil {
 		fmt.Printf("[%s] %s\n", method, "error occured while encrypting password")
 		fmt.Println("[EXIT  " + method + "]")
-		return bcErr
+		return -1, bcErr
 	}
 
 	stmt :=
@@ -141,8 +143,9 @@ func (m *PostgresDBRepo) InsertUser(user models.User) error {
 			(username, email, first_name, last_name,
 			password, create_dt, last_update_dt)
 		values 
-			($1, $2, $3, $4, $5, $6, $7, $8) returning id`
+			($1, $2, $3, $4, $5, $6, $7) returning id`
 
+	var id int
 	err := m.DB.QueryRowContext(ctx, stmt,
 		user.Username,
 		user.Email,
@@ -151,16 +154,16 @@ func (m *PostgresDBRepo) InsertUser(user models.User) error {
 		string(encryptedPass),
 		time.Now(),
 		time.Now(),
-	).Scan()
+	).Scan(&id)
 
 	if err != nil {
 		fmt.Printf("[%s] %s\n", method, "returned with error")
 		fmt.Println("[EXIT  " + method + "]")
-		return err
+		return -1, err
 	}
 
 	fmt.Println("[EXIT  " + method + "]")
-	return nil
+	return id, nil
 }
 
 func (m *PostgresDBRepo) UpdateUserDetails(user models.User) error {
@@ -196,4 +199,76 @@ func (m *PostgresDBRepo) UpdateUserDetails(user models.User) error {
 
 	fmt.Println("[EXIT  " + method + "]")
 	return nil
+}
+
+func (m *PostgresDBRepo) GetAllUsers(search string) ([]*models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	method := "user_dbrepo.GetAllUsers"
+	fmt.Printf("[ENTER %s]\n", method)
+
+	var query string
+	var err error
+	var rows *sql.Rows
+
+	if search != "" {
+		search = strings.ToLower(search)
+		fmt.Printf("[%s] Searching for user meeting criteria: %s\n", method, search)
+		query = `
+		SELECT
+			id, username, email, first_name, last_name, password,
+			create_dt, last_update_dt
+		FROM users
+		WHERE 
+			LOWER(username) like '%' || $1 || '%'
+			OR LOWER(first_name) like '%' || $1 || '%'
+			OR LOWER(last_name) like '%' || $1 || '%'
+			OR LOWER(email) like '%' || $1 || '%'`
+		rows, err = m.DB.QueryContext(ctx, query, search)
+	} else {
+		query = `
+		SELECT
+			id, username, email, first_name, last_name, password,
+			create_dt, last_update_dt
+		FROM users`
+		rows, err = m.DB.QueryContext(ctx, query)
+	}
+
+	var users []*models.User
+	recordCount := 0
+
+	if err != nil {
+		fmt.Printf("[%s] database call returned with error %s\n", method, err)
+		fmt.Printf("[EXIT %s]\n", method)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var user models.User
+		err := rows.Scan(
+			&user.ID,
+			&user.Username,
+			&user.Email,
+			&user.FirstName,
+			&user.LastName,
+			&user.Password,
+			&user.CreateDt,
+			&user.LastUpdateDt,
+		)
+
+		if err != nil {
+			fmt.Printf("[%s] error occured when attempting to scan rows into objects\n", method)
+			fmt.Printf("[EXIT %s]\n", method)
+			return nil, err
+		}
+
+		recordCount = recordCount + 1
+		users = append(users, &user)
+	}
+
+	fmt.Printf("[EXIT %s]\n", method)
+	return users, nil
 }

@@ -115,7 +115,6 @@ CREATE TABLE public.bank_accounts (
     last_update_dt timestamp without time zone
 );
 
-
 --
 -- Name: bank_account_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
@@ -128,6 +127,65 @@ ALTER TABLE public.bank_accounts ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTIT
     NO MAXVALUE
     CACHE 1
 );
+
+--
+-- Name: loans; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.loans (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    loan_name character varying(255) NOT NULL,
+    total_balance NUMERIC(10,2) NOT NULL,
+    total_cost NUMERIC(10,2) NOT NULL,
+    total_principal NUMERIC(10,2) NOT NULL,
+    total_interest NUMERIC(10,2),
+    monthly_payment NUMERIC(10,2),
+    interest_rate NUMERIC(10,5),
+    loan_term integer not null,
+    create_dt timestamp without time zone,
+    last_update_dt timestamp without time zone
+);
+
+--
+-- Name: loan_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.loans ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.loan_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+COPY public.users (id, username, first_name, last_name, email, password, create_dt, last_update_dt) FROM stdin;
+1	admin	admin	istrator	admin@fm.com	$2a$10$S9nLk.BzkZuSPXvdn6JXoO0VX/tf8QNebc0ct8J39n.mU8Gzz.pPS	2023-11-13 00:00:00	2023-11-13 00:00:00
+\.
+
+SELECT pg_catalog.setval('public.users_id_seq', 2, true);
+
+COPY public.roles (id, code, create_dt, last_update_dt) FROM stdin;
+1	admin	2023-11-13 00:00:00	2023-11-13 00:00:00
+2	user	2023-11-13 00:00:00	2023-11-13 00:00:00
+\.
+
+SELECT pg_catalog.setval('public.roles_id_seq', 3, true);
+
+COPY public.user_roles (id, user_id, role_id, code, create_dt, last_update_dt) FROM stdin;
+1	1	1	admin	2023-11-13 00:00:00	2023-11-13 00:00:00
+2	1	2	user	2023-11-13 00:00:00	2023-11-13 00:00:00
+\.
+
+SELECT pg_catalog.setval('public.user_roles_id_seq', 3, true);
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.loans
+    ADD CONSTRAINT loans_pkey PRIMARY KEY (id);
 
 --
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -160,8 +218,3 @@ ALTER TABLE ONLY public.user_roles
 --
 -- PostgreSQL database dump complete
 --
-
-INSERT INTO public.users
-(username, first_name, last_name, email, password, create_dt, last_update_dt)
-VALUES
-('admin', 'admin', 'user', 'admin@fm.com', '$2a$14$wVsaPvJnJJsomWArouWCtusem6S/.Gauq/GjOIEHpyh2DAMmso1wy', current_time, current_time);

@@ -1,53 +1,91 @@
 import { useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import Input from "./form/Input";
+import Toast from "./alerting/Toast";
 
 const Login = () => {
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    
     const { setJwtToken } = useOutletContext();
-    const { setAlertClassName } = useOutletContext();
-    const { setAlertMessage } = useOutletContext();
+    const { setRoles } = useOutletContext();
+    const { setLoggedInUserId } = useOutletContext();
+    const { toggleRefresh } = useOutletContext();
 
     const navigate = useNavigate();
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        console.log("email/pass", email, password)
+    const [loginRequest, setLoginRequest] = useState({
+        username: "",
+        password: "",
+    })
 
-        if (email === "admin@example.com") {
-            setJwtToken("abc")
-            setAlertClassName("d-none")
-            setAlertMessage("")
-            navigate("/")
-        } else {
-            setAlertClassName("alert-danger")
-            setAlertMessage("Invalid Credentials")
-        }
+    const handleChange = () => (event) => {
+        let value = event.target.value;
+        let name = event.target.name;
+        setLoginRequest({
+            ...loginRequest,
+            [name]: value,
+        })
     }
 
-    return(
+    const setJwtRoles = ((token) => {
+        setRoles(jwtDecode(token).roles.split(",").map((r) => r.trimStart()))
+    });
+
+    const setUserId = ((token) => {
+        setLoggedInUserId(jwtDecode(token).sub)
+    });
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        const requestOptions = {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: "include",
+            body: JSON.stringify(loginRequest),
+        }
+
+        fetch(`/authenticate`, requestOptions)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.error) {
+                    Toast(data.message, "error");
+                } else {
+                    setJwtToken(data.access_token);
+                    setJwtRoles(data.access_token);
+                    setUserId(data.access_token);
+                    toggleRefresh(true);
+                    Toast("Login successful!", "success");
+                    navigate("/");
+                }
+            })
+            .catch(error => {
+                Toast(error.message, "error");
+            })
+    }
+
+    return (
         <div className="col-md-6 offset-md-3">
             <h2>Login</h2>
             <hr />
 
             <form onSubmit={handleSubmit}>
                 <Input
-                    title="Email Address"
-                    type="email"
-                    className="fomr-control"
-                    name="email"
-                    autoComplete="email-new"
-                    onChange={(event) => setEmail(event.target.value)}
+                    title={"Username"}
+                    type={"text"}
+                    className={"form-control"}
+                    name={"username"}
+                    value={loginRequest.username}
+                    onChange={handleChange("")}
                 />
                 <Input
-                    title="Password"
-                    type="password"
-                    className="fomr-control"
-                    name="password"
-                    autoComplete="password-new"
-                    onChange={(event) => setPassword(event.target.value)}
+                    title={"Password"}
+                    type={"password"}
+                    className={"form-control"}
+                    name={"password"}
+                    value={loginRequest.password}
+                    onChange={handleChange("")}
                 />
                 <hr />
                 <Input
@@ -56,6 +94,8 @@ const Login = () => {
                     value="Login"
                 />
             </form>
+            <hr />
+            <p>Don't have an account? <Link to="/register">Register</Link></p>
         </div>
     )
 }
