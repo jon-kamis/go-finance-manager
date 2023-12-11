@@ -74,7 +74,7 @@ const Users = () => {
     }, []);
 
     return (
-        <div>
+        <div className="container-fluid">
             <h2>Users</h2>
             <hr />
                 <Input

@@ -1,6 +1,8 @@
 import { useCallback, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
+import background from './images/main_background.jpg';
+import Logo from './images/logo_v1.png';
 import HomeIcon from '@mui/icons-material/Home';
 import People from '@mui/icons-material/People';
 import Info from '@mui/icons-material/Info';
@@ -13,6 +15,7 @@ function App() {
   const [apiUrl, setAPIUrl] = useState("http://localhost:8080")
   const [tickInterval, setTickInterval] = useState();
   const [loggedInUserId, setLoggedInUserId] = useState();
+  const [loggedInUserName, setLoggedInUserName] = useState("");
   const [roles, setRoles] = useState([]);
   const navigate = useNavigate();
 
@@ -23,6 +26,7 @@ function App() {
     setJwtToken("");
     setRoles("");
     setLoggedInUserId("");
+    setLoggedInUserName("");
     navigate("/login")
   }
 
@@ -64,68 +68,73 @@ function App() {
   }, [tickInterval])
 
   return (
-    <div className="container-fluid">
-      <div className="row min-vh-100">
-        <div className="col-md-1 navMenu">
-          <div className="navMenu">
-            <Link to="/" className="list-group-item list-group-item-action"><p><HomeIcon/> Home</p></Link>
-            <Link to="/about" className="list-group-item list-group-item-action"><p><Info/> About</p></Link>
-            {jwtToken !== "" &&
-              <>
-                <Link to={`/users/${loggedInUserId}/loans`} className="list-group-item list-group-item-action"><p><BarChart /> Loans</p></Link>
-                {roles.length > 0 && hasRole("admin") &&
-                  <>
-                    <Link to="/users" className="list-group-item list-group-item-action"><p><People/> Users</p></Link>
-                  </>
-                }
-              </>
+    <div style={{ backgroundImage: `url(${background})` }}>
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-md-2">
+            <div className="appLogo">
+              <img src={Logo} height="200%" width="150%" object-fit="contain" alt="logo"></img>
+            </div>
+          </div>
+          <div className="col-md-8 offset-md-1 navMenu">
+            <div className="d-flex justify-content-around">
+              <div className="flex-col">
+                <Link to="/" className="list-group-item list-group-item-action"><p>Home</p></Link>
+              </div>
+              <div className="flex-col">
+                <Link to="/about" className="list-group-item list-group-item-action"><p>About</p></Link>
+              </div>
+              {jwtToken !== "" &&
+                <>
+                  <div className="flex-col">
+                    <Link to={`/users/${loggedInUserId}/loans`} className="list-group-item list-group-item-action"><p>Loans</p></Link>
+                  </div>
+                  {roles.length > 0 && hasRole("admin") &&
+                    <div className="flex-col">
+                      <Link to="/users" className="list-group-item list-group-item-action"><p>Users</p></Link>
+                    </div>
+                  }
+                </>
+              }
+
+            </div>
+          </div>
+          <div className="col-md-1 text-end">
+            {jwtToken === ""
+              ? <Link to="/login"><span className="badge bg-success">Login</span></Link>
+              : <a href="#!" onClick={logOut}><span className="badge bg-danger">Logout</span></a>
             }
           </div>
         </div>
-        <div className="col-md-11">
-          <div className="row">
-          <div className="col text-end">
-              {jwtToken === ""
-                ? <Link to="/login"><span className="badge bg-success">Login</span></Link>
-                : <a href="#!" onClick={logOut}><span className="badge bg-danger">Logout</span></a>
-              }
-            </div>
+        <div className="row min-vh-100">
+          <div className="col-md-10 offset-md-1">
+            <Outlet context={{
+              jwtToken,
+              apiUrl,
+              loggedInUserName,
+              roles,
+              loggedInUserId,
+              numberFormatOptions,
+              interestFormatOptions,
+              setRoles,
+              setJwtToken,
+              setLoggedInUserId,
+              setLoggedInUserName,
+              toggleRefresh,
+              hasRole,
+            }} />
+            <ToastContainer
+              position="bottom-center"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable={false}
+              pauseOnHover
+              theme="light" />
           </div>
-          <div className="row">
-            <div className="col-md-12">
-              <h1 className="mt-3 text-center">Finance Manager</h1>
-            </div>
-            
-            <hr className="mb-3" />
-          </div>
-          <div className="row">
-            <div className="col-md-10">
-            </div>
-          </div>
-          <Outlet context={{
-            jwtToken,
-            apiUrl,
-            roles,
-            loggedInUserId,
-            numberFormatOptions,
-            interestFormatOptions,
-            setRoles,
-            setJwtToken,
-            setLoggedInUserId,
-            toggleRefresh,
-            hasRole,
-          }} />
-          <ToastContainer
-            position="bottom-center"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable={false}
-            pauseOnHover
-            theme="light" />
         </div>
       </div>
     </div>

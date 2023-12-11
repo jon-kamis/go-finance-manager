@@ -5,6 +5,7 @@ import App from './App';
 import ManageLoan from './components/ManageLoan';
 import ErrorPage from './components/ErrorPage';
 import Home from './components/Home';
+import Incomes from './components/Incomes';
 import Users from './components/Users';
 import Loans from './components/Loans';
 import Login from './components/Login';
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
       {
         path: "/users/:userId/loans/:loanId",
         element: <ManageLoan />
+      },
+      {
+        path: "/users/:userId/incomes",
+        element: <Incomes />
       }
     ]
   }

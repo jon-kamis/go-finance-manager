@@ -1,17 +1,41 @@
 .navMenu {
-    background-color: #1f1fed;
+    background-color: #FEFFEC;
     border-color: black;
     border-left: 5px;
     border-right: 5px;
+    border-radius: 20px;
+    margin-top: 1vh;
     padding-top: 0.5vh;
+    margin-bottom: 2vh;
 }
 
 .navMenu p {
-    color: white;
+    color: black;
     text-align: center;
 }
 
 .navMenu p:hover {
     background-color: white;
     color: black;
+}
+
+.content {
+    background-color: #FEFFEC;
+    border-radius: 20px;
+    padding-top: 0.5vh;
+    padding-bottom: 0.5vh;
+    padding-left: 0.5vw;
+    padding-right: 0.5vw;
+    border-color: black;
+}
+
+.chartContent {
+    background-color: #FEFFEC;
+    border-radius: 20px;
+    padding-top: 0.5vh;
+    padding-bottom: 0.5vh;
+    padding-left: 0.5vw;
+    padding-right: 0.5vw;
+    border-color: black;
+    min-height: 5vh;
 }

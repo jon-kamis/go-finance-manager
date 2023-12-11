@@ -5,9 +5,11 @@ import Input from "./form/Input";
 import Toast from "./alerting/Toast";
 
 const Login = () => {
+
     const { setJwtToken } = useOutletContext();
     const { setRoles } = useOutletContext();
     const { setLoggedInUserId } = useOutletContext();
+    const { setLoggedInUserName } = useOutletContext();
     const { toggleRefresh } = useOutletContext();
 
     const navigate = useNavigate();
@@ -30,8 +32,9 @@ const Login = () => {
         setRoles(jwtDecode(token).roles.split(",").map((r) => r.trimStart()))
     });
 
-    const setUserId = ((token) => {
+    const setUserInfo = ((token) => {
         setLoggedInUserId(jwtDecode(token).sub)
+        setLoggedInUserName(jwtDecode(token).name)
     });
 
     const handleSubmit = (event) => {
@@ -54,7 +57,7 @@ const Login = () => {
                 } else {
                     setJwtToken(data.access_token);
                     setJwtRoles(data.access_token);
-                    setUserId(data.access_token);
+                    setUserInfo(data.access_token);
                     toggleRefresh(true);
                     Toast("Login successful!", "success");
                     navigate("/");

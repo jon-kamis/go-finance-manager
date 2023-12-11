@@ -1,25 +1,37 @@
-import HomeIcon from '@mui/icons-material/Home';
-import TravelExploreIcon from '@mui/icons-material/TravelExplore'
-import BarChartIcon from '@mui/icons-material/BarChart';
-import SettingsIcon from '@mui/icons-material/Settings';
-
 export const NavData = [
     {
         id: 0,
         text: "Home",
-        icon: <HomeIcon/>,
-        link: "/"
+        requiresJwt: false,
+        requiresAdmin: false,
+        path: "/",
     },
     {
         id: 1,
         text: "About",
-        icon: <TravelExploreIcon/>,
-        link: "/about"
+        requiresJwt: false,
+        requiresAdmin: false,
+        path: "/about",
     },
     {
         id: 2,
         text: "Users",
-        icon: <SettingsIcon/>,
-        link: "/users"
+        requiresJwt: true,
+        requiresAdmin: true,
+        path: "/users",
+    },
+    {
+        id: 3,
+        text: "Loans",
+        requiresJwt: true,
+        requiresAdmin: false,
+        path: "/users/:userId/loans",
+    },
+    {
+        id: 4,
+        text: "Incomes",
+        requiresJwt: true,
+        requiresAdmin: false,
+        path: "/users/:userId/incomes",
     }
 ]

@@ -44,7 +44,7 @@ func (j *Auth) GenerateTokenPair(user *JwtUser) (TokenPairs, error) {
 
 	// Set the claims
 	claims := token.Claims.(jwt.MapClaims)
-	claims["name"] = fmt.Sprintf("%s %s", user.FirstName, user.LastName)
+	claims["name"] = fmt.Sprintf("%s, %s", user.LastName, user.FirstName)
 	claims["sub"] = fmt.Sprint(user.ID)
 	claims["aud"] = j.Audience
 	claims["iss"] = j.Issuer

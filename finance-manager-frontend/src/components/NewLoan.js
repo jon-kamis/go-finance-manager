@@ -5,7 +5,7 @@ import Toast from "./alerting/Toast";
 
 const NewLoan = () => {
     const { jwtToken } = useOutletContext();
-    
+
     const [loan, setLoan] = useState([]);
     const [showResult, setShowResult] = useState(false);
 
@@ -83,7 +83,7 @@ const NewLoan = () => {
         loan.loanTerm = parseInt(`${loan.loanTerm}`)
         loan.total = parseFloat(`${loan.total}`)
         loan.interestRate = parseFloat(`${loan.interestRate}`)
-        
+
         let loanToSave = loan
         loanToSave.paymentSchedule = []
         const requestOptions = {
@@ -118,7 +118,7 @@ const NewLoan = () => {
 
     return (
         <>
-            <div className="col-md-9 offset-md-1">
+            <div className="col-md-10 offset-md-1">
                 <div className="row">
                     {!showResult
                         ? <>
@@ -160,30 +160,32 @@ const NewLoan = () => {
                         </>
                         : <>
                             <h3>{"New Loan"}</h3>
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>Principal</th>
-                                        <th>Rate</th>
-                                        <th>Term</th>
-                                        <th>Monthly Payment</th>
-                                        <th>Total Interest</th>
-                                        <th>Total Cost</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(loan.total)}</td>
-                                        <td>{Intl.NumberFormat("en-US", interestFormatOptions).format(loan.interestRate)}</td>
-                                        <td>{loan.loanTerm}</td>
-                                        <td>{Intl.NumberFormat("en-US", numberFormatOptions).format(loan.monthlyPayment)}</td>
-                                        <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(loan.interest)}</td>
-                                        <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(loan.totalCost)}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div className="chartContent">
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Principal</th>
+                                            <th>Rate</th>
+                                            <th>Term</th>
+                                            <th>Monthly Payment</th>
+                                            <th>Total Interest</th>
+                                            <th>Total Cost</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(loan.total)}</td>
+                                            <td>{Intl.NumberFormat("en-US", interestFormatOptions).format(loan.interestRate)}</td>
+                                            <td>{loan.loanTerm}</td>
+                                            <td>{Intl.NumberFormat("en-US", numberFormatOptions).format(loan.monthlyPayment)}</td>
+                                            <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(loan.interest)}</td>
+                                            <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(loan.totalCost)}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                             <hr />
-                            <div className="col-md-6">
+                            <div className="col-md-10">
                                 <Input
                                     title={"Enter a name to save"}
                                     type={"text"}
@@ -214,33 +216,35 @@ const NewLoan = () => {
                 </div>
             </div>
             {showResult &&
-                <div className="col-md-9 offset-md-1">
+                <div className="col-md-10 offset-md-1">
                     <div className="row">
                         <hr />
                         <h3>Payment Schedule</h3>
-                        <table className="table table-striped">
-                            <thead>
-                                <th>Month</th>
-                                <th>Principal</th>
-                                <th>Interest</th>
-                                <th>PrincipalToDate</th>
-                                <th>InterestToDate</th>
-                                <th>Remaining Balance</th>
-                            </thead>
-                            <tbody>
-                                {loan.paymentSchedule !== null &&
-                                    loan.paymentSchedule.map((p) => (
-                                        <tr key={p.id}>
-                                            <td>{p.month}</td>
-                                            <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principal)}</td>
-                                            <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interest)}</td>
-                                            <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principalToDate)}</td>
-                                            <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interestToDate)}</td>
-                                            <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.remainingBalance)}</td>
-                                        </tr>
-                                    ))}
-                            </tbody>
-                        </table>
+                        <div className="chartContent">
+                            <table className="table table-striped">
+                                <thead>
+                                    <th>Month</th>
+                                    <th>Principal</th>
+                                    <th>Interest</th>
+                                    <th>PrincipalToDate</th>
+                                    <th>InterestToDate</th>
+                                    <th>Remaining Balance</th>
+                                </thead>
+                                <tbody>
+                                    {loan.paymentSchedule !== null &&
+                                        loan.paymentSchedule.map((p) => (
+                                            <tr key={p.id}>
+                                                <td>{p.month}</td>
+                                                <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principal)}</td>
+                                                <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interest)}</td>
+                                                <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principalToDate)}</td>
+                                                <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interestToDate)}</td>
+                                                <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.remainingBalance)}</td>
+                                            </tr>
+                                        ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             }
