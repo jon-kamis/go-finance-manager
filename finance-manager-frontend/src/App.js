@@ -3,6 +3,7 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import background from './images/main_background.jpg';
 import Logo from './images/logo_v1.png';
+import { NavData } from "./components/nav/NavData";
 import HomeIcon from '@mui/icons-material/Home';
 import People from '@mui/icons-material/People';
 import Info from '@mui/icons-material/Info';
@@ -78,25 +79,15 @@ function App() {
           </div>
           <div className="col-md-8 offset-md-1 navMenu">
             <div className="d-flex justify-content-around">
-              <div className="flex-col">
-                <Link to="/" className="list-group-item list-group-item-action"><p>Home</p></Link>
-              </div>
-              <div className="flex-col">
-                <Link to="/about" className="list-group-item list-group-item-action"><p>About</p></Link>
-              </div>
-              {jwtToken !== "" &&
+              {NavData.map((n) => {
+                {console.log(n)}
+                return (!n.requiresJwt || jwtToken !== "") && (!n.requiresAdmin || hasRole("admin")) &&
                 <>
-                  <div className="flex-col">
-                    <Link to={`/users/${loggedInUserId}/loans`} className="list-group-item list-group-item-action"><p>Loans</p></Link>
-                  </div>
-                  {roles.length > 0 && hasRole("admin") &&
-                    <div className="flex-col">
-                      <Link to="/users" className="list-group-item list-group-item-action"><p>Users</p></Link>
-                    </div>
-                  }
+                <div className="flex-col">
+                  <Link to={n.path} className="list-group-item list-group-item-action"><p>{n.text}</p></Link>
+                </div>
                 </>
-              }
-
+              })}
             </div>
           </div>
           <div className="col-md-1 text-end">
