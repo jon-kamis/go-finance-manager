@@ -29,4 +29,11 @@ type DatabaseRepo interface {
 	GetLoanByID(id int) (models.Loan, error)
 	InsertLoan(models.Loan) (int, error)
 	UpdateLoan(loan models.Loan) error
+
+	//Income Functions
+	DeleteIncomeByID(id int) error
+	GetAllUserIncomes(id int, search string) ([]*models.Income, error)
+	GetIncomeByID(id int) (models.Income, error)
+	InsertIncome(models.Income) (int, error)
+	UpdateIncome(income models.Income) error
 }

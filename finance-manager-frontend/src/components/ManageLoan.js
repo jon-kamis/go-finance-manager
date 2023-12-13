@@ -305,7 +305,7 @@ const ManageLoan = () => {
     return (
         <>
             <div className="row">
-                <div className="col-md-8 offset-md-1">
+                <div className="col-md-9 offset-md-1">
                     <h2>Manage Loan</h2>
                 </div>
                 <div className="col-md-1">
@@ -313,10 +313,10 @@ const ManageLoan = () => {
                 </div>
             </div>
             <div className="row">
-                <div className="col-md-9 offset-md-1">
+                <div className="col-md-10 offset-md-1">
                     <hr />
                     {loan &&
-                        <>
+                        <div className="chartContent">
                             <table className="table">
                                 <thead>
                                     <tr>
@@ -387,7 +387,7 @@ const ManageLoan = () => {
                                     }
                                 </tbody>
                             </table>
-                        </>
+                        </div>
                     }
                 </div>
             </div>
@@ -400,7 +400,7 @@ const ManageLoan = () => {
                         onClick={toggleShowUpdateForm}
                     />
                 </div>
-                <div className="col-md-5">
+                <div className="col-md-6">
                     {showCompareUpdate &&
                         <Input
                             type="submit"
@@ -429,7 +429,7 @@ const ManageLoan = () => {
             </div>
             {showUpdateForm &&
                 <div className="row">
-                    <div className="col-md-9 offset-md-1">
+                    <div className="col-md-10 offset-md-1">
                         <>
                             <h2>Edit Loan Details</h2>
                             <hr />
@@ -479,100 +479,102 @@ const ManageLoan = () => {
                 </div>
             }
             <div className="row">
-                <div className="col-md-9 offset-md-1">
+                <div className="col-md-10 offset-md-1">
                     {loan && loan.paymentSchedule &&
                         <>
                             <div className="row">
                                 <hr />
                                 <h2>Payment Schedule</h2>
-                                <table className="table table-striped">
-                                    <thead>
-                                        <th>Month</th>
-                                        <th className="text-end">Principal</th>
-                                        <th className="text-end">Interest</th>
-                                        <th className="text-end">PrincipalToDate</th>
-                                        <th className="text-end">InterestToDate</th>
-                                        <th className="text-end">Remaining Balance</th>
-                                    </thead>
-                                    <tbody>
-                                        {
-                                            loan.paymentSchedule !== null && paymentSchedComparison.length === 0 &&
-                                            loan.paymentSchedule.map((p) => (
-                                                <tr key={p.id}>
-                                                    <td>{p.month}</td>
-                                                    <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principal)}</td>
-                                                    <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interest)}</td>
-                                                    <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principalToDate)}</td>
-                                                    <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interestToDate)}</td>
-                                                    <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.remainingBalance)}</td>
-                                                </tr>
-                                            ))
-                                        }
-                                        {
-                                            paymentSchedComparison.length > 0 &&
-                                            paymentSchedComparison.map((p) => (
-                                                <tr key={p.id}>
-                                                    <td>{p.month}</td>
-                                                    <td>
-                                                        <p className="text-end">
-                                                            ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principal)}<br />
-                                                        </p>
-                                                        <p className={getTextCompareClass(p.principal, p.principalNew)}>
-                                                            ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principalNew)}
-                                                        </p>
-                                                        <p className={getTextCompareClass(p.principal, p.principalNew)}>
-                                                            {getDeltaTextForSingleValue(p.principalDelta, numberFormatOptions, true)}
-                                                        </p>
-                                                    </td>
-                                                    <td>
-                                                        <p className="text-end">
-                                                            ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interest)}
-                                                        </p>
-                                                        <p className={getTextCompareClass(p.interest, p.interestNew)}>
-                                                            ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interestNew)}
-                                                        </p>
-                                                        <p className={getTextCompareClass(loan.interest, updatedLoan.interestNew)}>
-                                                            {getDeltaTextForSingleValue(p.interestDelta, numberFormatOptions, true)}
-                                                        </p>
-                                                    </td>
-                                                    <td>
-                                                        <p className="text-end">
-                                                            ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principalToDate)}
-                                                        </p>
-                                                        <p className={getTextCompareClass(p.principalToDate, p.principalToDateNew)}>
-                                                            ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principalToDateNew)}
-                                                        </p>
-                                                        <p className={getTextCompareClass(loan.principalToDate, updatedLoan.principalToDateNew)}>
-                                                            {getDeltaTextForSingleValue(p.principalToDateDelta, numberFormatOptions, true)}
-                                                        </p>
-                                                    </td>
-                                                    <td>
-                                                        <p className="text-end">
-                                                            ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interestToDate)}
-                                                        </p>
-                                                        <p className={getTextCompareClass(p.interestToDate, p.interestToDateNew)}>
-                                                            ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interestToDateNew)}
-                                                        </p>
-                                                        <p className={getTextCompareClass(loan.interestToDate, updatedLoan.interestToDateNew)}>
-                                                            {getDeltaTextForSingleValue(p.interestToDateDelta, numberFormatOptions, true)}
-                                                        </p>
-                                                    </td>
-                                                    <td>
-                                                        <p className="text-end">
-                                                            ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.remainingBalance)}
-                                                        </p>
-                                                        <p className={getTextCompareClass(p.remainingBalance, p.remainingBalanceNew)}>
-                                                            ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.remainingBalanceNew)}
-                                                        </p>
-                                                        <p className={getTextCompareClass(loan.remainingBalance, updatedLoan.remainingBalanceNew)}>
-                                                            {getDeltaTextForSingleValue(p.remainingBalanceDelta, numberFormatOptions, true)}
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        }
-                                    </tbody>
-                                </table>
+                                <div className="chartContent">
+                                    <table className="table table-striped">
+                                        <thead>
+                                            <th>Month</th>
+                                            <th className="text-end">Principal</th>
+                                            <th className="text-end">Interest</th>
+                                            <th className="text-end">PrincipalToDate</th>
+                                            <th className="text-end">InterestToDate</th>
+                                            <th className="text-end">Remaining Balance</th>
+                                        </thead>
+                                        <tbody>
+                                            {
+                                                loan.paymentSchedule !== null && paymentSchedComparison.length === 0 &&
+                                                loan.paymentSchedule.map((p) => (
+                                                    <tr key={p.id}>
+                                                        <td>{p.month}</td>
+                                                        <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principal)}</td>
+                                                        <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interest)}</td>
+                                                        <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principalToDate)}</td>
+                                                        <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interestToDate)}</td>
+                                                        <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.remainingBalance)}</td>
+                                                    </tr>
+                                                ))
+                                            }
+                                            {
+                                                paymentSchedComparison.length > 0 &&
+                                                paymentSchedComparison.map((p) => (
+                                                    <tr key={p.id}>
+                                                        <td>{p.month}</td>
+                                                        <td>
+                                                            <p className="text-end">
+                                                                ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principal)}<br />
+                                                            </p>
+                                                            <p className={getTextCompareClass(p.principal, p.principalNew)}>
+                                                                ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principalNew)}
+                                                            </p>
+                                                            <p className={getTextCompareClass(p.principal, p.principalNew)}>
+                                                                {getDeltaTextForSingleValue(p.principalDelta, numberFormatOptions, true)}
+                                                            </p>
+                                                        </td>
+                                                        <td>
+                                                            <p className="text-end">
+                                                                ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interest)}
+                                                            </p>
+                                                            <p className={getTextCompareClass(p.interest, p.interestNew)}>
+                                                                ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interestNew)}
+                                                            </p>
+                                                            <p className={getTextCompareClass(loan.interest, updatedLoan.interestNew)}>
+                                                                {getDeltaTextForSingleValue(p.interestDelta, numberFormatOptions, true)}
+                                                            </p>
+                                                        </td>
+                                                        <td>
+                                                            <p className="text-end">
+                                                                ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principalToDate)}
+                                                            </p>
+                                                            <p className={getTextCompareClass(p.principalToDate, p.principalToDateNew)}>
+                                                                ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principalToDateNew)}
+                                                            </p>
+                                                            <p className={getTextCompareClass(loan.principalToDate, updatedLoan.principalToDateNew)}>
+                                                                {getDeltaTextForSingleValue(p.principalToDateDelta, numberFormatOptions, true)}
+                                                            </p>
+                                                        </td>
+                                                        <td>
+                                                            <p className="text-end">
+                                                                ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interestToDate)}
+                                                            </p>
+                                                            <p className={getTextCompareClass(p.interestToDate, p.interestToDateNew)}>
+                                                                ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interestToDateNew)}
+                                                            </p>
+                                                            <p className={getTextCompareClass(loan.interestToDate, updatedLoan.interestToDateNew)}>
+                                                                {getDeltaTextForSingleValue(p.interestToDateDelta, numberFormatOptions, true)}
+                                                            </p>
+                                                        </td>
+                                                        <td>
+                                                            <p className="text-end">
+                                                                ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.remainingBalance)}
+                                                            </p>
+                                                            <p className={getTextCompareClass(p.remainingBalance, p.remainingBalanceNew)}>
+                                                                ${Intl.NumberFormat("en-US", numberFormatOptions).format(p.remainingBalanceNew)}
+                                                            </p>
+                                                            <p className={getTextCompareClass(loan.remainingBalance, updatedLoan.remainingBalanceNew)}>
+                                                                {getDeltaTextForSingleValue(p.remainingBalanceDelta, numberFormatOptions, true)}
+                                                            </p>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </>
                     }

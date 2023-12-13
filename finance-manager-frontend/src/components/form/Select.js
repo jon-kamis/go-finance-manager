@@ -1,5 +1,16 @@
+import { useState } from "react";
+
 const Select = ( props ) => {
+    const [selectedValue, setSelectedValue] = useState(props.value);
+
+    const handleChange = (event) => {
+        props.onChange(event)
+        setSelectedValue(event.value)
+    }
+
     return (
+
+
         <div className="mb-3">
             <label htmlFor={props.name} className="form-label">
                 {props.title}
@@ -9,16 +20,16 @@ const Select = ( props ) => {
                 name={props.name}
                 id={props.name}
                 value={props.value}
-                onChange={props.OnChange}
+                onChange={handleChange}
             >
                 <option value="">{props.placeHolder}</option>
-                {props.options.map((option) => {
+                {props.options.map((o) => {
                     return (
                         <option
-                            key={option.id}
-                            value={option.id}
+                            key={o.id}
+                            value={o.id}
                         >
-                            {option.value}
+                            {o.value}
                         </option>
                     )
                 })}

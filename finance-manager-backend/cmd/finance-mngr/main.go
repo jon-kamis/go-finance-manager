@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -35,6 +36,7 @@ func main() {
 	var config = getDefaultConfig()
 
 	//Attempt to read values from the environment
+	os.Setenv("TZ", getEnvFromEnvValue(config.TimeZone))
 	app.DSN = getEnvFromEnvValue(config.DSN)
 	app.JWTSecret = getEnvFromEnvValue(config.JWTSecret)
 	app.JWTIssuer = getEnvFromEnvValue(config.JWTIssuer)

@@ -1,5 +1,5 @@
 .navMenu {
-    background-color: #FEFFEC;
+    background-color: white;
     border-color: black;
     border-left: 5px;
     border-right: 5px;
@@ -9,28 +9,36 @@
     margin-bottom: 2vh;
 }
 
+.table-responsive {
+    max-height: 50px;
+}
+
 .navMenu p {
     color: black;
     text-align: center;
 }
 
 .navMenu p:hover {
-    background-color: white;
-    color: black;
+    color: purple;
+    text-decoration-line: purple;
 }
 
-.content {
-    background-color: #FEFFEC;
-    border-radius: 20px;
-    padding-top: 0.5vh;
-    padding-bottom: 0.5vh;
-    padding-left: 0.5vw;
-    padding-right: 0.5vw;
-    border-color: black;
+.dashboard-item {
+    background-color: white;
+    margin: 10px;
+}
+
+.dashboard-item h1 {
+    text-align: center;
+}
+
+.dashboard-item-tall {
+    min-height: 320px;
+    max-height: 320px;
 }
 
 .chartContent {
-    background-color: #FEFFEC;
+    background-color: white;
     border-radius: 20px;
     padding-top: 0.5vh;
     padding-bottom: 0.5vh;
@@ -38,4 +46,8 @@
     padding-right: 0.5vw;
     border-color: black;
     min-height: 5vh;
+}
+
+.wrapper {
+    background-color: #d3d3d3;
 }

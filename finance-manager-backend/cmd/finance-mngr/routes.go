@@ -25,6 +25,7 @@ func (app *application) routes() http.Handler {
 
 		mux.Get("/all", app.Handler.GetAllUsers)
 		mux.Get("/{userId}", app.Handler.GetUserByID)
+		mux.Get("/{userId}/summary", app.Handler.GetUserSummary)
 
 		mux.Get("/{userId}/loans", app.Handler.GetAllUserLoans)
 		mux.Post("/{userId}/loans", app.Handler.SaveLoan)
@@ -37,6 +38,9 @@ func (app *application) routes() http.Handler {
 
 		mux.Get("/{userId}/incomes", app.Handler.GetAllUserIncomes)
 		mux.Get("/{userId}/incomes/{incomeId}", app.Handler.GetIncomeById)
+		mux.Put("/{userId}/incomes/{incomeId}", app.Handler.UpdateIncome)
+		mux.Delete("/{userId}/incomes/{incomeId}", app.Handler.DeleteIncomeById)
+		mux.Post("/{userId}/incomes", app.Handler.SaveIncome)
 	})
 
 	return mux

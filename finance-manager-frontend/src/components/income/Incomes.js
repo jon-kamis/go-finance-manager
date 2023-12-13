@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
-import Input from "./form/Input";
-import Toast from "./alerting/Toast";
+import { format, parseISO } from "date-fns";
+import Input from "../form/Input";
+import Toast from "../alerting/Toast";
 
 const Incomes = () => {
     const { apiUrl } = useOutletContext();
     const { jwtToken } = useOutletContext();
     const { loggedInUserId } = useOutletContext();
 
-    const [loans, setLoans] = useState([]);
+    const [incomes, setIncomes] = useState([]);
     const [error, setError] = useState(false);
     const [search, setSearch] = useState("");
 
@@ -42,13 +43,13 @@ const Incomes = () => {
             : searchUrl = ``
         }
 
-        fetch(`${apiUrl}/users/${userId}/loans${searchUrl}`, requestOptions)
+        fetch(`${apiUrl}/users/${userId}/incomes${searchUrl}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
                     Toast(data.message, "error")
                 } else {
-                    setLoans(data);
+                    setIncomes(data);
                 }
             })
             .catch(err => {
@@ -70,13 +71,13 @@ const Incomes = () => {
             headers: headers,
         }
 
-        fetch(`${apiUrl}/users/${userId}/loans`, requestOptions)
+        fetch(`${apiUrl}/users/${userId}/incomes`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
                     Toast(data.message, "error")
                 } else {
-                    setLoans(data);
+                    setIncomes(data);
                 }
             })
             .catch(err => {
@@ -88,7 +89,7 @@ const Incomes = () => {
 
     return (
         <div className="container-fluid">
-            <h2>Loans</h2>
+            <h2>Income Methods</h2>
             <hr />
             <Input
                 title={"Search"}
@@ -98,40 +99,50 @@ const Incomes = () => {
                 value={search}
                 onChange={handleChange("")}
             />
+            <div className="chartContent">
             <table className="table table-striped table-hover">
 
                 <thead>
                     <tr>
                         <th className="text-end">Name</th>
-                        <th className="text-end">Principal</th>
+                        <th className="text-end">Payment Type</th>
                         <th className="text-end">Rate</th>
-                        <th className="text-end">Term</th>
-                        <th className="text-end">Monthly Payment</th>
-                        <th className="text-end">Total Interest</th>
-                        <th className="text-end">Total Cost</th>
+                        <th className="text-end">Hours</th>
+                        <th className="text-end">Est. Gross Pay</th>
+                        <th classname="text-end">Est. Taxes</th>
+                        <th classname="text-end">Est. Net Pay</th>
+                        <th className="text-end">Frequency</th>
+                        <th className="text-end">Tax Percentage</th>
+                        <th className="text-end">Starting Date</th>
+                        <th className="text-end">Est. Next Date</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {loans.map((l) => (
+                    {incomes.map((i) => (
                         <>
-                            <tr key={l.id}>
+                            <tr key={i.id}>
                                 <td className="text-end">
-                                    <Link to={`/users/${userId}/loans/${l.id}`}>
-                                        {l.name}
+                                    <Link to={`/users/${userId}/incomes/${i.id}`}>
+                                        {i.name}
                                     </Link>
                                 </td>
-                                <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(l.total)}</td>
-                                <td className="text-end">{Intl.NumberFormat("en-US", interestFormatOptions).format(l.interestRate)}</td>
-                                <td className="text-end">{l.loanTerm}</td>
-                                <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(l.monthlyPayment)}</td>
-                                <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(l.interest)}</td>
-                                <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(l.totalCost)}</td>
+                                <td className="text-end">{i.type}</td>
+                                <td className="text-end">${Intl.NumberFormat("en-US", interestFormatOptions).format(i.rate)}</td>
+                                <td className="text-end">{Intl.NumberFormat("en-US", interestFormatOptions).format(i.hours)}</td>
+                                <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(i.grossPay)}</td>
+                                <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(i.taxes)}</td>
+                                <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(i.netPay)}</td>
+                                <td className="text-end">{i.frequency}</td>
+                                <td className="text-end">{Intl.NumberFormat("en-US", interestFormatOptions).format(i.taxPercentage)}</td>
+                                <td className="text-end">{format(parseISO(i.startDt), 'MMM do yyyy')}</td>
+                                <td className="text-end">{format(parseISO(i.nextDt), 'MMM do yyyy')}</td>
                             </tr>
                         </>
                     ))}
                 </tbody>
             </table>
-            <Link to={`/users/${loggedInUserId}/loans/new`}><span className="badge bg-success">Create New</span></Link>
+            </div>
+            <Link to={`/users/${loggedInUserId}/incomes/new`}><span className="badge bg-success">Add New</span></Link>
         </div>
     )
 }

@@ -8,6 +8,7 @@ type FinanceManagerConfig struct {
 	CookieDomain env_value
 	Domain       env_value
 	FrontendUrl  env_value
+	TimeZone     env_value
 }
 
 func getDefaultConfig() FinanceManagerConfig {
@@ -39,6 +40,10 @@ func getDefaultConfig() FinanceManagerConfig {
 		FrontendUrl: env_value{
 			envName:    "FrontendUrl",
 			defaultVal: "http://localhost:3000",
+		},
+		TimeZone: env_value{
+			envName:    "TimeZone",
+			defaultVal: "America/New_York",
 		},
 	}
 
