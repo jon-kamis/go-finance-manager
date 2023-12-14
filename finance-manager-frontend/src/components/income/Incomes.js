@@ -103,8 +103,6 @@ const Incomes = () => {
 
     return (
         <div className="container-fluid">
-            <c-edit onrecordsaved={fetchData}></c-edit>
-
             <h1>Income Methods</h1>
 
             <div className="d-flex">

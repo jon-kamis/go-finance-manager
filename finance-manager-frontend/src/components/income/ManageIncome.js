@@ -12,8 +12,6 @@ const ManageIncome = forwardRef((props, ref) => {
     const { jwtToken } = useOutletContext();
 
     const [income, setIncome] = useState([]);
-    const [updatedIncome, setUpdatedIncome] = useState([]);
-    const [showUpdateForm, setShowUpdateForm] = useState("");
 
     const navigate = useNavigate();
 
@@ -23,8 +21,8 @@ const ManageIncome = forwardRef((props, ref) => {
         let value = event.target.value;
         let name = event.target.name;
         console.log(`Attempting to update field ${name} to value ${value}`)
-        setUpdatedIncome({
-            ...updatedIncome,
+        setIncome({
+            ...income,
             [name]: value,
         })
     }
@@ -34,8 +32,8 @@ const ManageIncome = forwardRef((props, ref) => {
         let name = event.target.name;
 
         console.log(`Attempting to update field ${name} to value ${value}`)
-        setUpdatedIncome({
-            ...updatedIncome,
+        setIncome({
+            ...income,
             [name]: value,
         })
     }
@@ -85,13 +83,13 @@ const ManageIncome = forwardRef((props, ref) => {
         headers.append("Content-Type", "application/json")
         headers.append("Authorization", `Bearer ${jwtToken}`)
 
-        updatedIncome.rate = parseFloat(updatedIncome.rate)
+        income.rate = parseFloat(income.rate)
 
         const requestOptions = {
             method: "PUT",
             headers: headers,
             credentials: "include",
-            body: JSON.stringify(updatedIncome, null, 3),
+            body: JSON.stringify(income, null, 3),
         }
 
         fetch(`/users/${userId}/incomes/${props.incomeId}`, requestOptions)
@@ -101,7 +99,6 @@ const ManageIncome = forwardRef((props, ref) => {
                     Toast("An error occured while saving", "error")
                 } else {
                     Toast("Save successful!", "success")
-                    setShowUpdateForm(false);
                     props.fetchData()
                     fetchData()
                 }
@@ -127,7 +124,7 @@ const ManageIncome = forwardRef((props, ref) => {
                         Toast(data.message, "error")
                     } else {
                         setIncome(data);
-                        setUpdatedIncome(data);
+                        setIncome(data);
                     }
                 })
                 .catch(err => {
@@ -135,6 +132,7 @@ const ManageIncome = forwardRef((props, ref) => {
                     Toast(err.message, "error")
                 })
         } else {
+            income.id = ""
             income.name = ""
             income.type = ""
             income.hours = 0
@@ -142,13 +140,9 @@ const ManageIncome = forwardRef((props, ref) => {
             income.frequency = ""
             income.taxPercentage = 0
             income.startDt = null
-            setUpdatedIncome(income)
+            setIncome(income)
         }
     };
-
-    const toggleShowUpdateForm = () => {
-        setShowUpdateForm(!showUpdateForm)
-    }
 
     useEffect(() => {
         if (jwtToken === null || jwtToken === "") {
@@ -166,20 +160,20 @@ const ManageIncome = forwardRef((props, ref) => {
                 <div className="d-flex">
                     <div className="p-4 col-md-12">
                         <form onSubmit={saveChanges}>
-                            <input type="hidden" name="id" value={updatedIncome.id}></input>
+                            <input type="hidden" name="id" value={income.id}></input>
                             <Input
                                 title={"Name"}
                                 type={"text"}
                                 className={"form-control"}
                                 name={"name"}
-                                value={updatedIncome.name}
+                                value={income.name}
                                 onChange={handleChange("")}
                             />
                             <Select
                                 title={"Type"}
                                 className={"form-control"}
                                 name={"type"}
-                                value={updatedIncome.type}
+                                value={income.type}
                                 onChange={handleChange("")}
                                 options={[{ id: "hourly", value: "hourly" }, { id: "salary", value: "salary" }]}
                                 placeHolder={"Select"}
@@ -189,7 +183,7 @@ const ManageIncome = forwardRef((props, ref) => {
                                 type={"number"}
                                 className={"form-control"}
                                 name={"rate"}
-                                value={updatedIncome.rate}
+                                value={income.rate}
                                 onChange={handleChange("")}
                             />
                             <Input
@@ -197,14 +191,14 @@ const ManageIncome = forwardRef((props, ref) => {
                                 type={"number"}
                                 className={"form-control"}
                                 name={"hours"}
-                                value={updatedIncome.hours}
+                                value={income.hours}
                                 onChange={handleChange("")}
                             />
                             <Select
                                 title={"Pay Frequency"}
                                 className={"form-control"}
                                 name={"frequency"}
-                                value={updatedIncome.frequency}
+                                value={income.frequency}
                                 onChange={handleChange("")}
                                 options={[{ id: "weekly", value: "weekly" }, { id: "bi-weekly", value: "bi-weekly" }, { id: "monthly", value: "monthly" }]}
                                 placeHolder={"Select"}
@@ -214,7 +208,7 @@ const ManageIncome = forwardRef((props, ref) => {
                                 type={"number"}
                                 className={"form-control"}
                                 name={"taxPercentage"}
-                                value={updatedIncome.taxPercentage}
+                                value={income.taxPercentage}
                                 onChange={handleChange("")}
                             />
                             <Input
@@ -222,7 +216,7 @@ const ManageIncome = forwardRef((props, ref) => {
                                 type={"date"}
                                 className={"form-control"}
                                 name={"startDt"}
-                                value={updatedIncome && updatedIncome.startDt ? format(utcToZonedTime(updatedIncome.startDt, 'America/New_York'), 'yyyy-MM-dd', { timeZone: 'America/New_York' }) : ""}
+                                value={income && income.startDt ? format(utcToZonedTime(income.startDt, 'America/New_York'), 'yyyy-MM-dd', { timeZone: 'America/New_York' }) : ""}
                                 onChange={handleDateChange("")}
                             />
                         </form>

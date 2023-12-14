@@ -1,45 +1,39 @@
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz'
 
 import Input from "../form/Input";
 import Toast from "../alerting/Toast";
-import Select from "../form/Select";
 import { formatRFC3339 } from "date-fns";
 
-const ManageBill = () => {
+const ManageBill = forwardRef((props, ref) => {
     const { apiUrl } = useOutletContext();
     const { jwtToken } = useOutletContext();
 
-    const [bill, setBill] = useState();
-    const [updatedBill, setUpdatedBill] = useState("");
-    const [showUpdateForm, setShowUpdateForm] = useState("");
+    const [bill, setBill] = useState([]);
 
     const navigate = useNavigate();
 
     let { userId } = useParams();
-    let { billId } = useParams();
 
-    const numberFormatOptions = { maximumFractionDigits: 2, minimumFractionDigits: 2 }
-    const interestFormatOptions = { maximumFractionDigits: 3, minimumFractionDigits: 3 }
 
     const handleChange = () => (event) => {
         let value = event.target.value;
         let name = event.target.name;
         console.log(`Attempting to update field ${name} to value ${value}`)
-        setUpdatedBill({
-            ...updatedBill,
+        setBill({
+            ...bill,
             [name]: value,
         })
     }
 
     const handleDateChange = () => (event) => {
-        let value = formatRFC3339(zonedTimeToUtc(event.target.value, 'America/New_York'), {fractionDigits: 3});
+        let value = formatRFC3339(zonedTimeToUtc(event.target.value, 'America/New_York'), { fractionDigits: 3 });
         let name = event.target.name;
 
         console.log(`Attempting to update field ${name} to value ${value}`)
-        setUpdatedBill({
-            ...updatedBill,
+        setBill({
+            ...bill,
             [name]: value,
         })
     }
@@ -69,7 +63,8 @@ const ManageBill = () => {
                     Toast("Error Deleting Bill", "error")
                 } else {
                     Toast("Delete successful!", "success")
-                    navigate(`/users/${userId}/bills`);
+                    props.fetchData()
+                    props.setBillId(null)
                 }
             })
             .catch(error => {
@@ -88,24 +83,24 @@ const ManageBill = () => {
         headers.append("Content-Type", "application/json")
         headers.append("Authorization", `Bearer ${jwtToken}`)
 
-        updatedBill.amount = parseFloat(updatedBill.amount)
+        bill.amount = parseFloat(bill.amount)
 
         const requestOptions = {
             method: "PUT",
             headers: headers,
             credentials: "include",
-            body: JSON.stringify(updatedBill, null, 3),
+            body: JSON.stringify(bill, null, 3),
         }
 
-        fetch(`/users/${userId}/bills/${billId}`, requestOptions)
+        fetch(`/users/${userId}/bills/${props.billId}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
                     Toast("An error occured while saving", "error")
                 } else {
                     Toast("Save successful!", "success")
-                    setShowUpdateForm(false);
-                    fetchData();
+                    props.fetchData()
+                    fetchData()
                 }
             })
             .catch(error => {
@@ -121,26 +116,27 @@ const ManageBill = () => {
             method: "GET",
             headers: headers,
         }
-
-        fetch(`${apiUrl}/users/${userId}/bills/${billId}`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    Toast(data.message, "error")
-                } else {
-                    setBill(data);
-                    setUpdatedBill(data);
-                }
-            })
-            .catch(err => {
-                console.log(err)
-                Toast(err.message, "error")
-            })
+        if (props.billId) {
+            fetch(`${apiUrl}/users/${userId}/bills/${props.billId}`, requestOptions)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.error) {
+                        Toast(data.message, "error")
+                    } else {
+                        setBill(data);
+                        setBill(data);
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                    Toast(err.message, "error")
+                })
+        } else {
+            bill.name=""
+            bill.amount=0
+            bill.id=""
+        }
     };
-
-    const toggleShowUpdateForm = () => {
-        setShowUpdateForm(!showUpdateForm)
-    }
 
     useEffect(() => {
         if (jwtToken === null || jwtToken === "") {
@@ -149,102 +145,57 @@ const ManageBill = () => {
 
         fetchData()
 
-    }, [])
+    }, [props.billId])
 
     return (
         <>
-            <div className="row">
-                <div className="col-md-9 offset-md-1">
-                    <h2>Manage Bill</h2>
-                </div>
-                <div className="col-md-1">
-                    <Link to={`/users/${userId}/bills`}><span className="badge bg-danger">Go back</span></Link>
-                </div>
-            </div>
-            <div className="row">
-                <div className="col-md-10 offset-md-1">
-                    <hr />
-                    {bill &&
-                        <div className="chartContent">
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th className="text-start">Name</th>
-                                        <th className="text-start">Amount</th>
-                                        
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr key={bill.id}>
-                                        <td className="text-start">{bill.name}</td>
-                                        <td className="text-start">${Intl.NumberFormat("en-US", numberFormatOptions).format(bill.amount)}</td>
-                                    </tr>
+            <div className="container-fluid">
+                <h2>Edit Bill Details</h2>
 
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                </div>
-            </div>
-            <div className="row">
-                <div className="col-md-9 offset-md-1">
-                    <Input
-                        type="submit"
-                        className="btn btn-success"
-                        value={showUpdateForm ? "Cancel Edit" : "Edit"}
-                        onClick={toggleShowUpdateForm}
-                    />
-                </div>
+                <div className="d-flex">
+                    <div className="p-4 col-md-12">
 
-                <div className="col-md-1">
-                    <Input
-                        type="submit"
-                        className="btn btn-danger"
-                        value="Delete"
-                        onClick={deleteBill}
-                    />
-                </div>
-            </div>
-            {showUpdateForm &&
-                <div className="row">
-                    <div className="col-md-10 offset-md-1">
-                        <>
-                            <h2>Edit Bill Details</h2>
-                            <hr />
-                            <form onSubmit={saveChanges}>
-                                <input type="hidden" name="id" value={updatedBill.id}></input>
-                                <Input
-                                    title={"Name"}
-                                    type={"text"}
-                                    className={"form-control"}
-                                    name={"name"}
-                                    value={updatedBill.name}
-                                    onChange={handleChange("")}
-                                />
-                                <Input
-                                    title={"Amount (per month)"}
-                                    type={"float"}
-                                    className={"form-control"}
-                                    name={"amount"}
-                                    value={updatedBill.amount}
-                                    onChange={handleChange("")}
-                                />
-                            </form>
-                            <div className="col-md-8">
-                                {showUpdateForm &&
-                                    <Input
-                                        type="submit"
-                                        className="btn btn-success"
-                                        value="Save Changes"
-                                        onClick={saveChanges}
-                                    />
-                                }
-                            </div>
-                        </>
+                        <form onSubmit={saveChanges}>
+                            <input type="hidden" name="id" value={bill.id}></input>
+                            <Input
+                                title={"Name"}
+                                type={"text"}
+                                className={"form-control"}
+                                name={"name"}
+                                value={bill.name}
+                                onChange={handleChange("")}
+                            />
+                            <Input
+                                title={"Amount (per month)"}
+                                type={"float"}
+                                className={"form-control"}
+                                name={"amount"}
+                                value={bill.amount}
+                                onChange={handleChange("")}
+                            />
+                        </form>
                     </div>
                 </div>
-            }
+                <div className="d-flex justify-content-between">
+                    <div className="flex-col">
+                        <Input
+                            type="submit"
+                            className="btn btn-primary"
+                            value="Save Changes"
+                            onClick={saveChanges}
+                        />
+                    </div>
+                    <div className="flex-col">
+                        <Input
+                            type="submit"
+                            className="btn btn-danger"
+                            value="Delete"
+                            onClick={deleteBill}
+                        />
+                    </div>
+                </div>
+            </div>
         </>
     )
-}
+})
 export default ManageBill;

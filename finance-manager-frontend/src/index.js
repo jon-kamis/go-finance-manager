@@ -49,16 +49,14 @@ const router = createBrowserRouter([
       {
         path: "/users/:userId/loans",
         element: <Loans />,
-        children: [
-          {
-            path: "/users/:userId/loans/new",
-            element: <NewLoan />
-          },
-          {
-            path: "/users/:userId/loans/:loanId",
-            element: <ManageLoan />
-          },
-        ]
+      },
+      {
+        path: "/users/:userId/loans/new",
+        element: <NewLoan />
+      },
+      {
+        path: "/users/:userId/loans/:loanId",
+        element: <ManageLoan />
       },
       {
         path: "/users/:userId/incomes",
@@ -68,14 +66,6 @@ const router = createBrowserRouter([
         path: "/users/:userId/bills",
         element: <Bills />
       },
-      {
-        path: "/users/:userId/bills/:billId",
-        element: <ManageBill />
-      },
-      {
-        path: "/users/:userId/bills/new",
-        element: <NewBill />
-      }
     ]
   }
 ])
