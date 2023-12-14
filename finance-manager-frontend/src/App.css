@@ -9,8 +9,11 @@
     margin-bottom: 2vh;
 }
 
-.table-responsive {
-    max-height: 50px;
+Table thead {
+    position: sticky;
+    background-color: white;
+    top: 0px;
+    margin: 0 0 0 0;
 }
 
 .navMenu p {
@@ -25,6 +28,7 @@
 
 .dashboard-item {
     background-color: white;
+    border-radius: 20px;
     margin: 10px;
 }
 
@@ -35,6 +39,19 @@
 .dashboard-item-tall {
     min-height: 320px;
     max-height: 320px;
+}
+
+.dashboard-item-tall-tablecontainer {
+    overflow: scroll;
+    height: 230px;
+}
+
+.dashboard-center {
+    position: relative;
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
 }
 
 .chartContent {

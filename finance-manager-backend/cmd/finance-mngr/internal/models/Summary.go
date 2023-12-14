@@ -11,6 +11,7 @@ const loanSrc = "loan"
 const incomeSrc = "income"
 const taxSrc = "taxes"
 const taxName = "income tax"
+const billSrc = "bill"
 
 type SummaryItem struct {
 	Type    string  `json:"type"`
@@ -27,6 +28,7 @@ type ExpenseSummary struct {
 	LoanCost       float64       `json:"loanCost"`
 	LoanBalance    float64       `json:"loanBalance"`
 	Taxes          float64       `json:"taxes"`
+	BillCost       float64       `json:"bills"`
 	OverallBalance float64       `json:"overallBalance"`
 }
 
@@ -45,7 +47,7 @@ func (e *ExpenseSummary) CalculateExpenses() {
 	method := "Summary.CalculateExpenses"
 	fmlogger.Enter(method)
 
-	e.TotalCost = e.LoanCost + e.Taxes
+	e.TotalCost = e.LoanCost + e.Taxes + e.BillCost
 	e.TotalBalance = e.LoanBalance
 
 	fmlogger.Exit(method)
@@ -137,8 +139,37 @@ func (s *Summary) LoadIncomes(iarr []*Income) {
 
 		s.ExpenseSummary.Expenses = append(s.ExpenseSummary.Expenses, taxItem)
 	}
-	
+
 	s.ExpenseSummary.Taxes = taxes
+	s.ExpenseSummary.CalculateExpenses()
+
+	fmlogger.Exit(method)
+}
+
+func (s *Summary) LoadBills(barr []*Bill) {
+	method := "Summary.LoadBills"
+	fmlogger.Enter(method)
+
+	totalCost := 0.0
+
+	//Loop through each income and add up values
+	for _, b := range barr {
+		i := SummaryItem{
+			Type:   expenseType,
+			Source: billSrc,
+			Name:   b.Name,
+			Amount: b.Amount,
+		}
+
+		//Add new item and increment total values
+		s.ExpenseSummary.Expenses = append(s.ExpenseSummary.Expenses, i)
+		totalCost += b.Amount
+	}
+
+	//Set total cost for the month
+	s.ExpenseSummary.BillCost = totalCost
+
+	//Recalculate total cost
 	s.ExpenseSummary.CalculateExpenses()
 
 	fmlogger.Exit(method)

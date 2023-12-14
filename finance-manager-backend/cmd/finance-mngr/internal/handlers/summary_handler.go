@@ -33,7 +33,14 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 
 	incomes, err := fmh.DB.GetAllUserIncomes(id, "")
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching loans", err)
+		fmlogger.ExitError(method, "unexpected error occured when fetching incomes", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	bills, err := fmh.DB.GetAllUserBills(id, "")
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when fetching bills", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
@@ -44,6 +51,7 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 
 	summary.LoadLoans(loans)
 	summary.LoadIncomes(incomes)
+	summary.LoadBills(bills)
 
 	summary.Finalize()
 
