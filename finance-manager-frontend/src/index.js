@@ -15,6 +15,9 @@ import NewLoan from './components/NewLoan';
 import Register from './components/Register';
 import ManageUser from './components/ManageUser';
 import About from './components/About';
+import Bills from './components/bills/Bills';
+import ManageBill from './components/bills/ManageBill';
+import NewBill from './components/bills/NewBill';
 
 const router = createBrowserRouter([
   {
@@ -66,6 +69,18 @@ const router = createBrowserRouter([
       {
         path: "/users/:userId/incomes/new",
         element: <NewIncome/>
+      },
+      {
+        path: "/users/:userId/bills",
+        element: <Bills/>
+      },
+      {
+        path: "/users/:userId/bills/:billId",
+        element: <ManageBill/>
+      },
+      {
+        path: "/users/:userId/bills/new",
+        element: <NewBill/>
       }
     ]
   }
