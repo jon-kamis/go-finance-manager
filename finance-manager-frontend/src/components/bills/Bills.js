@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
-import { format, parseISO } from "date-fns";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import Input from "../form/Input";
 import Toast from "../alerting/Toast";
 import ManageBill from "./ManageBill";
@@ -9,11 +8,10 @@ import NewBill from "./NewBill";
 const Bills = () => {
     const { apiUrl } = useOutletContext();
     const { jwtToken } = useOutletContext();
-    const { loggedInUserId } = useOutletContext();
 
     const [bills, setBills] = useState([]);
-    const [search, setSearch] = useState("");
     const [selectedBillId, setSelectedBillId] = useState("");
+    const [search, setSearch] = useState("");
 
     const navigate = useNavigate();
 
@@ -21,9 +19,17 @@ const Bills = () => {
 
     let { userId } = useParams();
 
-    const handleChange = () => (event) => {
-        let value = event.target.value;
-        setSearch(value)
+    function sortData(data) {
+        let sortedData = data
+
+        sortedData.sort((a, b) => a.name > b.name ? 1 : -1);
+
+        return sortedData;
+    }
+
+    const refreshData = () => (event) => {
+        let search = event.target.value
+        setSearch(search)
 
         if (jwtToken === null || jwtToken === "") {
             navigate("/")
@@ -37,20 +43,20 @@ const Bills = () => {
             headers: headers,
         }
 
-        let searchUrl = ""
+        let query = ""
         {
-            value !== ""
-                ? searchUrl = `?search=${value}`
-                : searchUrl = ``
+            search !== ""
+                ? query = `?search=${search}`
+                : query = ``
         }
 
-        fetch(`${apiUrl}/users/${userId}/bills${searchUrl}`, requestOptions)
+        fetch(`${apiUrl}/users/${userId}/bills${query}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
                     Toast(data.message, "error")
                 } else {
-                    setBills(data);
+                    setBills(sortData(data));
                 }
             })
             .catch(err => {
@@ -75,7 +81,7 @@ const Bills = () => {
                 if (data.error) {
                     Toast(data.message, "error")
                 } else {
-                    setBills(data);
+                    setBills(sortData(data));
                 }
             })
             .catch(err => {
@@ -107,14 +113,18 @@ const Bills = () => {
             <h1>Bills</h1>
             <div className="d-flex">
                 <div className="p-4 flex-col col-md-12 content content-xtall">
-                    <Input
-                        title={"Search"}
-                        type={"text"}
-                        className={"form-control"}
-                        name={"search"}
-                        value={search}
-                        onChange={handleChange("")}
-                    />
+                    <div className="row">
+                        <div className="col-md-12">
+                            <Input
+                                title={"Search"}
+                                type={"text"}
+                                className={"form-control"}
+                                name={"search"}
+                                value={search}
+                                onChange={refreshData("")}
+                            />
+                        </div>
+                    </div>
                     <div className="content-xtall-tablecontainer">
 
                         <table className="table table-striped table-hover">

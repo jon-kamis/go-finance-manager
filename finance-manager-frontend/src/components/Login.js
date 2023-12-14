@@ -54,6 +54,10 @@ const Login = () => {
             .then((data) => {
                 if (data.error) {
                     Toast(data.message, "error");
+                    setLoginRequest({
+                        username: "",
+                        password: ""
+                    })
                 } else {
                     setJwtToken(data.access_token);
                     setJwtRoles(data.access_token);
@@ -65,6 +69,10 @@ const Login = () => {
             })
             .catch(error => {
                 Toast(error.message, "error");
+                setLoginRequest({
+                    username: "",
+                    password: ""
+                })
             })
     }
 
