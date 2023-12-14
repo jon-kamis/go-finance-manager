@@ -200,7 +200,9 @@ CREATE TABLE public.bills (
     id integer NOT NULL,
     user_id integer NOT NULL,
     name character varying(255) NOT NULL,
-    amount NUMERIC(10, 2) NOT NULL
+    amount NUMERIC(10, 2) NOT NULL,
+    create_dt timestamp,
+    last_update_dt timestamp
 );
 
 --

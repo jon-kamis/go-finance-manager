@@ -259,9 +259,3 @@ func (i *Income) GetMonthlyTaxes() float64 {
 	fmlogger.Exit(method)
 	return i.Taxes * float64(i.GetPaysThisMonth())
 }
-
-func returnError(msg string, method string) error {
-	fmt.Printf("[%s] %s\n", method, msg)
-	fmt.Printf("[EXIT %s]\n", method)
-	return errors.New(msg)
-}

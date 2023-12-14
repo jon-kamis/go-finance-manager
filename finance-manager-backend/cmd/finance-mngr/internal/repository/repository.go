@@ -36,4 +36,11 @@ type DatabaseRepo interface {
 	GetIncomeByID(id int) (models.Income, error)
 	InsertIncome(models.Income) (int, error)
 	UpdateIncome(income models.Income) error
+
+	//Bill Functions
+	DeleteBillByID(id int) error
+	GetAllUserBills(id int, search string) ([]*models.Bill, error)
+	GetBillByID(id int) (models.Bill, error)
+	InsertBill(models.Bill) (int, error)
+	UpdateBill(income models.Bill) error
 }

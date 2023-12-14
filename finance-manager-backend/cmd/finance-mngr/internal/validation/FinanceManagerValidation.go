@@ -17,6 +17,9 @@ type AppValidator interface {
 
 	//Incomes
 	IncomeBelongsToUser(income models.Income, userId int) error
+
+	//Bills
+	BillBelongsToUser(bill models.Bill, userId int) error
 }
 
 type FinanceManagerValidator struct {

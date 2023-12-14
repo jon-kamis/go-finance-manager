@@ -41,6 +41,12 @@ func (app *application) routes() http.Handler {
 		mux.Put("/{userId}/incomes/{incomeId}", app.Handler.UpdateIncome)
 		mux.Delete("/{userId}/incomes/{incomeId}", app.Handler.DeleteIncomeById)
 		mux.Post("/{userId}/incomes", app.Handler.SaveIncome)
+
+		mux.Get("/{userId}/bills", app.Handler.GetAllUserBills)
+		mux.Post("/{userId}/bills", app.Handler.SaveBill)
+		mux.Get("/{userId}/bills/{billId}", app.Handler.GetBillById)
+		mux.Put("/{userId}/bills/{billId}", app.Handler.UpdateBill)
+		mux.Delete("/{userId}/bills/{billId}", app.Handler.DeleteBillById)
 	})
 
 	return mux
