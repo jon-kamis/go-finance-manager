@@ -48,39 +48,33 @@ const router = createBrowserRouter([
       },
       {
         path: "/users/:userId/loans",
-        element: <Loans />
-      },
-      {
-        path: "/users/:userId/loans/new",
-        element: <NewLoan />
-      },
-      {
-        path: "/users/:userId/loans/:loanId",
-        element: <ManageLoan />
+        element: <Loans />,
+        children: [
+          {
+            path: "/users/:userId/loans/new",
+            element: <NewLoan />
+          },
+          {
+            path: "/users/:userId/loans/:loanId",
+            element: <ManageLoan />
+          },
+        ]
       },
       {
         path: "/users/:userId/incomes",
         element: <Incomes />
       },
       {
-        path: "/users/:userId/incomes/:incomeId",
-        element: <ManageIncome />
-      },
-      {
-        path: "/users/:userId/incomes/new",
-        element: <NewIncome/>
-      },
-      {
         path: "/users/:userId/bills",
-        element: <Bills/>
+        element: <Bills />
       },
       {
         path: "/users/:userId/bills/:billId",
-        element: <ManageBill/>
+        element: <ManageBill />
       },
       {
         path: "/users/:userId/bills/new",
-        element: <NewBill/>
+        element: <NewBill />
       }
     ]
   }
@@ -88,7 +82,7 @@ const router = createBrowserRouter([
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
- <React.StrictMode>
-    <RouterProvider router={router}/>
+  <React.StrictMode>
+    <RouterProvider router={router} />
   </React.StrictMode>
 );

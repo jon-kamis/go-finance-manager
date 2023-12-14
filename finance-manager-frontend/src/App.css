@@ -26,24 +26,47 @@ Table thead {
     text-decoration-line: purple;
 }
 
-.dashboard-item {
+.content {
     background-color: white;
     border-radius: 20px;
     margin: 10px;
 }
 
-.dashboard-item h1 {
+.content-btn {
+    background-color: #adb5bd;
+    border-radius: 20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.content-btn {
+    text-decoration: none;
+}
+
+.content h1 {
     text-align: center;
 }
 
-.dashboard-item-tall {
+.content-tall {
     min-height: 320px;
     max-height: 320px;
 }
 
-.dashboard-item-tall-tablecontainer {
+.content-xtall {
+    min-height: 640px;
+    max-height: 640px;
+}
+
+.content-tall-tablecontainer {
     overflow: scroll;
     height: 230px;
+}
+
+.content-xtall-tablecontainer {
+    overflow: scroll;
+    height: 460px;
 }
 
 .dashboard-center {

@@ -69,36 +69,38 @@ const Login = () => {
     }
 
     return (
-        <div className="col-md-6 offset-md-3">
-            <h2>Login</h2>
-            <hr />
+        <div className="container-fluid">
 
-            <form onSubmit={handleSubmit}>
-                <Input
-                    title={"Username"}
-                    type={"text"}
-                    className={"form-control"}
-                    name={"username"}
-                    value={loginRequest.username}
-                    onChange={handleChange("")}
-                />
-                <Input
-                    title={"Password"}
-                    type={"password"}
-                    className={"form-control"}
-                    name={"password"}
-                    value={loginRequest.password}
-                    onChange={handleChange("")}
-                />
-                <hr />
-                <Input
-                    type="submit"
-                    className="btn btn-primary"
-                    value="Login"
-                />
-            </form>
-            <hr />
-            <p>Don't have an account? <Link to="/register">Register</Link></p>
+            <div className="d-flex justify-content-around">
+                <div className="p-4 content flex-column col-md-6">
+                    <h1>Login</h1>
+                    <form onSubmit={handleSubmit}>
+                        <Input
+                            title={"Username"}
+                            type={"text"}
+                            className={"form-control"}
+                            name={"username"}
+                            value={loginRequest.username}
+                            onChange={handleChange("")}
+                        />
+                        <Input
+                            title={"Password"}
+                            type={"password"}
+                            className={"form-control"}
+                            name={"password"}
+                            value={loginRequest.password}
+                            onChange={handleChange("")}
+                        />
+                        <Input
+                            type="submit"
+                            className="btn btn-primary"
+                            value="Login"
+                        />
+                    </form>
+                    <hr />
+                    <p>Don't have an account? <Link to="/register">Register</Link></p>
+                </div>
+            </div>
         </div>
     )
 }

@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import Input from "../form/Input";
 import Toast from "../alerting/Toast";
-import { format, formatRFC3339, parse, parseISO } from "date-fns";
-import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
+import { format, parse, parseISO } from "date-fns";
 import Select from "../form/Select";
 
-const NewIncome = () => {
+const NewIncome = forwardRef((props, ref) => {
     const { jwtToken } = useOutletContext();
+    const { apiUrl } = useOutletContext();
 
     const [income, setIncome] = useState([]);
 
@@ -39,6 +39,31 @@ const NewIncome = () => {
         })
     }
 
+    function fetchData() {
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json")
+        headers.append("Authorization", `Bearer ${jwtToken}`)
+        const requestOptions = {
+            method: "GET",
+            headers: headers,
+        }
+
+        fetch(`${apiUrl}/users/${userId}/incomes`, requestOptions)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.error) {
+                    Toast(data.message, "error")
+                } else {
+                    props.search("")
+                    props.data(data);
+                }
+            })
+            .catch(err => {
+                console.log(err)
+                Toast(err.message, "error")
+            })
+    }
+
     const saveChanges = (event) => {
         event.preventDefault();
         if (jwtToken === null || jwtToken === "") {
@@ -67,7 +92,14 @@ const NewIncome = () => {
                     Toast("An error occured while saving", "error")
                 } else {
                     Toast("Save successful!", "success")
-                    navigate(`/users/${userId}/incomes`)
+                    fetchData()
+                    income.name = ""
+                    income.type = ""
+                    income.hours = 0
+                    income.rate = 0
+                    income.frequency = ""
+                    income.taxPercentage = 0
+                    income.startDt = null
                 }
             })
             .catch(error => {
@@ -79,17 +111,16 @@ const NewIncome = () => {
         if (jwtToken === null || jwtToken === "") {
             navigate("/")
         }
-        
+
     }, [])
 
     return (
         <>
-            <div className="col-md-10 offset-md-1">
-                <div className="row">
+            <div className="Container-fluid">
 
-                    <h2>Create New Income</h2>
-                    <hr />
-                    <form onSubmit={saveChanges}>
+                <h2>Create New Income</h2>
+                <div className="p-4 col-md-12">
+                    <form>
                         <input type="hidden" name="id" value="new"></input>
                         <Input
                             title={"Name"}
@@ -149,15 +180,19 @@ const NewIncome = () => {
                             value={income.startDt ? format(parseISO(income.startDt), 'yyyy-MM-dd') : ""}
                             onChange={handleDateChange("")}
                         />
-                        <Input
-                            type="submit"
-                            className="btn btn-primary"
-                            value="Submit"
-                        />
                     </form>
+                </div>
+                <div>
+                    <Input
+                        type="submit"
+                        className="btn btn-primary"
+                        value="Submit"
+                        onClick={saveChanges}
+                    />
                 </div>
             </div>
         </>
     )
-}
+})
+
 export default NewIncome;

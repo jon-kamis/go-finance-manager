@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { Link, Outlet, useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import Input from "../form/Input";
 import Toast from "../alerting/Toast";
+import NewIncome from "./NewIncome";
+import ManageIncome from "./ManageIncome";
 
 const Incomes = () => {
     const { apiUrl } = useOutletContext();
@@ -10,6 +12,7 @@ const Incomes = () => {
     const { loggedInUserId } = useOutletContext();
 
     const [incomes, setIncomes] = useState([]);
+    const [selectedIncomeId, setSelectedIncomeId] = useState()
     const [error, setError] = useState(false);
     const [search, setSearch] = useState("");
 
@@ -39,8 +42,8 @@ const Incomes = () => {
         let searchUrl = ""
         {
             value !== ""
-            ? searchUrl = `?search=${value}`
-            : searchUrl = ``
+                ? searchUrl = `?search=${value}`
+                : searchUrl = ``
         }
 
         fetch(`${apiUrl}/users/${userId}/incomes${searchUrl}`, requestOptions)
@@ -58,11 +61,7 @@ const Incomes = () => {
             })
     }
 
-    useEffect(() => {
-        if (jwtToken === null || jwtToken === "") {
-            navigate("/")
-        }
-
+    function fetchData() {
         const headers = new Headers();
         headers.append("Content-Type", "application/json")
         headers.append("Authorization", `Bearer ${jwtToken}`)
@@ -84,65 +83,89 @@ const Incomes = () => {
                 console.log(err)
                 Toast(err.message, "error")
             })
+    }
 
+    function updateSelectedId(id) {
+        return () => {
+            console.log(id)
+            setSelectedIncomeId(id)
+        }
+    }
+
+    useEffect(() => {
+        if (jwtToken === null || jwtToken === "") {
+            navigate("/")
+        }
+
+        fetchData()
+        setSelectedIncomeId(incomes != null && incomes.length > 0 ? incomes[0].id : null)
     }, []);
 
     return (
         <div className="container-fluid">
-            <h2>Income Methods</h2>
-            <hr />
-            <Input
-                title={"Search"}
-                type={"text"}
-                className={"form-control"}
-                name={"search"}
-                value={search}
-                onChange={handleChange("")}
-            />
-            <div className="chartContent">
-            <table className="table table-striped table-hover">
+            <c-edit onrecordsaved={fetchData}></c-edit>
 
-                <thead>
-                    <tr>
-                        <th className="text-end">Name</th>
-                        <th className="text-end">Payment Type</th>
-                        <th className="text-end">Rate</th>
-                        <th className="text-end">Hours</th>
-                        <th className="text-end">Est. Gross Pay</th>
-                        <th classname="text-end">Est. Taxes</th>
-                        <th classname="text-end">Est. Net Pay</th>
-                        <th className="text-end">Frequency</th>
-                        <th className="text-end">Tax Percentage</th>
-                        <th className="text-end">Starting Date</th>
-                        <th className="text-end">Est. Next Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {incomes.map((i) => (
-                        <>
-                            <tr key={i.id}>
-                                <td className="text-end">
-                                    <Link to={`/users/${userId}/incomes/${i.id}`}>
-                                        {i.name}
-                                    </Link>
-                                </td>
-                                <td className="text-end">{i.type}</td>
-                                <td className="text-end">${Intl.NumberFormat("en-US", interestFormatOptions).format(i.rate)}</td>
-                                <td className="text-end">{Intl.NumberFormat("en-US", interestFormatOptions).format(i.hours)}</td>
-                                <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(i.grossPay)}</td>
-                                <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(i.taxes)}</td>
-                                <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(i.netPay)}</td>
-                                <td className="text-end">{i.frequency}</td>
-                                <td className="text-end">{Intl.NumberFormat("en-US", interestFormatOptions).format(i.taxPercentage)}</td>
-                                <td className="text-end">{format(parseISO(i.startDt), 'MMM do yyyy')}</td>
-                                <td className="text-end">{format(parseISO(i.nextDt), 'MMM do yyyy')}</td>
-                            </tr>
-                        </>
-                    ))}
-                </tbody>
-            </table>
+            <h1>Income Methods</h1>
+
+            <div className="d-flex">
+                <div className="p-4 flex-col col-md-12 content content-xtall">
+                    <Input
+                        title={"Search"}
+                        type={"text"}
+                        className={"form-control"}
+                        name={"search"}
+                        value={search}
+                        onChange={handleChange("")}
+                    />
+                    <div className="content-xtall-tablecontainer">
+                        <table className="table table-responsive table-striped table-hover">
+
+                            <thead>
+                                <tr>
+                                    <th className="text-end">Name</th>
+                                    <th className="text-end">Payment Type</th>
+                                    <th className="text-end">Rate</th>
+                                    <th className="text-end">Hours</th>
+                                    <th className="text-end">Est. Gross Pay</th>
+                                    <th classname="text-end">Est. Taxes</th>
+                                    <th classname="text-end">Est. Net Pay</th>
+                                    <th className="text-end">Frequency</th>
+                                    <th className="text-end">Tax Percentage</th>
+                                    <th className="text-end">Starting Date</th>
+                                    <th className="text-end">Est. Next Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {incomes.map((i) => (
+                                    <>
+                                        <tr key={i.id} onClick={updateSelectedId(i.id)}>
+                                            <td className="text-end">{i.name}</td>
+                                            <td className="text-end">{i.type}</td>
+                                            <td className="text-end">${Intl.NumberFormat("en-US", interestFormatOptions).format(i.rate)}</td>
+                                            <td className="text-end">{Intl.NumberFormat("en-US", interestFormatOptions).format(i.hours)}</td>
+                                            <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(i.grossPay)}</td>
+                                            <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(i.taxes)}</td>
+                                            <td className="text-end">${Intl.NumberFormat("en-US", numberFormatOptions).format(i.netPay)}</td>
+                                            <td className="text-end">{i.frequency}</td>
+                                            <td className="text-end">{Intl.NumberFormat("en-US", interestFormatOptions).format(i.taxPercentage)}</td>
+                                            <td className="text-end">{format(parseISO(i.startDt), 'MMM do yyyy')}</td>
+                                            <td className="text-end">{format(parseISO(i.nextDt), 'MMM do yyyy')}</td>
+                                        </tr>
+                                    </>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <Link to={`/users/${loggedInUserId}/incomes/new`}><span className="badge bg-success">Add New</span></Link>
+            <div className="d-flex">
+                <div className="p-4 col-md-6 content">
+                    <NewIncome search={setSearch} data={setIncomes} />
+                </div>
+                <div className="p-4 col-md-6 content">
+                    <ManageIncome fetchData={fetchData} incomeId={selectedIncomeId} setIncomeId = {setSelectedIncomeId}/>
+                </div>
+            </div>
         </div>
     )
 }

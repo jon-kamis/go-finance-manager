@@ -57,28 +57,28 @@ const Home = () => {
                                 <h1>Dashboard</h1>
                                 <div className="d-flex justify-content-between">
                                     <div className="col-md-4 d-flex flex-column">
-                                        <div className="p-4 dashboard-item">
+                                        <div className="p-4 content">
                                             <h2>Income</h2>
                                             <h1>${Intl.NumberFormat("en-US", numberFormatOptions).format(summary && summary.incomeSummary ? summary.incomeSummary.totalIncome : 0)}</h1>
                                         </div>
-                                        <div className="p-4 dashboard-item">
+                                        <div className="p-4 content">
                                             <h2>Expenses</h2>
                                             <h1>${Intl.NumberFormat("en-US", numberFormatOptions).format(summary && summary.expenseSummary ? summary.expenseSummary.totalCost : 0)}</h1>
                                         </div>
-                                        <div className="p-4 dashboard-item">
+                                        <div className="p-4 content">
                                             <h2>Net Funds</h2>
                                             <h1>${Intl.NumberFormat("en-US", numberFormatOptions).format(summary ? summary.netFunds : 0)}</h1>
                                         </div>
-                                        <div className="p-4 dashboard-item">
+                                        <div className="p-4 content">
                                             <h2>Total Debt</h2>
                                             <h1>${Intl.NumberFormat("en-US", numberFormatOptions).format(summary && summary.expenseSummary ? summary.expenseSummary.totalBalance : 0)}</h1>
                                         </div>
                                     </div>
                                     {/* Expenses */}
                                     <div className="col-md-8 d-flex flex-column">
-                                        <div className="p-4 dashboard-item dashboard-item-tall">
+                                        <div className="p-4 content content-tall">
                                             <h2>Expenses</h2>
-                                            <div className="dashboard-item-tall-tablecontainer">
+                                            <div className="content-tall-tablecontainer">
                                                 <table className="table-responsive table table-striped table-hover">
                                                     <thead>
                                                         <th className="text-start">Name</th>
@@ -102,9 +102,9 @@ const Home = () => {
                                             </div>
                                         </div>
                                         {/* Incomes */}
-                                        <div className="p-4 dashboard-item dashboard-item-tall">
+                                        <div className="p-4 content content-tall">
                                             <h2>Incomes</h2>
-                                            <div className="dashboard-item-tall-tablecontainer">
+                                            <div className="content-tall-tablecontainer">
                                                 <table className="table table-striped table-hover table-tall">
                                                     <thead>
                                                         <th className="text-start">Name</th>
@@ -133,7 +133,7 @@ const Home = () => {
                             <div className="container-fluid">
                                 <div className="col-md-12 d-flex flex-column">
                                     {summary && summary.expenseSummary &&
-                                        <div className="p-4 dashboard-item">
+                                        <div className="p-4 content">
                                             <h1>Expenses by Category</h1>
                                             <div className="dashboard-center">
                                                 <ChartContainer
@@ -172,7 +172,7 @@ const Home = () => {
                                                         }}
                                                     />
                                                     <ChartsXAxis label="Category" position="bottom" axisId="categories" />
-                                                    <ChartsYAxis label="Cost ($)" position="left" axisId="cost" />
+                                                    <ChartsYAxis label="" position="left" axisId="cost"/>
                                                 </ChartContainer>
                                             </div>
                                         </div>
