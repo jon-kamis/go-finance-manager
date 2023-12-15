@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
-import Input from "./form/Input";
-import Toast from "./alerting/Toast";
+import Input from "../form/Input";
+import Toast from "../alerting/Toast";
 
 const Login = () => {
 

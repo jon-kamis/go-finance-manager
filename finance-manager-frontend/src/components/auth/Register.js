@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
-import Input from "./form/Input";
-import Toast from "./alerting/Toast";
+import Input from "../form/Input";
+import Toast from "../alerting/Toast";
 
 const Register = () => {
     const { setJwtToken } = useOutletContext();

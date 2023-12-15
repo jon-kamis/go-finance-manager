@@ -2,22 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import App from './App';
-import ManageLoan from './components/ManageLoan';
-import ErrorPage from './components/ErrorPage';
+import ErrorPage from './components/misc/ErrorPage';
 import Home from './components/Home';
 import Incomes from './components/income/Incomes';
-import ManageIncome from './components/income/ManageIncome';
-import NewIncome from './components/income/NewIncome';
-import Users from './components/Users';
-import Loans from './components/Loans';
-import Login from './components/Login';
-import NewLoan from './components/NewLoan';
-import Register from './components/Register';
-import ManageUser from './components/ManageUser';
-import About from './components/About';
+import Users from './components/users/Users';
+import Loans from './components/loans/Loans';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import ManageUser from './components/users/ManageUser';
+import About from './components/misc/About';
 import Bills from './components/bills/Bills';
-import ManageBill from './components/bills/ManageBill';
-import NewBill from './components/bills/NewBill';
 
 const router = createBrowserRouter([
   {
@@ -49,14 +43,6 @@ const router = createBrowserRouter([
       {
         path: "/users/:userId/loans",
         element: <Loans />,
-      },
-      {
-        path: "/users/:userId/loans/new",
-        element: <NewLoan />
-      },
-      {
-        path: "/users/:userId/loans/:loanId",
-        element: <ManageLoan />
       },
       {
         path: "/users/:userId/incomes",

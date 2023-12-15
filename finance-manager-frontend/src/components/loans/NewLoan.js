@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import Input from "./form/Input";
-import Toast from "./alerting/Toast";
+import Input from "../form/Input";
+import Toast from "../alerting/Toast";
 
-const NewLoan = () => {
+const NewLoan = forwardRef((props, ref) => {
     const { jwtToken } = useOutletContext();
 
     const [loan, setLoan] = useState([]);
@@ -60,7 +60,12 @@ const NewLoan = () => {
                     Toast(data.message, "error")
                 } else {
                     Toast("Save successful!", "success")
-                    setShowResult(true);
+                    setShowResult(false);
+                    props.fetchData()
+                    loan.name=""
+                    loan.total=0
+                    loan.interestRate=0.0
+                    loan.loanTerm=0
                 }
             })
             .catch(error => {
@@ -101,6 +106,8 @@ const NewLoan = () => {
                 } else {
                     Toast("Success!", "success")
                     setLoan(data)
+                    props.setPaymentSchedule(data.paymentSchedule)
+                    props.setPaymentScheduleTitle("New Loan")
                     setShowResult(true);
                 }
             })
@@ -118,49 +125,59 @@ const NewLoan = () => {
 
     return (
         <>
-            <div className="col-md-10 offset-md-1">
-                <div className="row">
-                    {!showResult
-                        ? <>
-                            <h2>Create New Loan</h2>
-                            <hr />
-                            <form onSubmit={handleSubmit}>
-                                <input type="hidden" name="id" value={loan.id}></input>
-                                <Input
-                                    title={"Total Amount Borrowed"}
-                                    type={"number"}
-                                    className={"form-control"}
-                                    name={"total"}
-                                    value={loan.total}
-                                    onChange={handleChange("")}
-                                />
-                                <Input
-                                    title={"Interest Rate (Percentage)"}
-                                    type={"number"}
-                                    className={"form-control"}
-                                    name={"interestRate"}
-                                    value={loan.interestRate}
-                                    onChange={handleChange("")}
-                                />
-                                <Input
-                                    title={"Loan Term"}
-                                    type={"number"}
-                                    className={"form-control"}
-                                    name={"loanTerm"}
-                                    value={loan.loanTerm}
-                                    onChange={handleChange("")}
-                                />
-                                <hr />
+            <div className="container-fluid">
+                {!showResult
+                    ?
+                    <>
+                        <h2>Calculate New Loan</h2>
+                        <div className="d-flex">
+                            <div className="p-4 col-md-12">
+
+                                <form onSubmit={handleSubmit}>
+                                    <input type="hidden" name="id" value={loan.id}></input>
+                                    <Input
+                                        title={"Total Amount Borrowed"}
+                                        type={"number"}
+                                        className={"form-control"}
+                                        name={"total"}
+                                        value={loan.total}
+                                        onChange={handleChange("")}
+                                    />
+                                    <Input
+                                        title={"Interest Rate (Percentage)"}
+                                        type={"number"}
+                                        className={"form-control"}
+                                        name={"interestRate"}
+                                        value={loan.interestRate}
+                                        onChange={handleChange("")}
+                                    />
+                                    <Input
+                                        title={"Loan Term"}
+                                        type={"number"}
+                                        className={"form-control"}
+                                        name={"loanTerm"}
+                                        value={loan.loanTerm}
+                                        onChange={handleChange("")}
+                                    />
+                                </form>
+                            </div>
+
+                        </div>
+                        <div className="d-flex">
+                            <div className="p-4 col-md-12">
                                 <Input
                                     type="submit"
                                     className="btn btn-primary"
                                     value="Calculate"
+                                    onClick={handleSubmit}
                                 />
-                            </form>
-                        </>
-                        : <>
-                            <h3>{"New Loan"}</h3>
-                            <div className="chartContent">
+                            </div>
+                        </div>
+                    </>
+                    : <>
+                        <h2>New Loan</h2>
+                        <div className="d-flex">
+                            <div className="col-md-12">
                                 <table className="table">
                                     <thead>
                                         <tr>
@@ -184,8 +201,9 @@ const NewLoan = () => {
                                     </tbody>
                                 </table>
                             </div>
-                            <hr />
-                            <div className="col-md-10">
+                        </div>
+                        <div className="d-flex">
+                            <div className="col-md-12">
                                 <Input
                                     title={"Enter a name to save"}
                                     type={"text"}
@@ -195,7 +213,9 @@ const NewLoan = () => {
                                     onChange={handleChange("")}
                                 />
                             </div>
-                            <div className="col-md-1">
+                        </div>
+                        <div className="d-flex justify-content-between">
+                            <div className="flex-col">
                                 <Input
                                     type="submit"
                                     className="btn btn-primary"
@@ -203,52 +223,20 @@ const NewLoan = () => {
                                     onClick={saveLoan}
                                 />
                             </div>
-                            <div className="col-md-1">
-                                <Input
-                                    type="submit"
-                                    className="btn btn-primary"
-                                    value="Return"
-                                    onClick={returnFromResult}
-                                />
+                            <div className="flex-col">
+                            <Input
+                                type="submit"
+                                className="btn btn-primary"
+                                value="Go Back"
+                                onClick={returnFromResult}
+                            />
                             </div>
-                        </>
-                    }
-                </div>
-            </div>
-            {showResult &&
-                <div className="col-md-10 offset-md-1">
-                    <div className="row">
-                        <hr />
-                        <h3>Payment Schedule</h3>
-                        <div className="chartContent">
-                            <table className="table table-striped">
-                                <thead>
-                                    <th>Month</th>
-                                    <th>Principal</th>
-                                    <th>Interest</th>
-                                    <th>PrincipalToDate</th>
-                                    <th>InterestToDate</th>
-                                    <th>Remaining Balance</th>
-                                </thead>
-                                <tbody>
-                                    {loan.paymentSchedule !== null &&
-                                        loan.paymentSchedule.map((p) => (
-                                            <tr key={p.id}>
-                                                <td>{p.month}</td>
-                                                <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principal)}</td>
-                                                <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interest)}</td>
-                                                <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.principalToDate)}</td>
-                                                <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.interestToDate)}</td>
-                                                <td>${Intl.NumberFormat("en-US", numberFormatOptions).format(p.remainingBalance)}</td>
-                                            </tr>
-                                        ))}
-                                </tbody>
-                            </table>
                         </div>
-                    </div>
-                </div>
-            }
+                    </>
+                }
+            </div>
         </>
     )
-}
+})
+
 export default NewLoan;

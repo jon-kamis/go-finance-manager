@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
-import Input from "./form/Input";
+import Input from "../form/Input";
 
 const Users = () => {
     const { apiUrl } = useOutletContext();
