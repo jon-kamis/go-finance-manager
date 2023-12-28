@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
+	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
 	"strings"
@@ -271,4 +272,28 @@ func (m *PostgresDBRepo) GetAllUsers(search string) ([]*models.User, error) {
 
 	fmt.Printf("[EXIT %s]\n", method)
 	return users, nil
+}
+
+func (m *PostgresDBRepo) DeleteUserByID(id int) error {
+	method := "user_dbrepo.DeleteUserByID"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+		DELETE
+		FROM users
+		WHERE 
+			id = $1`
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+
+	if err != nil {
+		fmlogger.ExitError(method, "database call returned with error", err)
+		return err
+	}
+
+	fmlogger.Exit(method)
+	return nil
 }

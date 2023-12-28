@@ -9,6 +9,7 @@ type DatabaseRepo interface {
 	Connection() *sql.DB
 
 	// User functions
+	DeleteUserByID(id int) error
 	GetUserByID(id int) (*models.User, error)
 	GetUserByUsername(username string) (*models.User, error)
 	GetUserByUsernameOrEmail(username string, email string) (*models.User, error)
@@ -21,10 +22,12 @@ type DatabaseRepo interface {
 	GetAllRoles(string) ([]*models.Role, error)
 
 	// User Role functions
+	DeleteUserRolesByUserID(id int) error
 	GetUserRoles(id int) ([]*models.UserRole, error)
 	InsertUserRole(models.UserRole) (int, error)
 
 	// Loan Functions
+	DeleteLoansByUserID(id int) error
 	DeleteLoanByID(id int) error
 	GetAllUserLoans(userId int, search string) ([]*models.Loan, error)
 	GetLoanByID(id int) (models.Loan, error)
@@ -32,6 +35,7 @@ type DatabaseRepo interface {
 	UpdateLoan(loan models.Loan) error
 
 	//Income Functions
+	DeleteIncomesByUserID(id int) error
 	DeleteIncomeByID(id int) error
 	GetAllUserIncomes(id int, search string) ([]*models.Income, error)
 	GetIncomeByID(id int) (models.Income, error)
@@ -39,6 +43,7 @@ type DatabaseRepo interface {
 	UpdateIncome(income models.Income) error
 
 	//Bill Functions
+	DeleteBillsByUserID(id int) error
 	DeleteBillByID(id int) error
 	GetAllUserBills(id int, search string) ([]*models.Bill, error)
 	GetBillByID(id int) (models.Bill, error)

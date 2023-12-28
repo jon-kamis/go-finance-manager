@@ -26,6 +26,7 @@ func (app *application) routes() http.Handler {
 		mux.Use(app.authRequired)
 
 		mux.Get("/all", app.Handler.GetAllUsers)
+		mux.Delete("/{userId}", app.Handler.DeleteUserById)
 		mux.Get("/{userId}/roles", app.Handler.GetUserRoles)
 
 		mux.Get("/{userId}", app.Handler.GetUserByID)

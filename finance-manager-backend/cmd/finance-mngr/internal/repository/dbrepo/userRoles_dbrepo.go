@@ -2,6 +2,7 @@ package dbrepo
 
 import (
 	"context"
+	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
 	"time"
@@ -86,4 +87,28 @@ func (m *PostgresDBRepo) InsertUserRole(userRole models.UserRole) (int, error) {
 
 	fmt.Printf("[EXIT %s]", method)
 	return id, nil
+}
+
+func (m *PostgresDBRepo) DeleteUserRolesByUserID(id int) error {
+	method := "userRoles_dbRepo.DeleteUserRolesByUserID"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+		DELETE
+		FROM user_roles
+		WHERE 
+			user_id = $1`
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+
+	if err != nil {
+		fmlogger.ExitError(method, "database call returned with error", err)
+		return err
+	}
+
+	fmlogger.Exit(method)
+	return nil
 }

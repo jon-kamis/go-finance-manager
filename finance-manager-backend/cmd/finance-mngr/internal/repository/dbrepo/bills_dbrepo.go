@@ -212,3 +212,27 @@ func (m *PostgresDBRepo) DeleteBillByID(id int) error {
 	fmlogger.Exit(method)
 	return nil
 }
+
+func (m *PostgresDBRepo) DeleteBillsByUserID(id int) error {
+	method := "bills_dbrepo.DeleteBillsByUserID"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+		DELETE
+		FROM bills
+		WHERE 
+			user_id = $1`
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+
+	if err != nil {
+		fmlogger.ExitError(method, "error occured when deleting bills", err)
+		return err
+	}
+
+	fmlogger.Exit(method)
+	return nil
+}

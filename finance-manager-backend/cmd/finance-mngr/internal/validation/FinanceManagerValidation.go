@@ -11,6 +11,7 @@ type AppValidator interface {
 	CheckIfUserHasRole(id int, desiredRole string) (bool, error)
 	IsValidToEnterNewUser(user models.User) error
 	IsValidToViewOtherUserData(loggedInUserId int) (bool, error)
+	IsValidToDeleteOtherUserData(loggedInUserId int) (bool, error)
 
 	//Loans
 	LoanBelongsToUser(loan models.Loan, userId int) error
