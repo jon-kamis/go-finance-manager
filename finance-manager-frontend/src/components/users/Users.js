@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import Input from "../form/Input";
+import Toast from "../alerting/Toast";
 
 const Users = () => {
     const { apiUrl } = useOutletContext();
@@ -12,10 +13,18 @@ const Users = () => {
 
     const navigate = useNavigate();
 
-    const handleChange = () => (event) => {
+    function sortData(data) {
+        let sortedData = data
+
+        sortedData.sort((a, b) => a.lastName.toLowerCase() > b.lastName.toLowerCase() ? 1 : -1);
+
+        return sortedData;
+    }
+
+    const refreshData = () => (event) => {
         let value = event.target.value;
         setSearch(value)
-        
+
         if (jwtToken === null || jwtToken === "") {
             navigate("/")
         }
@@ -29,21 +38,48 @@ const Users = () => {
         }
 
         let searchUrl = ""
-        {value !== "" 
-        ? searchUrl = `?search=${value}`
-        : searchUrl = ``}
+
+        value !== ""
+            ? searchUrl = `?search=${value}`
+            : searchUrl = ``
 
         fetch(`${apiUrl}/users/all${searchUrl}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
-                setUsers(data);
-                setError(false);
+                if (data.error) {
+                    Toast(data.message, "error")
+                } else {
+                    setUsers(sortData(data));
+                }
             })
             .catch(err => {
+                Toast(err.message, "error")
                 console.log(err)
-                setUsers([]);
-                setError(true);
             })
+    }
+
+    function deleteUser(id) {
+        return () => {
+            console.log("attempting to delete user with id: " + id)
+
+            const headers = new Headers();
+            headers.append("Content-Type", "application/json")
+            headers.append("Authorization", `Bearer ${jwtToken}`)
+            const requestOptions = {
+                method: "DELETE",
+                headers: headers,
+            }
+
+            fetch(`${apiUrl}/users/${id}`, requestOptions)
+                .then((response) => response.json())
+                .then(() => {
+                    refreshData();
+                })
+                .catch(err => {
+                    console.log(err)
+                    Toast(err.message, "error")
+                })
+        }
     }
 
     useEffect(() => {
@@ -63,55 +99,69 @@ const Users = () => {
             .then((response) => response.json())
             .then((data) => {
                 setUsers(data);
-                setError(false);
             })
             .catch(err => {
                 console.log(err)
-                setUsers([]);
-                setError(true);
+                Toast("Failed to retrieve users", "error")
             })
 
     }, []);
 
     return (
         <div className="container-fluid">
-            <h2>Users</h2>
-            <hr />
-                <Input
-                    title={"Search"}
-                    type={"text"}
-                    className={"form-control"}
-                    name={"search"}
-                    value={search}
-                    onChange={handleChange("")}
-                />
-            <table className="table table-striped table-hover">
-
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {!error &&
-                        <>
-                            {users.map((u) => (
-                                <tr key={u.id}>
-                                    <td>
-                                        <Link to={`/admin/users/${u.id}`}>
-                                            {u.lastName}, {u.firstName}
-                                        </Link>
-                                    </td>
-                                    <td>{u.username}</td>
-                                    <td>{u.email}</td>
+            <h1>Users</h1>
+            <div className="d-flex">
+                <div className="p-4 flex-col col-md-12 content content-xtall">
+                    <div className="row">
+                        <div className="col-md-12">
+                            <Input
+                                title={"Search"}
+                                type={"text"}
+                                className={"form-control"}
+                                name={"search"}
+                                value={search}
+                                onChange={refreshData("")}
+                            />
+                        </div>
+                    </div>
+                    <div className="content-xtall-tablecontainer">
+                        <table className="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th></th>
                                 </tr>
-                            ))}
-                        </>
-                    }
-                </tbody>
-            </table>
+                            </thead>
+                            <tbody>
+                                {!error &&
+                                    <>
+                                        {users.map((u) => (
+                                            <tr key={u.id}>
+                                                <td>
+                                                    <Link to={`/admin/users/${u.id}`}>
+                                                        {u.lastName}, {u.firstName}
+                                                    </Link>
+                                                </td>
+                                                <td>{u.username}</td>
+                                                <td>{u.email}</td>
+                                                <td>
+                                                    <Input 
+                                                    type="submit"
+                                                    className="btn btn-danger"
+                                                    value="Delete User"
+                                                    onClick={deleteUser(u.id)}/>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }
