@@ -25,10 +25,14 @@ const Users = () => {
         let value = event.target.value;
         setSearch(value)
 
+        fetchData(value)
+
         if (jwtToken === null || jwtToken === "") {
             navigate("/")
         }
+    }
 
+    function fetchData(value) {
         const headers = new Headers();
         headers.append("Content-Type", "application/json")
         headers.append("Authorization", `Bearer ${jwtToken}`)
@@ -58,6 +62,7 @@ const Users = () => {
             })
     }
 
+
     function deleteUser(id) {
         return () => {
             console.log("attempting to delete user with id: " + id)
@@ -72,8 +77,14 @@ const Users = () => {
 
             fetch(`${apiUrl}/users/${id}`, requestOptions)
                 .then((response) => response.json())
-                .then(() => {
-                    refreshData();
+                .then((data) => {
+                    if (data.error) {
+                        Toast("An Error Occured", "error")
+                    } else {
+                        Toast("success!", "success")
+                        fetchData("");
+                    }
+
                 })
                 .catch(err => {
                     console.log(err)
@@ -147,11 +158,11 @@ const Users = () => {
                                                 <td>{u.username}</td>
                                                 <td>{u.email}</td>
                                                 <td>
-                                                    <Input 
-                                                    type="submit"
-                                                    className="btn btn-danger"
-                                                    value="Delete User"
-                                                    onClick={deleteUser(u.id)}/>
+                                                    <Input
+                                                        type="submit"
+                                                        className="btn btn-danger"
+                                                        value="Delete User"
+                                                        onClick={deleteUser(u.id)} />
                                                 </td>
                                             </tr>
                                         ))}
