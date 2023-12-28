@@ -87,11 +87,10 @@ const Loans = () => {
         }
 
         let searchUrl = ""
-        {
-            value !== ""
-                ? searchUrl = `?search=${value}`
-                : searchUrl = ``
-        }
+
+        value !== ""
+            ? searchUrl = `?search=${value}`
+            : searchUrl = ``
 
         fetch(`${apiUrl}/users/${userId}/loans${searchUrl}`, requestOptions)
             .then((response) => response.json())
@@ -109,7 +108,7 @@ const Loans = () => {
     }
 
     function fetchLoanById() {
-        if (selectedLoanId && selectedLoanId != "") {
+        if (selectedLoanId && selectedLoanId !== "") {
             const headers = new Headers();
             headers.append("Content-Type", "application/json")
             headers.append("Authorization", `Bearer ${jwtToken}`)
@@ -245,7 +244,7 @@ const Loans = () => {
                     <NewLoan fetchData={fetchData} setPaymentSchedule={setPaymentSchedule} setPaymentScheduleTitle={setPaymentScheduleTitle} />
                 </div>
                 <div className="p-4 col-md-6 content">
-                    <ManageLoan fetchData={fetchData} loanId={selectedLoanId} setLoanId={setSelectedLoanId} loan={loan} setUpdatedLoan={setUpdatedLoan} setCompare={setCompare} />
+                    <ManageLoan fetchData={fetchData} loanId={selectedLoanId} setLoanId={setSelectedLoanId} loan={loan} setLoan={setLoan} setUpdatedLoan={setUpdatedLoan} fetchLoanById={fetchLoanById} setCompare={setCompare} />
                 </div>
             </div>
             {compare &&
@@ -261,7 +260,7 @@ const Loans = () => {
                     loanId={selectedLoanId} />
                 </>
             }
-            {!compare && paymentSchedule && paymentSchedule != "" &&
+            {!compare && paymentSchedule && paymentSchedule !== "" &&
                 <PaymentSchedule 
                     schedule={paymentSchedule} 
                     title={paymentScheduleTitle} 

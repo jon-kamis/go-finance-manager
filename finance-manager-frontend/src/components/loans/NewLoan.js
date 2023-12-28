@@ -40,7 +40,6 @@ const NewLoan = forwardRef((props, ref) => {
         headers.append("Content-Type", "application/json")
         headers.append("Authorization", `Bearer ${jwtToken}`)
 
-        loan.downPayment = parseFloat(loan.downPayment)
         loan.loanTerm = parseFloat(loan.loanTerm)
         loan.total = parseFloat(loan.total)
 
@@ -84,7 +83,6 @@ const NewLoan = forwardRef((props, ref) => {
         headers.append("Content-Type", "application/json")
         headers.append("Authorization", `Bearer ${jwtToken}`)
 
-        loan.downPayment = parseFloat(`${loan.downPayment}`)
         loan.loanTerm = parseInt(`${loan.loanTerm}`)
         loan.total = parseFloat(`${loan.total}`)
         loan.interestRate = parseFloat(`${loan.interestRate}`)

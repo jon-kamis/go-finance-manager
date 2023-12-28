@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useState } from "react";
-import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import Input from "../form/Input";
 import Toast from "../alerting/Toast";
 
@@ -8,11 +8,9 @@ const ManageLoan = forwardRef((props, ref) => {
 
     const [loan, setLoan] = useState([]);
     const [updatedLoan, setUpdatedLoan] = useState([]);
-    const [showUpdateForm, setShowUpdateForm] = useState(false);
     const navigate = useNavigate();
 
     let { userId } = useParams();
-    let { loanId } = useParams();
 
     const handleChange = () => (event) => {
         let value = event.target.value;
@@ -34,7 +32,6 @@ const ManageLoan = forwardRef((props, ref) => {
         headers.append("Content-Type", "application/json")
         headers.append("Authorization", `Bearer ${jwtToken}`)
 
-        updatedLoan.downPayment = parseFloat(`${updatedLoan.downPayment}`)
         updatedLoan.loanTerm = parseInt(`${updatedLoan.loanTerm}`)
         updatedLoan.total = parseFloat(`${updatedLoan.total}`)
         updatedLoan.interestRate = parseFloat(`${updatedLoan.interestRate}`)
@@ -47,7 +44,7 @@ const ManageLoan = forwardRef((props, ref) => {
             body: JSON.stringify(updatedLoan, null, 3),
         }
 
-        fetch(`/users/${userId}/loans/${loanId}/calculate`, requestOptions)
+        fetch(`/users/${userId}/loans/${loan.id}/calculate`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -92,7 +89,14 @@ const ManageLoan = forwardRef((props, ref) => {
                     Toast("Error Deleting Loan", "error")
                 } else {
                     Toast("Delete successful!", "success")
-                    navigate(`/users/${userId}/loans`);
+                    props.fetchData();
+                    props.setSelectedLoanId("");
+                    props.loan.id="";
+                    props.loan.name="";
+                    props.loan.total=0;
+                    props.loan.interestRate=0;
+                    props.loan.loanTerm=0;
+                    props.setUpdatedLoan([]);
                 }
             })
             .catch(error => {
@@ -107,37 +111,41 @@ const ManageLoan = forwardRef((props, ref) => {
             navigate("/")
         }
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json")
-        headers.append("Authorization", `Bearer ${jwtToken}`)
+        if (updatedLoan && updatedLoan.id) {
 
-        updatedLoan.downPayment = parseFloat(updatedLoan.downPayment)
-        updatedLoan.loanTerm = parseFloat(updatedLoan.loanTerm)
-        updatedLoan.total = parseFloat(updatedLoan.total)
+            const headers = new Headers();
+            headers.append("Content-Type", "application/json")
+            headers.append("Authorization", `Bearer ${jwtToken}`)
 
-        let loanToSave = updatedLoan
-        loanToSave.paymentSchedule = []
-        const requestOptions = {
-            method: "PUT",
-            headers: headers,
-            credentials: "include",
-            body: JSON.stringify(loanToSave, null, 3),
+            updatedLoan.loanTerm = parseFloat(updatedLoan.loanTerm)
+            updatedLoan.total = parseFloat(updatedLoan.total)
+            updatedLoan.interestRate = parseFloat(updatedLoan.interestRate)
+
+            let loanToSave = updatedLoan
+            loanToSave.paymentSchedule = []
+            const requestOptions = {
+                method: "PUT",
+                headers: headers,
+                credentials: "include",
+                body: JSON.stringify(loanToSave, null, 3),
+            }
+
+            fetch(`/users/${userId}/loans/${loan.id}`, requestOptions)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.error) {
+                        Toast("An error occured while saving", "error")
+                    } else {
+                        Toast("Save successful!", "success")
+                        props.setCompare(false);
+                        props.fetchLoanById();
+                        props.fetchData();
+                    }
+                })
+                .catch(error => {
+                    Toast(error.message, "error")
+                })
         }
-
-        fetch(`/users/${userId}/loans/${loanId}`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    Toast("An error occured while saving", "error")
-                } else {
-                    Toast("Save successful!", "success")
-                    setShowUpdateForm(false);
-                    props.fetchData();
-                }
-            })
-            .catch(error => {
-                Toast(error.message, "error")
-            })
     }
 
     useEffect(() => {

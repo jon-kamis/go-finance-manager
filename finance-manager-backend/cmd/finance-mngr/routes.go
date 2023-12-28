@@ -20,10 +20,14 @@ func (app *application) routes() http.Handler {
 	mux.Get("/refresh", app.Handler.RefreshToken)
 	mux.Get("/logout", app.Handler.Logout)
 	mux.Post("/register", app.Handler.Register)
+	mux.Get("/roles", app.Handler.GetAllRoles)
+
 	mux.Route("/users", func(mux chi.Router) {
 		mux.Use(app.authRequired)
 
 		mux.Get("/all", app.Handler.GetAllUsers)
+		mux.Get("/{userId}/roles", app.Handler.GetUserRoles)
+
 		mux.Get("/{userId}", app.Handler.GetUserByID)
 		mux.Get("/{userId}/summary", app.Handler.GetUserSummary)
 

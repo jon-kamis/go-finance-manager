@@ -18,6 +18,7 @@ type DatabaseRepo interface {
 
 	// Role functions
 	GetRoleByCode(string) (*models.Role, error)
+	GetAllRoles(string) ([]*models.Role, error)
 
 	// User Role functions
 	GetUserRoles(id int) ([]*models.UserRole, error)
