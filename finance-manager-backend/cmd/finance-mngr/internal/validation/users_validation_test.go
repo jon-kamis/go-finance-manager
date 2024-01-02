@@ -42,6 +42,41 @@ func TestIsValidToViewOtherUserData(t *testing.T) {
 	fmlogger.Exit(method)
 }
 
+func TestIsValidToDeleteOtherUserData(t *testing.T) {
+	method := "users_validation_test.TestIsValidToDeleteOtherUserData"
+	fmlogger.Enter(method)
+
+	isValid, err := fmv.IsValidToDeleteOtherUserData(1)
+
+	if err != nil {
+		fmt.Printf("[%s] unexpected error occured when fetching user roles\n", method)
+		fmlogger.Exit(method)
+		t.Errorf("unexpected error when fetching user roles: %s\n", err)
+	}
+
+	if !isValid {
+		fmlogger.Info(method, "unexpected result returned from test")
+		fmlogger.Exit(method)
+		t.Errorf("unexpected result returned from test")
+	}
+
+	isValid, err = fmv.IsValidToDeleteOtherUserData(2)
+
+	if err != nil {
+		fmt.Printf("[%s] unexpected error occured when fetching user roles\n", method)
+		fmlogger.Exit(method)
+		t.Errorf("unexpected error when fetching user roles: %s\n", err)
+	}
+
+	if isValid {
+		fmlogger.Info(method, "unexpected result returned from test")
+		fmlogger.Exit(method)
+		t.Errorf("unexpected result returned from test")
+	}
+
+	fmlogger.Exit(method)
+}
+
 func TestIsValidToEnterNewUser(t *testing.T) {
 	method := "users_validation_test.TestIsValidToEnterNewUser"
 	fmlogger.Enter(method)

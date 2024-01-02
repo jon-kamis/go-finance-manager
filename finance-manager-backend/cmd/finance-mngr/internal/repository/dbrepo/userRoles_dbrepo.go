@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
@@ -83,11 +84,11 @@ func (m *PostgresDBRepo) GetUserRoleById(id int) (models.UserRole, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmlogger.Info(method, "entity not found")
+			fmlogger.Info(method, constants.EntityNotFoundError)
 			fmlogger.Exit(method)
 			return userRole, nil
 		} else {
-			fmlogger.ExitError(method, "database call returned with error", err)
+			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return userRole, err
 		}
 
