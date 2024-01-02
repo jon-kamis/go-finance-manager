@@ -28,6 +28,8 @@ func (app *application) routes() http.Handler {
 		mux.Get("/all", app.Handler.GetAllUsers)
 		mux.Delete("/{userId}", app.Handler.DeleteUserById)
 		mux.Get("/{userId}/roles", app.Handler.GetUserRoles)
+		mux.Post("/{userId}/roles/{roleId}", app.Handler.AddUserRoles)
+		mux.Delete("/{userId}/roles/{userRoleId}", app.Handler.DeleteUserRoles)
 
 		mux.Get("/{userId}", app.Handler.GetUserByID)
 		mux.Get("/{userId}/summary", app.Handler.GetUserSummary)

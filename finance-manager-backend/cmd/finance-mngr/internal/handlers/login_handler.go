@@ -40,7 +40,7 @@ func (fmh *FinanceManagerHandler) Authenticate(w http.ResponseWriter, r *http.Re
 	}
 
 	// load user roles
-	roles, err := fmh.DB.GetUserRoles(user.ID)
+	roles, err := fmh.DB.GetAllUserRoles(user.ID)
 
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err)

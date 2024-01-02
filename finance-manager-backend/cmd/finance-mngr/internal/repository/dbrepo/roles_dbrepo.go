@@ -107,3 +107,36 @@ func (m *PostgresDBRepo) GetRoleByCode(code string) (*models.Role, error) {
 	fmlogger.Exit(method)
 	return &role, nil
 }
+
+func (m *PostgresDBRepo) GetRoleById(id string) (*models.Role, error) {
+	method := "roles_dbrepo.GetRoleById"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `select id, code, create_dt, last_update_dt
+		FROM roles
+		WHERE id = $1`
+
+	row := m.DB.QueryRowContext(ctx, query, id)
+
+	var role models.Role
+	err := row.Scan(
+		&role.ID,
+		&role.Code,
+		&role.CreateDt,
+		&role.LastUpdateDt,
+	)
+
+	if err != nil {
+		fmlogger.ExitError(method, "exited with error", err)
+		return nil, err
+	}
+
+	fmlogger.Info(method, "loaded roles successfully")
+	fmt.Printf("[%s] \n", method)
+
+	fmlogger.Exit(method)
+	return &role, nil
+}

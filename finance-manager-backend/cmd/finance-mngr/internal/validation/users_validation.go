@@ -95,7 +95,7 @@ func (fmv *FinanceManagerValidator) CheckIfUserHasRole(id int, desiredRole strin
 	method := "users_validation.CheckIfUserHasRole"
 	fmlogger.Enter(method)
 
-	userRoles, err := fmv.DB.GetUserRoles(id)
+	userRoles, err := fmv.DB.GetAllUserRoles(id)
 
 	if err != nil {
 		fmt.Printf("[%s] unexpected error occured when fetching user roles\n", method)

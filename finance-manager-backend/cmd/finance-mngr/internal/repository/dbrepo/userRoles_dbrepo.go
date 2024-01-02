@@ -2,13 +2,14 @@ package dbrepo
 
 import (
 	"context"
+	"database/sql"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
 	"time"
 )
 
-func (m *PostgresDBRepo) GetUserRoles(id int) ([]*models.UserRole, error) {
+func (m *PostgresDBRepo) GetAllUserRoles(id int) ([]*models.UserRole, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -57,6 +58,45 @@ func (m *PostgresDBRepo) GetUserRoles(id int) ([]*models.UserRole, error) {
 	return userRoles, nil
 }
 
+func (m *PostgresDBRepo) GetUserRoleById(id int) (models.UserRole, error) {
+	method := "userRoles_dbRepo.GetUserRoleById"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `select id, user_id, role_id, code, create_dt, last_update_dt
+		FROM user_roles
+		WHERE id = $1`
+
+	var userRole models.UserRole
+	row := m.DB.QueryRowContext(ctx, query, id)
+
+	err := row.Scan(
+		&userRole.ID,
+		&userRole.UserId,
+		&userRole.RoleId,
+		&userRole.Code,
+		&userRole.CreateDt,
+		&userRole.LastUpdateDt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmlogger.Info(method, "entity not found")
+			fmlogger.Exit(method)
+			return userRole, nil
+		} else {
+			fmlogger.ExitError(method, "database call returned with error", err)
+			return userRole, err
+		}
+
+	}
+
+	fmlogger.Exit(method)
+	return userRole, nil
+}
+
 func (m *PostgresDBRepo) InsertUserRole(userRole models.UserRole) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -101,6 +141,30 @@ func (m *PostgresDBRepo) DeleteUserRolesByUserID(id int) error {
 		FROM user_roles
 		WHERE 
 			user_id = $1`
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+
+	if err != nil {
+		fmlogger.ExitError(method, "database call returned with error", err)
+		return err
+	}
+
+	fmlogger.Exit(method)
+	return nil
+}
+
+func (m *PostgresDBRepo) DeleteUserRoleByID(id int) error {
+	method := "userRoles_dbRepo.DeleteUserRoleByID"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+		DELETE
+		FROM user_roles
+		WHERE 
+			id = $1`
 
 	_, err := m.DB.ExecContext(ctx, query, id)
 

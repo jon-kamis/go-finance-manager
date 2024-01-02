@@ -3,7 +3,9 @@ package handlers
 import (
 	"errors"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
+	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -13,8 +15,7 @@ func (fmh *FinanceManagerHandler) GetUserRoles(w http.ResponseWriter, r *http.Re
 	fmlogger.Enter(method)
 
 	//Read ID from url
-	search := r.URL.Query().Get("search")
-	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
 
 	if err != nil {
 		fmlogger.ExitError(method, "unexpected error occured when fetching user roles", err)
@@ -22,14 +23,129 @@ func (fmh *FinanceManagerHandler) GetUserRoles(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	loans, err := fmh.DB.GetAllUserLoans(id, search)
+	userRoles, err := fmh.DB.GetAllUserRoles(userId)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching loans", err)
+		fmlogger.ExitError(method, "unexpected error occured when fetching user roles", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching user roles"), http.StatusInternalServerError)
 		return
 	}
 
 	fmlogger.Exit(method)
-	fmh.JSONUtil.WriteJSON(w, http.StatusOK, loans)
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, userRoles)
+}
+
+func (fmh *FinanceManagerHandler) AddUserRoles(w http.ResponseWriter, r *http.Request) {
+	method := "user_role_handler.AddUserRoles"
+	fmlogger.Enter(method)
+
+	//Read IDs from url
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	roleId := chi.URLParam(r, "roleId")
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured validating userId", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	//Fetch role
+	role, err := fmh.DB.GetRoleById(roleId)
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when fetching role", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	// Check if the user already has the requested role
+	hasRole, err := fmh.Validator.CheckIfUserHasRole(userId, role.Code)
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when checking if user has requested Role", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	if hasRole {
+		err = errors.New("user already has requested role")
+		fmlogger.ExitError(method, "user already has requested role", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
+	}
+
+	// Fetch user
+	user, err := fmh.DB.GetUserByID(userId)
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when fetching user", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	// Insert new user role
+	newRole := models.UserRole{
+		UserId: user.ID,
+		RoleId: role.ID,
+		Code:   role.Code,
+	}
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when fetching user", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	_, err = fmh.DB.InsertUserRole(newRole)
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when inserting user role", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	fmlogger.Exit(method)
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, "success")
+}
+
+func (fmh *FinanceManagerHandler) DeleteUserRoles(w http.ResponseWriter, r *http.Request) {
+	method := "user_role_handler.DeleteUserRoles"
+	fmlogger.Enter(method)
+
+	//Read IDs from url
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured validating userId", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	userRoleId, err := strconv.Atoi(chi.URLParam(r, "userRoleId"))
+
+	if err != nil {
+
+		fmlogger.ExitError(method, "invalid userRoleId", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	// Check if the user role exists and belongs to the given user
+	err = fmh.Validator.UserRoleExistsAndBelongsToUser(int(userRoleId), userId)
+
+	if err != nil {
+		fmlogger.ExitError(method, "user role does not exist or does not belong to given user", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
+		return
+	}
+
+	err = fmh.DB.DeleteUserRoleByID(userRoleId)
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when inserting user role", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	fmlogger.Exit(method)
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, "success")
 }
