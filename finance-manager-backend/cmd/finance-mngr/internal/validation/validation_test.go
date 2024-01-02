@@ -2,6 +2,7 @@ package validation
 
 import (
 	"database/sql"
+	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/repository/dbrepo"
 	"finance-manager-backend/cmd/finance-mngr/internal/testingutils"
 	"fmt"
@@ -17,20 +18,12 @@ import (
 )
 
 var fmv FinanceManagerValidator
-var dockerDB testingutils.DockerDBTest
 
 var dockerConfig = testingutils.GetDefaultConfig()
 
-func Setup() {
-	dockerDB.InitDb()
-	fmv = FinanceManagerValidator{DB: &dbrepo.PostgresDBRepo{DB: dockerDB.DB}}
-}
-
-func TearDown() {
-	dockerDB.Destroy()
-}
-
 func TestMain(m *testing.M) {
+	method := "validation_test.go"
+	fmlogger.Enter(method)
 
 	var err error
 	var pool *dockertest.Pool
@@ -86,11 +79,18 @@ func TestMain(m *testing.M) {
 	}
 
 	fmv = FinanceManagerValidator{DB: &dbrepo.PostgresDBRepo{DB: testDB}}
+	fmlogger.Info(method, "DB Connection complete")
+
+	fmlogger.Info(method, "Initializing tables and seeding test data")
+	testingutils.InitTables(resource.GetPort("5432/tcp"))
+	fmlogger.Info(method, "Table initialization and test data seeding complete")
+
 	code := m.Run()
 
 	if err := pool.Purge(resource); err != nil {
 		log.Fatalf("Could not purge resource: %s", err)
 	}
 
+	fmlogger.Exit(method)
 	os.Exit(code)
 }
