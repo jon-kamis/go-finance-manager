@@ -2,22 +2,22 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
+	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"net/http"
 	"strconv"
 )
 
-func (fmh *FinanceManagerHandler) GetAndValidateUserId(idStr string, canViewOtherUserData bool, w http.ResponseWriter, r *http.Request) (int, error) {
+func (fmh *FinanceManagerHandler) GetAndValidateUserId(idStr string, w http.ResponseWriter, r *http.Request) (int, error) {
 	method := "handler_utils.getAndvalidateUserId"
-	fmt.Printf("[ENTER %s]\n", method)
+	fmlogger.Enter(method)
 
 	// Get loggedIn userId
 	loggedInUserId, err := fmh.Auth.GetLoggedInUserId(w, r)
 	var id int
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when retrieving logged in userId from HTTP Header: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		fmlogger.ExitError(method, "unexpected error occured when retrieving logged in userId from HTTP Header", err)
 		return -1, errors.New("failed to retrieve logged in userId")
 	}
 
@@ -27,17 +27,46 @@ func (fmh *FinanceManagerHandler) GetAndValidateUserId(idStr string, canViewOthe
 
 		id, err = strconv.Atoi(idStr)
 		if err != nil {
+			fmlogger.ExitError(method, constants.FailedToParseIdError, err)
+			return -1, err
+		}
 
-			return -1, errors.New("invalid id")
+		canViewOtherUserData, err := fmh.CanViewOtherUserData(w, r)
+		if err != nil {
+			fmlogger.ExitError(method, err.Error(), err)
+			return -1, err
 		}
 
 		if id != loggedInUserId && !canViewOtherUserData {
-			fmt.Printf("[%s] user is forbidden from viewing other user's data\n", method)
-			fmt.Printf("[EXIT %s]\n", method)
-			return -1, errors.New("forbidden")
+			err = errors.New(constants.UserForbiddenToViewOtherUserDataError)
+			fmlogger.ExitError(method, constants.UserForbiddenToViewOtherUserDataError, err)
+			return -1, err
 		}
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	fmlogger.Exit(method)
 	return id, nil
+}
+
+func (fmh *FinanceManagerHandler) CanViewOtherUserData(w http.ResponseWriter, r *http.Request) (bool, error) {
+	method := "handler_utils.CanViewOtherUserData"
+	fmlogger.Enter(method)
+
+	loggedInUserId, err := fmh.Auth.GetLoggedInUserId(w, r)
+
+	if err != nil {
+		fmlogger.ExitError(method, constants.FailedToReadUserIdFromAuthHeaderError, err)
+		return false, errors.New(constants.FailedToReadUserIdFromAuthHeaderError)
+	}
+
+	//Fetch User Roles to see if this user is an Administrator
+	isValid, err := fmh.Validator.CheckIfUserHasRole(loggedInUserId, "admin")
+
+	if err != nil {
+		fmlogger.ExitError(method, err.Error(), err)
+		return false, err
+	}
+
+	fmlogger.Exit(method)
+	return isValid, nil
 }

@@ -15,7 +15,7 @@ func (fmh *FinanceManagerHandler) GetUserRoles(w http.ResponseWriter, r *http.Re
 	fmlogger.Enter(method)
 
 	//Read ID from url
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
 		fmlogger.ExitError(method, "unexpected error occured when fetching user roles", err)
@@ -40,7 +40,7 @@ func (fmh *FinanceManagerHandler) AddUserRoles(w http.ResponseWriter, r *http.Re
 	fmlogger.Enter(method)
 
 	//Read IDs from url
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	roleId := chi.URLParam(r, "roleId")
 
 	if err != nil {
@@ -112,7 +112,7 @@ func (fmh *FinanceManagerHandler) DeleteUserRoles(w http.ResponseWriter, r *http
 	fmlogger.Enter(method)
 
 	//Read IDs from url
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
 		fmlogger.ExitError(method, "unexpected error occured validating userId", err)

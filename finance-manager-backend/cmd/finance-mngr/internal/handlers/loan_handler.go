@@ -53,7 +53,7 @@ func (fmh *FinanceManagerHandler) CompareLoanPayments(w http.ResponseWriter, r *
 	fmt.Printf("[ENTER %s]\n", method)
 
 	//Read ID from url
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	loanId, err1 := strconv.Atoi(chi.URLParam(r, "loanId"))
 
 	if err != nil {
@@ -125,7 +125,7 @@ func (fmh *FinanceManagerHandler) GetAllUserLoans(w http.ResponseWriter, r *http
 
 	//Read ID from url
 	search := r.URL.Query().Get("search")
-	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
 		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
@@ -152,7 +152,7 @@ func (fmh *FinanceManagerHandler) GetLoanById(w http.ResponseWriter, r *http.Req
 	fmt.Printf("[ENTER %s]\n", method)
 
 	//Read ID from url
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	loanId, err1 := strconv.Atoi(chi.URLParam(r, "loanId"))
 
 	if err != nil {
@@ -194,7 +194,7 @@ func (fmh *FinanceManagerHandler) DeleteLoanById(w http.ResponseWriter, r *http.
 	method := "loan_handler.DeleteLoanById"
 	fmt.Printf("[ENTER %s]\n", method)
 
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	loanId, err1 := strconv.Atoi(chi.URLParam(r, "loanId"))
 
 	if err != nil {
@@ -249,7 +249,7 @@ func (fmh *FinanceManagerHandler) SaveLoan(w http.ResponseWriter, r *http.Reques
 	var payload models.Loan
 
 	//Read ID from url
-	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
 		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
@@ -294,7 +294,7 @@ func (fmh *FinanceManagerHandler) UpdateLoan(w http.ResponseWriter, r *http.Requ
 	fmt.Printf("[ENTER %s]\n", method)
 
 	var payload models.Loan
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	loanId, err1 := strconv.Atoi(chi.URLParam(r, "loanId"))
 
 	if err != nil {
@@ -357,7 +357,7 @@ func (fmh *FinanceManagerHandler) GetLoanSummary(w http.ResponseWriter, r *http.
 
 	//Read ID from url
 	search := r.URL.Query().Get("search")
-	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
 		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)

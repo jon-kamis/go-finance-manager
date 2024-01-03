@@ -14,7 +14,7 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 	fmlogger.Enter(method)
 
 	//Read ID from url
-	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
 		fmlogger.ExitError(method, "unexpected error occured when reading url parameters", err)

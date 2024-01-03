@@ -16,7 +16,7 @@ func (fmh *FinanceManagerHandler) GetAllUserBills(w http.ResponseWriter, r *http
 
 	//Read ID from url
 	search := r.URL.Query().Get("search")
-	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
 		fmlogger.ExitError(method, "unexpected error occured when fetching bills", err)
@@ -41,7 +41,7 @@ func (fmh *FinanceManagerHandler) GetBillById(w http.ResponseWriter, r *http.Req
 	fmlogger.Enter(method)
 
 	//Read ID from url
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	billId, err1 := strconv.Atoi(chi.URLParam(r, "billId"))
 
 	if err != nil {
@@ -82,7 +82,7 @@ func (fmh *FinanceManagerHandler) SaveBill(w http.ResponseWriter, r *http.Reques
 	var payload models.Bill
 
 	//Read ID from url
-	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
 		fmlogger.ExitError(method, "unexpected error occured when processing user id", err)
@@ -124,7 +124,7 @@ func (fmh *FinanceManagerHandler) UpdateBill(w http.ResponseWriter, r *http.Requ
 	fmlogger.Enter(method)
 
 	var payload models.Bill
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	billId, err1 := strconv.Atoi(chi.URLParam(r, "billId"))
 
 	if err != nil {
@@ -182,7 +182,7 @@ func (fmh *FinanceManagerHandler) DeleteBillById(w http.ResponseWriter, r *http.
 	method := "bill_handler.DeleteBillById"
 	fmlogger.Enter(method)
 
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	billId, err1 := strconv.Atoi(chi.URLParam(r, "billId"))
 
 	if err != nil {

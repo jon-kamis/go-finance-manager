@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import Input from "../form/Input";
 import Select from "../form/Select";
+import Toast from "../alerting/Toast";
 
 const Users = () => {
     const { apiUrl } = useOutletContext();
@@ -9,7 +10,6 @@ const Users = () => {
 
     const [user, setUser] = useState([]);
     const [userRoles, setUserRoles] = useState([]);
-    const [allRoles, setAllRoles] = useState([]);
 
     const [availableRoles, setAvailableRoles] = useState([]);
 
@@ -59,14 +59,14 @@ const Users = () => {
             .then((data) => {
                 if (data.error) {
                     console.log(data.error)
-                    setAllRoles([]);
+                    setAvailableRoles([]);
                 } else {
                     setAvailableRoles(trimRoles(data));
                 }
             })
             .catch(err => {
                 console.log(err)
-                setAllRoles([]);
+                setAvailableRoles([]);
             })
     }
 
@@ -86,8 +86,14 @@ const Users = () => {
 
             fetch(`${apiUrl}/users/${id}/roles/${roleId}`, requestOptions)
                 .then((response) => response.json())
-                .then(
-                    fetchRoles()
+                .then( (data) => {
+                    if (data.error) {
+                        Toast("Error", "error");
+                    } else {
+                        Toast("Success", "success");
+                        fetchRoles();
+                    }     
+                }
                 )
                 .catch(err => {
                     console.log(err)
@@ -112,8 +118,14 @@ const Users = () => {
 
             fetch(`${apiUrl}/users/${id}/roles/${roleId}`, requestOptions)
                 .then((response) => response.json())
-                .then(
-                    fetchRoles()
+                .then((data) => {
+                    if (data.error) {
+                        Toast("Error", "error");
+                    } else {
+                        Toast("Success", "success");
+                        fetchRoles();
+                    }
+                }
                 )
                 .catch(err => {
                     console.log(err)
