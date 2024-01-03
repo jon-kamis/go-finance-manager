@@ -13,7 +13,7 @@ func Enter(method string) {
 }
 
 func Error(method string, msg string, err error) {
-	fmt.Printf(err_msg, method, msg, err)
+	fmt.Printf(err_msg+"\n", method, msg, err)
 }
 
 func Exit(method string) {

@@ -16,7 +16,7 @@ func (fmh *FinanceManagerHandler) GetAllUserIncomes(w http.ResponseWriter, r *ht
 
 	//Read ID from url
 	search := r.URL.Query().Get("search")
-	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
 		fmt.Printf("[%s] unexpected error occured when fetching incomes: %v\n", method, err)
@@ -47,7 +47,7 @@ func (fmh *FinanceManagerHandler) GetIncomeById(w http.ResponseWriter, r *http.R
 	fmt.Printf("[ENTER %s]\n", method)
 
 	//Read ID from url
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	incomeId, err1 := strconv.Atoi(chi.URLParam(r, "incomeId"))
 
 	if err != nil {
@@ -100,7 +100,7 @@ func (fmh *FinanceManagerHandler) SaveIncome(w http.ResponseWriter, r *http.Requ
 	var payload models.Income
 
 	//Read ID from url
-	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
 		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
@@ -147,7 +147,7 @@ func (fmh *FinanceManagerHandler) UpdateIncome(w http.ResponseWriter, r *http.Re
 	fmt.Printf("[ENTER %s]\n", method)
 
 	var payload models.Income
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	incomeId, err1 := strconv.Atoi(chi.URLParam(r, "incomeId"))
 
 	if err != nil {
@@ -214,7 +214,7 @@ func (fmh *FinanceManagerHandler) DeleteIncomeById(w http.ResponseWriter, r *htt
 	method := "income_handler.DeleteIncomeById"
 	fmt.Printf("[ENTER %s]\n", method)
 
-	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), false, w, r)
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	incomeId, err1 := strconv.Atoi(chi.URLParam(r, "incomeId"))
 
 	if err != nil {
