@@ -162,10 +162,9 @@ const Users = () => {
 
     useEffect(() => {
 
-        fetchRoles()
         fetchAvailableRoles()
 
-    }, [allRoles, userRoles])
+    }, [userRoles])
 
     return (
         <>
