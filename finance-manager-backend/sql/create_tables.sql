@@ -218,6 +218,35 @@ ALTER TABLE public.bills ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     CACHE 1
 );
 
+--
+-- Name: credit_cards; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.credit_cards (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    balance NUMERIC(10, 2) NOT NULL,
+    apr NUMERIC(10, 2) NOT NULL,
+    min_pay NUMERIC(10, 2) NOT NULL,
+    min_pay_percentage NUMERIC(10, 2) NOT NULL,
+    create_dt timestamp,
+    last_update_dt timestamp
+);
+
+--
+-- Name: bills_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.credit_cards ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.credit_card_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
 COPY public.users (id, username, first_name, last_name, email, password, create_dt, last_update_dt) FROM stdin;
 1	admin	admin	istrator	admin@fm.com	$2a$10$S9nLk.BzkZuSPXvdn6JXoO0VX/tf8QNebc0ct8J39n.mU8Gzz.pPS	2023-11-13 00:00:00	2023-11-13 00:00:00
 \.
