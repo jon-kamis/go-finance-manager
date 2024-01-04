@@ -52,4 +52,8 @@ type DatabaseRepo interface {
 	GetBillByID(id int) (models.Bill, error)
 	InsertBill(models.Bill) (int, error)
 	UpdateBill(income models.Bill) error
+
+	//Credit Cards
+	GetAllUserCreditCards(id int, search string) ([]*models.CreditCard, error)
+	InsertCreditCard(cc models.CreditCard) (int, error)
 }

@@ -13,3 +13,9 @@ const LoanDoesNotBelongToUserError = "loan does not belong to the given user"
 const FailedToReadUserIdFromAuthHeaderError = "failed to read the logged in user's ID from the auth header"
 const UserForbiddenToViewOtherUserDataError = "user is forbidden from viewing other user data"
 const FailedToParseIdError = "failed to parse id"
+
+//Auth Errors
+const InvalidAuthHeaderError = "authorization header is invalid"
+const InvalidSigningMethodError = "unexpected signing method"
+const ExpiredTokenError = "token is expired"
+const InvalidIssuerError = "invalid issuer"

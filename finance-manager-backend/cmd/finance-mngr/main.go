@@ -2,6 +2,7 @@ package main
 
 import (
 	"finance-manager-backend/cmd/finance-mngr/internal/authentication"
+	"finance-manager-backend/cmd/finance-mngr/internal/config"
 	"finance-manager-backend/cmd/finance-mngr/internal/handlers"
 	"finance-manager-backend/cmd/finance-mngr/internal/jsonutils"
 	"finance-manager-backend/cmd/finance-mngr/internal/repository"
@@ -33,17 +34,17 @@ type application struct {
 func main() {
 	//set application config
 	var app application
-	var config = getDefaultConfig()
+	var appConfig = config.GetDefaultConfig()
 
 	//Attempt to read values from the environment
-	os.Setenv("TZ", getEnvFromEnvValue(config.TimeZone))
-	app.DSN = getEnvFromEnvValue(config.DSN)
-	app.JWTSecret = getEnvFromEnvValue(config.JWTSecret)
-	app.JWTIssuer = getEnvFromEnvValue(config.JWTIssuer)
-	app.JWTAudience = getEnvFromEnvValue(config.JWTAudience)
-	app.CookieDomain = getEnvFromEnvValue(config.CookieDomain)
-	app.Domain = getEnvFromEnvValue(config.Domain)
-	app.FrontendUrl = getEnvFromEnvValue(config.FrontendUrl)
+	os.Setenv("TZ", config.GetEnvFromEnvValue(appConfig.TimeZone))
+	app.DSN = config.GetEnvFromEnvValue(appConfig.DSN)
+	app.JWTSecret = config.GetEnvFromEnvValue(appConfig.JWTSecret)
+	app.JWTIssuer = config.GetEnvFromEnvValue(appConfig.JWTIssuer)
+	app.JWTAudience = config.GetEnvFromEnvValue(appConfig.JWTAudience)
+	app.CookieDomain = config.GetEnvFromEnvValue(appConfig.CookieDomain)
+	app.Domain = config.GetEnvFromEnvValue(appConfig.Domain)
+	app.FrontendUrl = config.GetEnvFromEnvValue(appConfig.FrontendUrl)
 
 	//connect to db
 	conn, err := app.connectToDB()
