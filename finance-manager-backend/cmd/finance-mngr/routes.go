@@ -8,53 +8,81 @@ import (
 )
 
 func (app *application) routes() http.Handler {
-	// Create a router mux
-	mux := chi.NewRouter()
+	// Create a router r
+	r := chi.NewRouter()
 
-	mux.Use(middleware.Recoverer)
-	mux.Use(app.enableCORS)
+	r.Use(middleware.Recoverer)
+	r.Use(app.enableCORS)
 
-	mux.Get("/", app.Handler.Home)
+	r.Get("/", app.Handler.Home)
 
-	mux.Post("/authenticate", app.Handler.Authenticate)
-	mux.Get("/refresh", app.Handler.RefreshToken)
-	mux.Get("/logout", app.Handler.Logout)
-	mux.Post("/register", app.Handler.Register)
-	mux.Get("/roles", app.Handler.GetAllRoles)
+	r.Post("/authenticate", app.Handler.Authenticate)
+	r.Get("/refresh", app.Handler.RefreshToken)
+	r.Get("/logout", app.Handler.Logout)
+	r.Post("/register", app.Handler.Register)
+	r.Get("/roles", app.Handler.GetAllRoles)
 
-	mux.Route("/users", func(mux chi.Router) {
-		mux.Use(app.authRequired)
+	r.Route("/users", func(r chi.Router) {
+		r.Use(app.authRequired)
 
-		mux.Get("/all", app.Handler.GetAllUsers)
-		mux.Delete("/{userId}", app.Handler.DeleteUserById)
-		mux.Get("/{userId}/roles", app.Handler.GetUserRoles)
-		mux.Post("/{userId}/roles/{roleId}", app.Handler.AddUserRoles)
-		mux.Delete("/{userId}/roles/{userRoleId}", app.Handler.DeleteUserRoles)
+		r.Get("/", app.Handler.GetAllUsers)
 
-		mux.Get("/{userId}", app.Handler.GetUserByID)
-		mux.Get("/{userId}/summary", app.Handler.GetUserSummary)
+		r.Route("/{userId}", func(r chi.Router) {
 
-		mux.Get("/{userId}/loans", app.Handler.GetAllUserLoans)
-		mux.Post("/{userId}/loans", app.Handler.SaveLoan)
-		mux.Get("/{userId}/loan-summary", app.Handler.GetLoanSummary)
-		mux.Get("/{userId}/loans/{loanId}", app.Handler.GetLoanById)
-		mux.Put("/{userId}/loans/{loanId}", app.Handler.UpdateLoan)
-		mux.Delete("/{userId}/loans/{loanId}", app.Handler.DeleteLoanById)
-		mux.Post("/{userId}/loans/{loanId}/calculate", app.Handler.CalculateLoan)
-		mux.Post("/{userId}/loans/{loanId}/compare-payments", app.Handler.CompareLoanPayments)
+			r.Delete("/", app.Handler.DeleteUserById)
+			r.Get("/", app.Handler.GetUserByID)
+			r.Get("/summary", app.Handler.GetUserSummary)
 
-		mux.Get("/{userId}/incomes", app.Handler.GetAllUserIncomes)
-		mux.Get("/{userId}/incomes/{incomeId}", app.Handler.GetIncomeById)
-		mux.Put("/{userId}/incomes/{incomeId}", app.Handler.UpdateIncome)
-		mux.Delete("/{userId}/incomes/{incomeId}", app.Handler.DeleteIncomeById)
-		mux.Post("/{userId}/incomes", app.Handler.SaveIncome)
+			//User Role Routes
+			r.Route("/roles", func(r chi.Router) {
+				r.Get("/", app.Handler.GetUserRoles)
+				r.Post("/{roleId}", app.Handler.AddUserRoles)
+				r.Delete("/{roleId}", app.Handler.DeleteUserRoles)
+			})
 
-		mux.Get("/{userId}/bills", app.Handler.GetAllUserBills)
-		mux.Post("/{userId}/bills", app.Handler.SaveBill)
-		mux.Get("/{userId}/bills/{billId}", app.Handler.GetBillById)
-		mux.Put("/{userId}/bills/{billId}", app.Handler.UpdateBill)
-		mux.Delete("/{userId}/bills/{billId}", app.Handler.DeleteBillById)
+			//Loans Routes
+			r.Route("/loans", func(r chi.Router) {
+				r.Get("/", app.Handler.GetAllUserLoans)
+				r.Post("/", app.Handler.SaveLoan)
+
+				r.Route("/{incomeId}", func(r chi.Router) {
+					r.Get("/", app.Handler.GetLoanById)
+					r.Put("/", app.Handler.UpdateLoan)
+					r.Delete("/", app.Handler.DeleteLoanById)
+					r.Post("/calculate", app.Handler.CalculateLoan)
+					r.Post("/compare-payments", app.Handler.CompareLoanPayments)
+				})
+
+			})
+
+			//Incomes Routes
+			r.Route("/incomes", func(r chi.Router) {
+				r.Get("/", app.Handler.GetAllUserIncomes)
+				r.Post("/", app.Handler.SaveIncome)
+
+				r.Route("/{incomeId}", func(r chi.Router) {
+					r.Get("/", app.Handler.GetIncomeById)
+					r.Put("/", app.Handler.UpdateIncome)
+					r.Delete("/", app.Handler.DeleteIncomeById)
+				})
+
+			})
+
+			//Bills Routes
+			r.Route("/bills", func(r chi.Router) {
+				r.Use(app.authRequired)
+				r.Get("/", app.Handler.GetAllUserBills)
+				r.Post("/", app.Handler.SaveBill)
+
+				r.Route("/{billId}", func(r chi.Router) {
+					r.Get("/", app.Handler.GetBillById)
+					r.Put("/", app.Handler.UpdateBill)
+					r.Delete("/", app.Handler.DeleteBillById)
+				})
+			})
+		})
+
 	})
 
-	return mux
+	return r
 }

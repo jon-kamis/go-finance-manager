@@ -6,11 +6,11 @@ import (
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 )
 
-func (fmv *FinanceManagerValidator) UserRoleExistsAndBelongsToUser(userRoleId, userId int) error {
+func (fmv *FinanceManagerValidator) UserRoleExistsAndBelongsToUser(roleId int, userId int) error {
 	method := "userroles_validation.UserRoleExistsAndBelongsToUser"
 	fmlogger.Enter(method)
 
-	userRole, err := fmv.DB.GetUserRoleById(userRoleId)
+	userRole, err := fmv.DB.GetUserRoleByRoleIDAndUserID(roleId, userId)
 
 	if err != nil {
 		fmlogger.ExitError(method, "database call returned with unexpected error", err)

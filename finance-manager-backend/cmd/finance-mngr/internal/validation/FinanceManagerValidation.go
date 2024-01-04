@@ -14,7 +14,7 @@ type AppValidator interface {
 	IsValidToDeleteOtherUserData(loggedInUserId int) (bool, error)
 
 	//UserRoles
-	UserRoleExistsAndBelongsToUser(userRoleId, userId int) error
+	UserRoleExistsAndBelongsToUser(roleId, userId int) error
 	UserRoleBelongsToUser(userRole models.UserRole, userId int) error
 
 	//Loans

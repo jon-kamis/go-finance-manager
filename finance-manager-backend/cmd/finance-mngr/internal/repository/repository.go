@@ -26,7 +26,8 @@ type DatabaseRepo interface {
 	DeleteUserRolesByUserID(id int) error
 	DeleteUserRoleByID(id int) error
 	GetAllUserRoles(id int) ([]*models.UserRole, error)
-	GetUserRoleById(userRoleId int) (models.UserRole, error)
+	GetUserRoleByID(userRoleId int) (models.UserRole, error)
+	GetUserRoleByRoleIDAndUserID(roleId int, uId int) (models.UserRole, error)
 	InsertUserRole(models.UserRole) (int, error)
 
 	// Loan Functions

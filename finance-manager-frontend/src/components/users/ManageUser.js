@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import Input from "../form/Input";
-import Select from "../form/Select";
 import Toast from "../alerting/Toast";
 
 const Users = () => {
@@ -232,7 +231,7 @@ const Users = () => {
                                                         type="submit"
                                                         className="btn btn-danger"
                                                         value="Remove"
-                                                        onClick={removeRole(r.id)} />
+                                                        onClick={removeRole(r.roleId)} />
                                                 </td>
                                             </tr>
                                         </>
