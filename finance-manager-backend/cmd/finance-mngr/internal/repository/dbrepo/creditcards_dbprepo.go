@@ -27,7 +27,7 @@ func (m *PostgresDBRepo) GetAllUserCreditCards(userId int, search string) ([]*mo
 		fmt.Printf("[%s] Searching for creditcards meeting criteria: %s\n", method, search)
 		query = `
 		SELECT
-			id, user_id, name, balance, apr, min_pay, min_pay_percentage,
+			id, user_id, name, balance, credit_limit, apr, min_pay, min_pay_percentage,
 			create_dt, last_update_dt
 		FROM credit_cards
 		WHERE
@@ -38,7 +38,7 @@ func (m *PostgresDBRepo) GetAllUserCreditCards(userId int, search string) ([]*mo
 	} else {
 		query = `
 		SELECT
-		id, user_id, name, balance, apr, min_pay, min_pay_percentage,
+		id, user_id, name, balance, credit_limit, apr, min_pay, min_pay_percentage,
 			create_dt, last_update_dt
 		FROM credit_cards
 		WHERE
@@ -70,6 +70,7 @@ func (m *PostgresDBRepo) GetAllUserCreditCards(userId int, search string) ([]*mo
 			&cc.UserID,
 			&cc.Name,
 			&cc.Balance,
+			&cc.Limit,
 			&cc.APR,
 			&cc.MinPayment,
 			&cc.MinPaymentPercentage,
@@ -91,6 +92,51 @@ func (m *PostgresDBRepo) GetAllUserCreditCards(userId int, search string) ([]*mo
 	return creditcards, nil
 }
 
+func (m *PostgresDBRepo) GetCreditCardByID(id int) (models.CreditCard, error) {
+	method := "creditcards_dbrepo.GetCreditCardsByID"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+		select
+			id, user_id, name, balance, credit_limit, apr, min_pay, min_pay_percentage,
+			create_dt, last_update_dt
+		FROM credit_cards
+		WHERE 
+			id = $1`
+
+	var cc models.CreditCard
+	row := m.DB.QueryRowContext(ctx, query, id)
+
+	err := row.Scan(
+		&cc.ID,
+		&cc.UserID,
+		&cc.Name,
+		&cc.Balance,
+		&cc.Limit,
+		&cc.APR,
+		&cc.MinPayment,
+		&cc.MinPaymentPercentage,
+		&cc.CreateDt,
+		&cc.LastUpdateDt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmlogger.Exit(method)
+			return cc, nil
+		} else {
+			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			return cc, err
+		}
+	}
+
+	fmlogger.Exit(method)
+	return cc, nil
+}
+
 func (m *PostgresDBRepo) InsertCreditCard(cc models.CreditCard) (int, error) {
 	method := "creditcardss_dbrepo.InsertCreditCard"
 	fmlogger.Enter(method)
@@ -100,15 +146,16 @@ func (m *PostgresDBRepo) InsertCreditCard(cc models.CreditCard) (int, error) {
 
 	stmt :=
 		`INSERT INTO credit_cards 
-			(user_id, name, balance, apr, min_pay, min_pay_percentage, create_dt, last_update_dt)
+			(user_id, name, balance, credit_limit, apr, min_pay, min_pay_percentage, create_dt, last_update_dt)
 		values 
-			($1, $2, $3, $4, $5, $6, $7, $8) returning id`
+			($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id`
 
 	var id int
 	err := m.DB.QueryRowContext(ctx, stmt,
 		cc.UserID,
 		cc.Name,
 		cc.Balance,
+		cc.Limit,
 		cc.APR,
 		cc.MinPayment,
 		cc.MinPaymentPercentage,

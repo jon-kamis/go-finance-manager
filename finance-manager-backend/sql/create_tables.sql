@@ -227,6 +227,7 @@ CREATE TABLE public.credit_cards (
     user_id integer NOT NULL,
     name character varying(255) NOT NULL,
     balance NUMERIC(10, 2) NOT NULL,
+    credit_limit NUMERIC(10, 2) NOT NULL,
     apr NUMERIC(10, 2) NOT NULL,
     min_pay NUMERIC(10, 2) NOT NULL,
     min_pay_percentage NUMERIC(10, 2) NOT NULL,

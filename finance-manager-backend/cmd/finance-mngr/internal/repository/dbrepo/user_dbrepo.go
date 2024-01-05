@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
@@ -86,17 +87,17 @@ func (m *PostgresDBRepo) GetUserByUsername(username string) (*models.User, error
 }
 
 func (m *PostgresDBRepo) GetUserByUsernameOrEmail(username string, email string) (*models.User, error) {
+	method := "user_dbrepo.GetUserByUsernameOrEmail"
+	fmlogger.Enter(method)
+
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-
-	method := "user_dbrepo.GetUserByUsernameOrEmail"
-	fmt.Println("[ENTER " + method + "]")
 
 	query := `select id, username, email, first_name, last_name, password,
 		create_dt, last_update_dt
 		FROM users
 		WHERE 
-			username =$1
+			username = $1
 			OR email = $2`
 
 	var user models.User
@@ -114,12 +115,16 @@ func (m *PostgresDBRepo) GetUserByUsernameOrEmail(username string, email string)
 	)
 
 	if err != nil {
-		fmt.Printf("[%s] %s\n", method, "returned with error")
-		fmt.Println("[EXIT  " + method + "]")
-		return nil, err
+
+		if err == sql.ErrNoRows {
+			return &user, nil
+		} else {
+			fmlogger.Error(method, constants.UnexpectedSQLError, err)
+			return nil, err
+		}
 	}
 
-	fmt.Println("[EXIT  " + method + "]")
+	fmlogger.Exit(method)
 	return &user, nil
 }
 

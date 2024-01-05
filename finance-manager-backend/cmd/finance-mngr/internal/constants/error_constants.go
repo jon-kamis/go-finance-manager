@@ -13,6 +13,8 @@ const LoanDoesNotBelongToUserError = "loan does not belong to the given user"
 const FailedToReadUserIdFromAuthHeaderError = "failed to read the logged in user's ID from the auth header"
 const UserForbiddenToViewOtherUserDataError = "user is forbidden from viewing other user data"
 const FailedToParseIdError = "failed to parse id"
+const InvalidCreditCardError = "credit card is invalid"
+const UsernameOrEmailExistError = "username or email already exists"
 
 //Auth Errors
 const InvalidAuthHeaderError = "authorization header is invalid"

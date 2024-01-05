@@ -41,6 +41,51 @@ func TestGetAllUserCreditCards(t *testing.T) {
 		t.Errorf("incorrect length of response items returned")
 	}
 
+	//CC that does not exist
+	ccs, err = d.GetAllUserCreditCards(1, "3")
+	if err != nil {
+		fmlogger.ExitError(method, err.Error(), err)
+		t.Errorf(err.Error())
+	}
+
+	if len(ccs) != 0 {
+		t.Errorf("incorrect length of response items returned")
+	}
+
+	tearDown()
+
+	fmlogger.Exit(method)
+}
+
+func TestGetCreditCardById(t *testing.T) {
+	method := "creditcards_test.TestGetCreditCardById"
+	fmlogger.Enter(method)
+
+	//Insert Credit Card
+	cc1 := models.CreditCard{ID: 1, UserID: 1, Name: "loan1", Balance: 1000.0, APR: 0.26, MinPayment: 35.00, MinPaymentPercentage: 0.1, CreateDt: time.Now(), LastUpdateDt: time.Now()}
+	p.GormDB.Create(&cc1)
+
+	cc, err := d.GetCreditCardByID(1)
+
+	if err != nil {
+		t.Errorf("unexpected error was thrown when searching for a valid credit card")
+	}
+
+	if cc.ID == 0 {
+		t.Errorf("expected result from query but empty object was returned")
+	}
+
+	cc, err = d.GetCreditCardByID(5)
+
+	if err != nil {
+		t.Errorf("unexpected error was thrown when searching for a valid credit card")
+	}
+
+	if cc.ID != 0 {
+		t.Errorf("expected no results from query but result was returned")
+	}
+
+	tearDown()
 	fmlogger.Exit(method)
 }
 
@@ -81,4 +126,9 @@ func TestInsertCreditCard(t *testing.T) {
 	}
 
 	fmlogger.Exit(method)
+}
+
+func tearDown() {
+	//Clean Data
+	p.GormDB.Exec("DELETE FROM credit_cards")
 }

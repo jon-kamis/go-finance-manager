@@ -25,6 +25,9 @@ type AppValidator interface {
 
 	//Bills
 	BillBelongsToUser(bill models.Bill, userId int) error
+
+	//Credit Cards
+	CreditCardBelongsToUser(cc models.CreditCard, userId int) error
 }
 
 type FinanceManagerValidator struct {

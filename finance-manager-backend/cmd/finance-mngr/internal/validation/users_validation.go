@@ -2,6 +2,7 @@ package validation
 
 import (
 	"errors"
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
@@ -49,12 +50,17 @@ func (fmv *FinanceManagerValidator) IsValidToEnterNewUser(user models.User) erro
 	}
 
 	// Check if username or email are valid
-	_, err := fmv.DB.GetUserByUsernameOrEmail(user.Username, user.Email)
-	if err == nil {
-		errMsg := "username or email is not available"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmlogger.Exit(method)
-		return errors.New(errMsg)
+	u, err := fmv.DB.GetUserByUsernameOrEmail(user.Username, user.Email)
+
+	if err != nil {
+		fmlogger.ExitError(method, err.Error(), err)
+		return err
+	}
+
+	if u.ID > 0 {
+		err := errors.New(constants.UsernameOrEmailExistError)
+		fmlogger.ExitError(method, constants.UsernameOrEmailExistError, err)
+		return err
 	}
 
 	fmlogger.Exit(method)

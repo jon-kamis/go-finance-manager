@@ -69,7 +69,7 @@ func TestUserRoleExistsAndBelongsToUser(t *testing.T) {
 	//Save into the database
 	p.GormDB.Create(&userRole)
 
-	err := fmv.UserRoleExistsAndBelongsToUser(userRole.ID, userId)
+	err := fmv.UserRoleExistsAndBelongsToUser(userRole.RoleId, userId)
 
 	if err != nil {
 		t.Errorf("unexpected error was thrown for valid case")

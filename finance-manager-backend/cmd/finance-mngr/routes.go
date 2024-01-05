@@ -70,7 +70,6 @@ func (app *application) routes() http.Handler {
 
 			//Bills Routes
 			r.Route("/bills", func(r chi.Router) {
-				r.Use(app.authRequired)
 				r.Get("/", app.Handler.GetAllUserBills)
 				r.Post("/", app.Handler.SaveBill)
 
@@ -78,6 +77,16 @@ func (app *application) routes() http.Handler {
 					r.Get("/", app.Handler.GetBillById)
 					r.Put("/", app.Handler.UpdateBill)
 					r.Delete("/", app.Handler.DeleteBillById)
+				})
+			})
+
+			//Credit Card Routes
+			r.Route("/credit-cards", func(r chi.Router) {
+				r.Get("/", app.Handler.GetAllUserCreditCards)
+				r.Post("/", app.Handler.SaveCreditCard)
+
+				r.Route("/{ccId}", func(r chi.Router) {
+					r.Get("/", app.Handler.GetCreditCardById)
 				})
 			})
 		})
