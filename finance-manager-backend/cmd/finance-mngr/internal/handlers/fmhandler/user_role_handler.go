@@ -1,7 +1,8 @@
-package handlers
+package fmhandler
 
 import (
 	"errors"
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"net/http"
@@ -120,17 +121,17 @@ func (fmh *FinanceManagerHandler) DeleteUserRoles(w http.ResponseWriter, r *http
 		return
 	}
 
-	userRoleId, err := strconv.Atoi(chi.URLParam(r, "userRoleId"))
+	roleId, err := strconv.Atoi(chi.URLParam(r, "roleId"))
 
 	if err != nil {
 
-		fmlogger.ExitError(method, "invalid userRoleId", err)
+		fmlogger.ExitError(method, "invalid roleId", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
 	// Check if the user role exists and belongs to the given user
-	err = fmh.Validator.UserRoleExistsAndBelongsToUser(int(userRoleId), userId)
+	err = fmh.Validator.UserRoleExistsAndBelongsToUser(int(roleId), userId)
 
 	if err != nil {
 		fmlogger.ExitError(method, "user role does not exist or does not belong to given user", err)
@@ -138,7 +139,16 @@ func (fmh *FinanceManagerHandler) DeleteUserRoles(w http.ResponseWriter, r *http
 		return
 	}
 
-	err = fmh.DB.DeleteUserRoleByID(userRoleId)
+	userRole, err := fmh.DB.GetUserRoleByRoleIDAndUserID(roleId, userId)
+	
+	if err != nil {
+		fmlogger.ExitError(method, "error during db call", err)
+		err = errors.New(constants.UnexpectedSQLError)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
+		return
+	}
+
+	err = fmh.DB.DeleteUserRoleByID(userRole.ID)
 
 	if err != nil {
 		fmlogger.ExitError(method, "unexpected error occured when inserting user role", err)

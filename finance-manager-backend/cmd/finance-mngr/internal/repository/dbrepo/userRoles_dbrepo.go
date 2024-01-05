@@ -59,7 +59,7 @@ func (m *PostgresDBRepo) GetAllUserRoles(id int) ([]*models.UserRole, error) {
 	return userRoles, nil
 }
 
-func (m *PostgresDBRepo) GetUserRoleById(id int) (models.UserRole, error) {
+func (m *PostgresDBRepo) GetUserRoleByID(id int) (models.UserRole, error) {
 	method := "userRoles_dbRepo.GetUserRoleById"
 	fmlogger.Enter(method)
 
@@ -72,6 +72,47 @@ func (m *PostgresDBRepo) GetUserRoleById(id int) (models.UserRole, error) {
 
 	var userRole models.UserRole
 	row := m.DB.QueryRowContext(ctx, query, id)
+
+	err := row.Scan(
+		&userRole.ID,
+		&userRole.UserId,
+		&userRole.RoleId,
+		&userRole.Code,
+		&userRole.CreateDt,
+		&userRole.LastUpdateDt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmlogger.Info(method, constants.EntityNotFoundError)
+			fmlogger.Exit(method)
+			return userRole, nil
+		} else {
+			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			return userRole, err
+		}
+
+	}
+
+	fmlogger.Exit(method)
+	return userRole, nil
+}
+
+func (m *PostgresDBRepo) GetUserRoleByRoleIDAndUserID(rId int, uId int) (models.UserRole, error) {
+	method := "userRoles_dbRepo.GetUserRoleByRoleId"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `select id, user_id, role_id, code, create_dt, last_update_dt
+		FROM user_roles
+		WHERE 
+			role_id = $1
+			AND user_id = $2`
+
+	var userRole models.UserRole
+	row := m.DB.QueryRowContext(ctx, query, rId, uId)
 
 	err := row.Scan(
 		&userRole.ID,
@@ -166,6 +207,30 @@ func (m *PostgresDBRepo) DeleteUserRoleByID(id int) error {
 		FROM user_roles
 		WHERE 
 			id = $1`
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+
+	if err != nil {
+		fmlogger.ExitError(method, "database call returned with error", err)
+		return err
+	}
+
+	fmlogger.Exit(method)
+	return nil
+}
+
+func (m *PostgresDBRepo) DeleteUserRoleByRoleID(id int) error {
+	method := "userRoles_dbRepo.DeleteUserRoleByRoleID"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+		DELETE
+		FROM user_roles
+		WHERE 
+			role_id = $1`
 
 	_, err := m.DB.ExecContext(ctx, query, id)
 

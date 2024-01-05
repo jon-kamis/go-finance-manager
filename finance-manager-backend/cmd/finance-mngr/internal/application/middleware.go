@@ -1,8 +1,11 @@
-package main
+package application
 
-import "net/http"
+import (
+	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
+	"net/http"
+)
 
-func (app *application) enableCORS(h http.Handler) http.Handler {
+func (app *Application) EnableCORS(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", app.FrontendUrl)
 
@@ -17,13 +20,18 @@ func (app *application) enableCORS(h http.Handler) http.Handler {
 	})
 }
 
-func (app *application) authRequired(next http.Handler) http.Handler {
+func (app *Application) AuthRequired(next http.Handler) http.Handler {
+	method := "middleware.AuthRequired"
+	fmlogger.Enter(method)
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _, err := app.auth.GetTokenFromHeaderAndVerify(w, r)
+		_, _, err := app.Auth.GetTokenFromHeaderAndVerify(w, r)
 		if err != nil {
+			fmlogger.ExitError(method, "unauthorized", err)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		} else {
+			fmlogger.Exit(method)
 			next.ServeHTTP(w, r)
 		}
 	})

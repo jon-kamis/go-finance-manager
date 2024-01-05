@@ -1,4 +1,4 @@
-package handlers
+package fmhandler
 
 import (
 	"finance-manager-backend/cmd/finance-mngr/internal/authentication"
@@ -12,4 +12,9 @@ type FinanceManagerHandler struct {
 	DB        repository.DatabaseRepo
 	Auth      authentication.Auth
 	Validator validation.AppValidator
+	Version   string
+}
+
+func (fmh FinanceManagerHandler) GetVersion() string {
+	return fmh.Version
 }

@@ -26,7 +26,8 @@ type DatabaseRepo interface {
 	DeleteUserRolesByUserID(id int) error
 	DeleteUserRoleByID(id int) error
 	GetAllUserRoles(id int) ([]*models.UserRole, error)
-	GetUserRoleById(userRoleId int) (models.UserRole, error)
+	GetUserRoleByID(userRoleId int) (models.UserRole, error)
+	GetUserRoleByRoleIDAndUserID(roleId int, uId int) (models.UserRole, error)
 	InsertUserRole(models.UserRole) (int, error)
 
 	// Loan Functions
@@ -52,4 +53,9 @@ type DatabaseRepo interface {
 	GetBillByID(id int) (models.Bill, error)
 	InsertBill(models.Bill) (int, error)
 	UpdateBill(income models.Bill) error
+
+	//Credit Cards
+	GetAllUserCreditCards(id int, search string) ([]*models.CreditCard, error)
+	GetCreditCardByID(id int) (models.CreditCard, error)
+	InsertCreditCard(cc models.CreditCard) (int, error)
 }

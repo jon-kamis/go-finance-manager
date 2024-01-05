@@ -1,8 +1,7 @@
-package validation
+package dbrepo
 
 import (
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
-	"finance-manager-backend/cmd/finance-mngr/internal/repository/dbrepo"
 	"finance-manager-backend/cmd/finance-mngr/internal/testingutils"
 	"os"
 	"testing"
@@ -12,7 +11,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-var fmv FinanceManagerValidator
+var d PostgresDBRepo
 var p testingutils.DockerTestPlatform
 
 func TestMain(m *testing.M) {
@@ -21,7 +20,7 @@ func TestMain(m *testing.M) {
 
 	//Setup testing platform using docker
 	p = testingutils.Setup(m)
-	fmv = FinanceManagerValidator{DB: &dbrepo.PostgresDBRepo{DB: p.DB}}
+	d = PostgresDBRepo{DB: p.DB}
 
 	//Execute Code
 	code := m.Run()

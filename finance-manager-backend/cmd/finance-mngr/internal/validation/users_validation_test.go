@@ -84,10 +84,11 @@ func TestIsValidToEnterNewUser(t *testing.T) {
 	var tu models.User
 
 	u := models.User{
-		Username:  "TestUsr1",
+		ID:        13,
+		Username:  "TestUsr2",
 		FirstName: "Test",
 		LastName:  "User",
-		Email:     "testusr1@fm.com",
+		Email:     "testusr2@fm.com",
 		Password:  "testPswd",
 	}
 

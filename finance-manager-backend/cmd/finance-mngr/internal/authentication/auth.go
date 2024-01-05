@@ -2,6 +2,8 @@ package authentication
 
 import (
 	"errors"
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
+	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -116,7 +118,7 @@ func (j *Auth) GetExpiredRefreshCookie() *http.Cookie {
 
 func (j *Auth) GetTokenFromHeaderAndVerify(w http.ResponseWriter, r *http.Request) (string, *Claims, error) {
 	method := "auth.GetTokenFromHeaderAndVerify"
-	fmt.Printf("[Enter %s]\n", method)
+	fmlogger.Enter(method)
 
 	w.Header().Add("Vary", "Authorization")
 
@@ -133,19 +135,36 @@ func (j *Auth) GetTokenFromHeaderAndVerify(w http.ResponseWriter, r *http.Reques
 	// Split the header on spaces
 	headerParts := strings.Split(authHeader, " ")
 	if len(headerParts) != 2 {
-		fmt.Printf("[%s] Auth header is invalid\n", method)
-		fmt.Printf("[Exit %s]\n", method)
-		return "", nil, errors.New("invalid auth header")
+		err := errors.New(constants.InvalidAuthHeaderError)
+		fmlogger.ExitError(method, err.Error(), err)
+		return "", nil, err
 	}
 
 	// check to see if we have the word Bearer
 	if headerParts[0] != "Bearer" {
-		fmt.Printf("[%s] Auth header is invalid\n", method)
-		fmt.Printf("[Exit %s]\n", method)
-		return "", nil, errors.New("invalid auth header")
+		err := errors.New(constants.InvalidAuthHeaderError)
+		fmlogger.ExitError(method, err.Error(), err)
+		return "", nil, err
 	}
 
 	token := headerParts[1]
+	claims := &Claims{}
+
+	token, claims, err := j.ParseAndVerifyToken(token)
+
+	if err != nil {
+		fmlogger.ExitError(method, err.Error(), err)
+		return "", nil, err
+	}
+
+	fmlogger.Exit(method)
+	return token, claims, nil
+
+}
+
+func (j *Auth) ParseAndVerifyToken(token string) (string, *Claims, error) {
+	method := "auth.ParseAndVerifyToken"
+	fmlogger.Enter(method)
 
 	// decare an empty claims
 	claims := &Claims{}
@@ -153,8 +172,7 @@ func (j *Auth) GetTokenFromHeaderAndVerify(w http.ResponseWriter, r *http.Reques
 	// parse the token
 	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			fmt.Printf("[%s] Auth header contained unexpected signing method\n", method)
-			fmt.Printf("[Exit %s]\n", method)
+			fmlogger.ExitError(method, constants.InvalidSigningMethodError, errors.New(constants.InvalidSigningMethodError))
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(j.Secret), nil
@@ -162,46 +180,42 @@ func (j *Auth) GetTokenFromHeaderAndVerify(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "token is expired by") {
-			fmt.Printf("[%s] token is expired\n", method)
-			fmt.Printf("[Exit %s]\n", method)
-			return "", nil, errors.New("expired token")
+			fmlogger.ExitError(method, constants.ExpiredTokenError, err)
+			return "", nil, errors.New(constants.ExpiredTokenError)
 		}
 
-		fmt.Printf("[%s] unexpected error\n", method)
-		fmt.Printf("[Exit %s]\n", method)
+		fmlogger.ExitError(method, "unexpected error", err)
 		return "", nil, err
 	}
 
 	if claims.Issuer != j.Issuer {
-		fmt.Printf("[%s] invalid header issuer\n", method)
-		fmt.Printf("[Exit %s]\n", method)
-		return "", nil, errors.New("invalid issuer")
+		err := errors.New(constants.InvalidIssuerError)
+		fmlogger.ExitError(method, err.Error(), err)
+		return "", nil, err
 	}
 
-	fmt.Printf("[Exit %s]\n", method)
+	fmlogger.Exit(method)
 	return token, claims, nil
 }
 
 func (j *Auth) GetLoggedInUserId(w http.ResponseWriter, r *http.Request) (int, error) {
 	method := "auth.GetLoggedInUserId"
-	fmt.Printf("[Enter %s]\n", method)
+	fmlogger.Enter(method)
 
 	//This also verifies that the token is valid
 	_, claims, err := j.GetTokenFromHeaderAndVerify(w, r)
 
 	if err != nil {
-		fmt.Printf("[%s] caught error when attempting to fetch claims", method)
-		fmt.Printf("[Exit %s]\n", method)
+		fmlogger.ExitError(method, "unexpected error fetching claims", err)
 		return -1, err
 	}
 
 	id, err := strconv.Atoi(claims.Subject)
 	if err != nil {
-		fmt.Printf("[%s] caught error when attempting to decode claims subject", method)
-		fmt.Printf("[Exit %s]\n", method)
+		fmlogger.ExitError(method, "unexpected error decoding claims subject", err)
 		return -1, err
 	}
 
-	fmt.Printf("[Exit %s]\n", method)
+	fmlogger.Exit(method)
 	return id, nil
 }

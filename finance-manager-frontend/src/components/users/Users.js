@@ -47,7 +47,7 @@ const Users = () => {
             ? searchUrl = `?search=${value}`
             : searchUrl = ``
 
-        fetch(`${apiUrl}/users/all${searchUrl}`, requestOptions)
+        fetch(`${apiUrl}/users${searchUrl}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -106,7 +106,7 @@ const Users = () => {
             headers: headers,
         }
 
-        fetch(`${apiUrl}/users/all`, requestOptions)
+        fetch(`${apiUrl}/users`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setUsers(data);

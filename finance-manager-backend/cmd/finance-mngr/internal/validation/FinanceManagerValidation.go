@@ -14,7 +14,7 @@ type AppValidator interface {
 	IsValidToDeleteOtherUserData(loggedInUserId int) (bool, error)
 
 	//UserRoles
-	UserRoleExistsAndBelongsToUser(userRoleId, userId int) error
+	UserRoleExistsAndBelongsToUser(roleId, userId int) error
 	UserRoleBelongsToUser(userRole models.UserRole, userId int) error
 
 	//Loans
@@ -25,6 +25,9 @@ type AppValidator interface {
 
 	//Bills
 	BillBelongsToUser(bill models.Bill, userId int) error
+
+	//Credit Cards
+	CreditCardBelongsToUser(cc models.CreditCard, userId int) error
 }
 
 type FinanceManagerValidator struct {
