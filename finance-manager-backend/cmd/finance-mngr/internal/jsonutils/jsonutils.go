@@ -3,6 +3,7 @@ package jsonutils
 import (
 	"encoding/json"
 	"errors"
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
 	"io"
 	"net/http"
 )
@@ -79,7 +80,12 @@ func (j *JSONUtil) ErrorJSON(w http.ResponseWriter, err error, status ...int) er
 
 	var payload JSONResponse
 	payload.Error = true
-	payload.Message = err.Error()
+
+	if err != nil {
+		payload.Message = err.Error()
+	} else {
+		payload.Message = constants.JSONDefaultErrorMessage
+	}
 
 	return j.WriteJSON(w, statusCode, payload)
 }

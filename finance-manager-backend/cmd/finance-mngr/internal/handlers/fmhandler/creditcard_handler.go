@@ -21,8 +21,8 @@ func (fmh *FinanceManagerHandler) SaveCreditCard(w http.ResponseWriter, r *http.
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when validating userId", err)
-		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		fmlogger.ExitError(method, "user is not authorized to view other user data", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
 
@@ -63,15 +63,15 @@ func (fmh *FinanceManagerHandler) GetAllUserCreditCards(w http.ResponseWriter, r
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching bills", err)
-		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		fmlogger.ExitError(method, "unexpected error occured when fetching credit cards", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
 
 	ccs, err := fmh.DB.GetAllUserCreditCards(id, search)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching bills", err)
+		fmlogger.ExitError(method, "unexpected error occured when fetching credit cards", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
 		return
 	}
@@ -90,7 +90,7 @@ func (fmh *FinanceManagerHandler) GetCreditCardById(w http.ResponseWriter, r *ht
 
 	if err != nil {
 		fmlogger.ExitError(method, constants.FailedToReadUserIdFromAuthHeaderError, err)
-		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
 
@@ -101,9 +101,17 @@ func (fmh *FinanceManagerHandler) GetCreditCardById(w http.ResponseWriter, r *ht
 	}
 
 	cc, err := fmh.DB.GetCreditCardByID(ccId)
-	if err != nil || cc.ID == 0 {
-		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
+
+	if err != nil {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
 		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		return
+	}
+
+	if cc.ID == 0 {
+		err = errors.New(constants.EntityNotFoundError)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
+		fmlogger.ExitError(method, constants.EntityNotFoundError, err)
 		return
 	}
 

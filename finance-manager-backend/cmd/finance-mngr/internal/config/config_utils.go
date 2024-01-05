@@ -13,7 +13,7 @@ type Env_value struct {
 func GetEnvFromEnvValue(env Env_value) string {
 	value := os.Getenv(env.envName)
 	if value == "" {
-		fmt.Printf("ussing fallback value for environment variable %s\n", env.envName)
+		fmt.Printf("using fallback value for environment variable %s\n", env.envName)
 		return env.defaultVal
 	}
 	fmt.Printf("loaded environment value for %s\n", env.envName)

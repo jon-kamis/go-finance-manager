@@ -2,6 +2,7 @@ package testingutils
 
 import (
 	"database/sql"
+	"finance-manager-backend/cmd/finance-mngr/internal/config"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"fmt"
 	"log"
@@ -18,6 +19,7 @@ const db_password = "postgres"
 const db_name = "financemanager_test"
 
 var dockerConfig = GetDefaultConfig()
+var TestAppConfig = config.GetDefaultConfig()
 
 type DockerDBConfig struct {
 	Postgres_version string

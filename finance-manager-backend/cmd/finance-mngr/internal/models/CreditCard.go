@@ -24,7 +24,7 @@ func (cc *CreditCard) ValidateCanSaveCreditCard() error {
 	method := "creditcard.ValidateCanSaveCreditCard"
 	fmlogger.Enter(method)
 
-	if cc.ID == 0 || cc.UserID == 0 || cc.Name == "" || cc.MinPayment == 0 || cc.MinPaymentPercentage == 0 {
+	if cc.UserID == 0 || cc.Name == "" || cc.MinPayment == 0 || cc.MinPaymentPercentage == 0 {
 		err := errors.New(constants.InvalidCreditCardError)
 		fmlogger.ExitError(method, "one or more required fields is blank", err)
 		return err

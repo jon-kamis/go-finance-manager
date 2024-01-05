@@ -31,11 +31,40 @@ You will also need a small amount of space for postgres to store required files
 
 ## Running the Application
 
+### Requirements
+Finance Manager requires the following software
+1. GO
+2. NodeJS
+3. Docker
+
+### Running the full application
 Once installed, the app can be started with the following command from the directory this file is located in:
 
 `docker compose up --build`
 
-## Test Accounts Included by default
+### Running the application in individual layers
+Alternatively, if you would like to build the application by individual layers, you can do the following
+
+1. Start the Database layer by navigating into the finance-manager-backend directory and running
+`docker compose -f docker-compose-db-only.yml up --build`
+2. Start the backend GO layer by navigating into the finance-manager-backend directory and running
+`go run .\cmd\finance-mngr\`
+3. Start the frontend React application by navigating into the finance-manager-frontend directory and running
+`npm start`
+
+## Accounts Included by default
 | Account | Role | Username | Password|
 | --- | --- | --- | --- |
 | Admin | Administrator | admin | admin|
+
+## Testing the Application
+### Backend Testing
+The backend GO application has multiple unit and integration tests
+
+These test can be run with the following commands
+| Command | Description |
+| --- | ---|
+| go test .\cmd\finance-mngr\.. | Run Tests |
+| go test -coverpkg=.\cmd\finance-mngr\... .\cmd\finance-mngr\... | Run Tests and Generate Coverage Reports |
+
+`Note: The integration tests run in containers and as such require the docker engine to be running in order to work`

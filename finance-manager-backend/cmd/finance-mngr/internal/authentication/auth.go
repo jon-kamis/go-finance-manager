@@ -200,24 +200,22 @@ func (j *Auth) ParseAndVerifyToken(token string) (string, *Claims, error) {
 
 func (j *Auth) GetLoggedInUserId(w http.ResponseWriter, r *http.Request) (int, error) {
 	method := "auth.GetLoggedInUserId"
-	fmt.Printf("[Enter %s]\n", method)
+	fmlogger.Enter(method)
 
 	//This also verifies that the token is valid
 	_, claims, err := j.GetTokenFromHeaderAndVerify(w, r)
 
 	if err != nil {
-		fmt.Printf("[%s] caught error when attempting to fetch claims", method)
-		fmt.Printf("[Exit %s]\n", method)
+		fmlogger.ExitError(method, "unexpected error fetching claims", err)
 		return -1, err
 	}
 
 	id, err := strconv.Atoi(claims.Subject)
 	if err != nil {
-		fmt.Printf("[%s] caught error when attempting to decode claims subject", method)
-		fmt.Printf("[Exit %s]\n", method)
+		fmlogger.ExitError(method, "unexpected error decoding claims subject", err)
 		return -1, err
 	}
 
-	fmt.Printf("[Exit %s]\n", method)
+	fmlogger.Exit(method)
 	return id, nil
 }

@@ -6,6 +6,9 @@ const UnexpectedSQLError = "an unexpected error occured during the database call
 
 const FailedToLoadUserError = "failed to load user"
 
+//Default Error Respones
+const JSONDefaultErrorMessage = "an unexpected error occured"
+
 //Validation Errors
 const UserRoleDoesNotBelongToUserError = "user role does not belong to the given user"
 const BillDoesNotBelongToUserError = "bill does not belong to the given user"

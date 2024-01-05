@@ -4,23 +4,24 @@ import (
 	"finance-manager-backend/cmd/finance-mngr/internal/authentication"
 	"finance-manager-backend/cmd/finance-mngr/internal/config"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
+	"testing"
 	"time"
 )
 
-var TestAppConfig = config.GetDefaultConfig()
-
-var TestAuth = authentication.Auth{
-	Issuer:        config.GetEnvFromEnvValue(TestAppConfig.JWTIssuer),
-	Audience:      config.GetEnvFromEnvValue(TestAppConfig.JWTAudience),
-	Secret:        config.GetEnvFromEnvValue(TestAppConfig.JWTSecret),
-	TokenExpiry:   time.Minute * 60,
-	RefreshExpiry: time.Hour * 24,
-	CookiePath:    "/",
-	CookieName:    "Host-refresh_token",
-	CookieDomain:  config.GetEnvFromEnvValue(TestAppConfig.CookieDomain),
+func GetTestAuth() authentication.Auth {
+	return authentication.Auth{
+		Issuer:        config.GetEnvFromEnvValue(TestAppConfig.JWTIssuer),
+		Audience:      config.GetEnvFromEnvValue(TestAppConfig.JWTAudience),
+		Secret:        config.GetEnvFromEnvValue(TestAppConfig.JWTSecret),
+		TokenExpiry:   time.Minute * 60,
+		RefreshExpiry: time.Hour * 24,
+		CookiePath:    "/",
+		CookieName:    "Host-refresh_token",
+		CookieDomain:  config.GetEnvFromEnvValue(TestAppConfig.CookieDomain),
+	}
 }
 
-func GetAdminJWT() (token string, err error) {
+func GetAdminJWT(t *testing.T) (token string) {
 	method := "testing_auth.GetAdminJWT"
 	fmlogger.Enter(method)
 
@@ -32,18 +33,18 @@ func GetAdminJWT() (token string, err error) {
 	}
 
 	//generate tokens
-	tokens, err := TestAuth.GenerateTokenPair(&u)
+	auth := GetTestAuth()
+	tokens, err := auth.GenerateTokenPair(&u)
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when generating tokens", err)
-		return "", err
+		t.Errorf("error occured when generating tokens: %s", err)
 	}
 
 	fmlogger.Exit(method)
-	return tokens.Token, nil
+	return tokens.Token
 
 }
 
-func GetUserJWT() (token string, err error) {
+func GetUserJWT(t *testing.T) (token string) {
 	method := "testing_auth.GetUserJWT"
 	fmlogger.Enter(method)
 
@@ -55,13 +56,14 @@ func GetUserJWT() (token string, err error) {
 	}
 
 	//generate tokens
-	tokens, err := TestAuth.GenerateTokenPair(&u)
+	auth := GetTestAuth()
+	tokens, err := auth.GenerateTokenPair(&u)
+
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when generating tokens", err)
-		return "", err
+		t.Errorf("error occured when generating tokens: %s", err)
 	}
 
 	fmlogger.Exit(method)
-	return tokens.Token, nil
+	return tokens.Token
 
 }

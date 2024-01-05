@@ -125,6 +125,7 @@ func (m *PostgresDBRepo) GetCreditCardByID(id int) (models.CreditCard, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			fmlogger.Info(method, "entity with specified ID does not exist")
 			fmlogger.Exit(method)
 			return cc, nil
 		} else {
