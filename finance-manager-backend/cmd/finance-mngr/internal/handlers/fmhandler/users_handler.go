@@ -1,4 +1,4 @@
-package handlers
+package fmhandler
 
 import (
 	"errors"

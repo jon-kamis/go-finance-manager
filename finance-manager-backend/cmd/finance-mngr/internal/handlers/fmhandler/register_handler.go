@@ -1,4 +1,4 @@
-package handlers
+package fmhandler
 
 import (
 	"finance-manager-backend/cmd/finance-mngr/internal/models"

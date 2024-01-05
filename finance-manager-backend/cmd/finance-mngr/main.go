@@ -1,11 +1,11 @@
 package main
 
 import (
+	"finance-manager-backend/cmd/finance-mngr/internal/application"
 	"finance-manager-backend/cmd/finance-mngr/internal/authentication"
 	"finance-manager-backend/cmd/finance-mngr/internal/config"
-	"finance-manager-backend/cmd/finance-mngr/internal/handlers"
+	"finance-manager-backend/cmd/finance-mngr/internal/handlers/fmhandler"
 	"finance-manager-backend/cmd/finance-mngr/internal/jsonutils"
-	"finance-manager-backend/cmd/finance-mngr/internal/repository"
 	"finance-manager-backend/cmd/finance-mngr/internal/repository/dbrepo"
 	"finance-manager-backend/cmd/finance-mngr/internal/validation"
 	"fmt"
@@ -17,23 +17,9 @@ import (
 
 const port = 8080
 
-type application struct {
-	DSN          string
-	Domain       string
-	DB           repository.DatabaseRepo
-	auth         authentication.Auth
-	JWTSecret    string
-	JWTIssuer    string
-	JWTAudience  string
-	CookieDomain string
-	FrontendUrl  string
-	Handler      handlers.FinanceManagerHandler
-	JSONUtil     jsonutils.JSONUtils
-}
-
 func main() {
 	//set application config
-	var app application
+	var app application.Application
 	var appConfig = config.GetDefaultConfig()
 
 	//Attempt to read values from the environment
@@ -47,15 +33,15 @@ func main() {
 	app.FrontendUrl = config.GetEnvFromEnvValue(appConfig.FrontendUrl)
 
 	//connect to db
-	conn, err := app.connectToDB()
+	conn, err := app.ConnectToDB()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	app.auth = authentication.Auth{
+	app.Auth = authentication.Auth{
 		Issuer:        app.JWTIssuer,
 		Audience:      app.JWTAudience,
-		Secret:        app.auth.Secret,
+		Secret:        app.Auth.Secret,
 		TokenExpiry:   time.Minute * 60,
 		RefreshExpiry: time.Hour * 24,
 		CookiePath:    "/",
@@ -65,21 +51,21 @@ func main() {
 
 	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 	app.JSONUtil = &jsonutils.JSONUtil{}
-	app.Handler = handlers.FinanceManagerHandler{
+	app.Handler = &fmhandler.FinanceManagerHandler{
 		JSONUtil:  &jsonutils.JSONUtil{},
 		DB:        app.DB,
-		Auth:      app.auth,
+		Auth:      app.Auth,
 		Validator: &validation.FinanceManagerValidator{DB: app.DB},
 	}
 
 	defer app.DB.Connection().Close()
 
-	app.Domain = "example.com"
+	app.Domain = "fm.com"
 
 	log.Println("Starting application on port", port)
 
 	//start a web server
-	err = http.ListenAndServe(fmt.Sprintf(":%d", port), app.routes())
+	err = http.ListenAndServe(fmt.Sprintf(":%d", port), app.Routes())
 	if err != nil {
 		log.Fatal(err)
 	}

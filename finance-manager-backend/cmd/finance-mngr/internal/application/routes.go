@@ -1,4 +1,4 @@
-package main
+package application
 
 import (
 	"net/http"
@@ -7,12 +7,12 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func (app *application) routes() http.Handler {
+func (app *Application) Routes() http.Handler {
 	// Create a router r
 	r := chi.NewRouter()
 
 	r.Use(middleware.Recoverer)
-	r.Use(app.enableCORS)
+	r.Use(app.EnableCORS)
 
 	r.Get("/", app.Handler.Home)
 
@@ -23,7 +23,7 @@ func (app *application) routes() http.Handler {
 	r.Get("/roles", app.Handler.GetAllRoles)
 
 	r.Route("/users", func(r chi.Router) {
-		r.Use(app.authRequired)
+		r.Use(app.AuthRequired)
 
 		r.Get("/", app.Handler.GetAllUsers)
 

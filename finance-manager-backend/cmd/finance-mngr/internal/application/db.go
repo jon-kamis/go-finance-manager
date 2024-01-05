@@ -1,4 +1,4 @@
-package main
+package application
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-func openDB(dsn string) (*sql.DB, error) {
+func OpenDB(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("pgx", dsn)
 
 	if err != nil {
@@ -25,8 +25,8 @@ func openDB(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
-func (app *application) connectToDB() (*sql.DB, error) {
-	connection, err := openDB(app.DSN)
+func (app *Application) ConnectToDB() (*sql.DB, error) {
+	connection, err := OpenDB(app.DSN)
 	if err != nil {
 		return nil, err
 	}

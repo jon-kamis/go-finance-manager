@@ -1,10 +1,15 @@
-package handlers
+package fmhandler
 
 import (
+	"bytes"
+	"encoding/json"
+	"finance-manager-backend/cmd/finance-mngr/internal/application"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/repository/dbrepo"
 	"finance-manager-backend/cmd/finance-mngr/internal/testingutils"
 	"finance-manager-backend/cmd/finance-mngr/internal/validation"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 
@@ -14,6 +19,7 @@ import (
 )
 
 var fmh FinanceManagerHandler
+var app application.Application
 
 func TestMain(m *testing.M) {
 	method := "validation_test.TestMain"
@@ -25,8 +31,11 @@ func TestMain(m *testing.M) {
 	fmh = FinanceManagerHandler{
 		DB:        db,
 		Validator: &validation.FinanceManagerValidator{DB: db},
-		Auth: testingutils.TestAuth,
+		Auth:      testingutils.TestAuth,
 	}
+
+	//Set application's handler
+	app.Handler = &fmh
 
 	//Execute Code
 	code := m.Run()
@@ -36,4 +45,18 @@ func TestMain(m *testing.M) {
 
 	fmlogger.Exit(method)
 	os.Exit(code)
+}
+
+func MakeRequest(method, url string, body interface{}, isAuthenticatedRequest bool, token string) *httptest.ResponseRecorder {
+	requestBody, _ := json.Marshal(body)
+	request, _ := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
+
+	if isAuthenticatedRequest {
+		request.Header.Add("Authorization", "Bearer "+token)
+	}
+
+	writer := httptest.NewRecorder()
+	app.Routes().ServeHTTP(writer, request)
+	return writer
+
 }
