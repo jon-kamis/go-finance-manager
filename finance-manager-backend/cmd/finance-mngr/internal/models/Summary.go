@@ -12,6 +12,7 @@ const incomeSrc = "income"
 const taxSrc = "taxes"
 const taxName = "income tax"
 const billSrc = "bill"
+const ccSrc = "credit-card"
 
 type SummaryItem struct {
 	Type    string  `json:"type"`
@@ -22,14 +23,16 @@ type SummaryItem struct {
 }
 
 type ExpenseSummary struct {
-	Expenses       []SummaryItem `json:"expenses"`
-	TotalCost      float64       `json:"totalCost"`
-	TotalBalance   float64       `json:"totalBalance"`
-	LoanCost       float64       `json:"loanCost"`
-	LoanBalance    float64       `json:"loanBalance"`
-	Taxes          float64       `json:"taxes"`
-	BillCost       float64       `json:"bills"`
-	OverallBalance float64       `json:"overallBalance"`
+	Expenses          []SummaryItem `json:"expenses"`
+	TotalCost         float64       `json:"totalCost"`
+	TotalBalance      float64       `json:"totalBalance"`
+	LoanCost          float64       `json:"loanCost"`
+	LoanBalance       float64       `json:"loanBalance"`
+	Taxes             float64       `json:"taxes"`
+	BillCost          float64       `json:"bills"`
+	CreditCardCost    float64       `json:"creditCards"`
+	CreditCardBalance float64       `json:"creditCardBalance"`
+	OverallBalance    float64       `json:"overallBalance"`
 }
 
 type IncomeSummary struct {
@@ -47,8 +50,8 @@ func (e *ExpenseSummary) CalculateExpenses() {
 	method := "Summary.CalculateExpenses"
 	fmlogger.Enter(method)
 
-	e.TotalCost = e.LoanCost + e.Taxes + e.BillCost
-	e.TotalBalance = e.LoanBalance
+	e.TotalCost = e.LoanCost + e.Taxes + e.BillCost + e.CreditCardCost
+	e.TotalBalance = e.LoanBalance + e.CreditCardBalance
 
 	fmlogger.Exit(method)
 }
@@ -152,7 +155,7 @@ func (s *Summary) LoadBills(barr []*Bill) {
 
 	totalCost := 0.0
 
-	//Loop through each income and add up values
+	//Loop through each bill and add up values
 	for _, b := range barr {
 		i := SummaryItem{
 			Type:   expenseType,
@@ -168,6 +171,38 @@ func (s *Summary) LoadBills(barr []*Bill) {
 
 	//Set total cost for the month
 	s.ExpenseSummary.BillCost = totalCost
+
+	//Recalculate total cost
+	s.ExpenseSummary.CalculateExpenses()
+
+	fmlogger.Exit(method)
+}
+
+func (s *Summary) LoadCreditCards(carr []*CreditCard) {
+	method := "Summary.LoadCreditCards"
+	fmlogger.Enter(method)
+
+	tc := 0.0
+	tb := 0.0
+
+	//Loop through each credit card and add up the values
+	for _, cc := range carr {
+		i := SummaryItem{
+			Type:   expenseType,
+			Source: ccSrc,
+			Name:   cc.Name,
+			Amount: cc.Payment,
+		}
+
+		//Add new item and increment total values
+		s.ExpenseSummary.Expenses = append(s.ExpenseSummary.Expenses, i)
+		tc += cc.Payment
+		tb += cc.Balance
+	}
+
+	//Set totals for the month
+	s.ExpenseSummary.CreditCardCost = tc
+	s.ExpenseSummary.CreditCardBalance = tb
 
 	//Recalculate total cost
 	s.ExpenseSummary.CalculateExpenses()
