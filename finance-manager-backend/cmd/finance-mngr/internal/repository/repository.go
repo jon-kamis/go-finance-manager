@@ -57,5 +57,7 @@ type DatabaseRepo interface {
 	//Credit Cards
 	GetAllUserCreditCards(id int, search string) ([]*models.CreditCard, error)
 	GetCreditCardByID(id int) (models.CreditCard, error)
+	DeleteCreditCardsByID(id int) error
+	DeleteCreditCardsByUserID(id int) error
 	InsertCreditCard(cc models.CreditCard) (int, error)
 }

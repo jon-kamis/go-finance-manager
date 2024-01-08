@@ -1,6 +1,7 @@
 package fmhandler
 
 import (
+	"errors"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"finance-manager-backend/cmd/finance-mngr/internal/testingutils"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 func TestGetAllUserCreditCards_200(t *testing.T) {
@@ -185,6 +187,79 @@ func TestGetCreditCardById_404(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, writer.Code)
 
 	tearDown()
+	fmlogger.Exit(method)
+}
+
+func TestDeleteCreditCardById_200(t *testing.T) {
+	method := "creditcard_handler_test.TestDeleteCreditCardById_200"
+	fmlogger.Enter(method)
+
+	setup()
+	token := testingutils.GetAdminJWT(t)
+
+	writer := MakeRequest(http.MethodDelete, "/users/1/credit-cards/1", nil, true, token)
+	assert.Equal(t, http.StatusOK, writer.Code)
+
+	var cc models.CreditCard
+	err := p.GormDB.First(&cc, 1).Error
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		t.Errorf("expected ErrRecordNotFound after deleting entry but a different error was thrown by gorm: %v", err)
+	}
+
+	tearDown()
+
+	fmlogger.Exit(method)
+}
+
+func TestDeleteCreditCardById_400(t *testing.T) {
+	method := "creditcard_handler_test.TestDeleteCreditCardById_400"
+	fmlogger.Enter(method)
+
+	setup()
+	token := testingutils.GetAdminJWT(t)
+
+	writer := MakeRequest(http.MethodDelete, "/users/1/credit-cards/a", nil, true, token)
+	assert.Equal(t, http.StatusBadRequest, writer.Code)
+
+	tearDown()
+
+	fmlogger.Exit(method)
+}
+
+func TestDeleteCreditCardById_403(t *testing.T) {
+	method := "creditcard_handler_test.TestDeleteCreditCardById_404"
+	fmlogger.Enter(method)
+
+	setup()
+	uToken := testingutils.GetUserJWT(t)
+	aToken := testingutils.GetAdminJWT(t)
+
+	//User attempting to act on other user
+	writer := MakeRequest(http.MethodDelete, "/users/1/credit-cards/1", nil, true, uToken)
+	assert.Equal(t, http.StatusForbidden, writer.Code)
+
+	//Admin attemptint to act on other user's accounts
+	writer = MakeRequest(http.MethodDelete, "/users/2/credit-cards/3", nil, true, aToken)
+	assert.Equal(t, http.StatusForbidden, writer.Code)
+
+	tearDown()
+
+	fmlogger.Exit(method)
+}
+
+func TestDeleteCreditCardById_404(t *testing.T) {
+	method := "creditcard_handler_test.TestDeleteCreditCardById_404"
+	fmlogger.Enter(method)
+
+	setup()
+	token := testingutils.GetAdminJWT(t)
+
+	writer := MakeRequest(http.MethodDelete, "/users/1/credit-cards/112", nil, true, token)
+	assert.Equal(t, http.StatusNotFound, writer.Code)
+
+	tearDown()
+
 	fmlogger.Exit(method)
 }
 

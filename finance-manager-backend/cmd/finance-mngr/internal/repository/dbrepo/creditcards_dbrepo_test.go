@@ -1,11 +1,14 @@
 package dbrepo
 
 import (
+	"errors"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"strings"
 	"testing"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 func TestGetAllUserCreditCards(t *testing.T) {
@@ -123,6 +126,97 @@ func TestInsertCreditCard(t *testing.T) {
 
 	if strings.Compare(ccDb.Name, name) != 0 {
 		t.Errorf("Value commited to DB does not match expectations. Expected %s but found %s", name, ccDb.Name)
+	}
+
+	fmlogger.Exit(method)
+}
+
+func TestDeleteCreditCardsByUserID(t *testing.T) {
+	method := "creditcards_dbrepo_test.TestDeleteCreditCardsByUserID"
+	fmlogger.Enter(method)
+	id1 := 43
+	id2 := 44
+
+	cc1 := models.CreditCard{
+		ID:                   id1,
+		UserID:               1,
+		Name:                 "TestDeleteCreditCardsByUserId",
+		Balance:              1000.0,
+		APR:                  26.2,
+		MinPayment:           35,
+		MinPaymentPercentage: 10,
+		CreateDt:             time.Now(),
+		LastUpdateDt:         time.Now(),
+	}
+
+	cc2 := models.CreditCard{
+		ID:                   id2,
+		UserID:               2,
+		Name:                 "TestDeleteCreditCardsByUserId",
+		Balance:              1000.0,
+		APR:                  26.2,
+		MinPayment:           35,
+		MinPaymentPercentage: 10,
+		CreateDt:             time.Now(),
+		LastUpdateDt:         time.Now(),
+	}
+
+	//Insert Records with two different user Ids
+	p.GormDB.Create(&cc1)
+	p.GormDB.Create(&cc2)
+
+	err := d.DeleteCreditCardsByUserID(1)
+
+	if err != nil {
+		t.Errorf("Unexpected error occured when deleting a credit card: %v", err)
+	}
+
+	var cc models.CreditCard
+
+	err = p.GormDB.First(&cc, id1).Error
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		t.Errorf("expected ErrRecordNotFound after deleting entry but a different error was thrown by gorm: %v", err)
+	}
+
+	p.GormDB.First(&cc, id2)
+	
+	if cc.ID != id2 {
+		t.Errorf("expected record with %d to still exist but gorm failed to fetch it", id2)
+	}
+
+
+	tearDown()
+	fmlogger.Exit(method)
+}
+
+func TestDeleteCreditCardsByID(t *testing.T) {
+	method := "creditcards_dbrepo_test.TestDeleteCreditCardsByID"
+	fmlogger.Enter(method)
+
+	id := 43
+
+	cc := models.CreditCard{
+		ID:                   id,
+		UserID:               1,
+		Name:                 "TestDeleteCreditCardsByUserId",
+		Balance:              1000.0,
+		APR:                  26.2,
+		MinPayment:           35,
+		MinPaymentPercentage: 10,
+		CreateDt:             time.Now(),
+		LastUpdateDt:         time.Now(),
+	}
+
+	p.GormDB.Create(&cc)
+	err := d.DeleteCreditCardsByID(id)
+
+	if err != nil {
+		t.Errorf("Unexpected error occured when deleting a credit card: %v", err)
+	}
+
+	err = p.GormDB.First(&cc, id).Error
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		t.Errorf("expected ErrRecordNotFound after deleting entry but a different error was thrown by gorm: %v", err)
 	}
 
 	fmlogger.Exit(method)

@@ -139,7 +139,7 @@ func (m *PostgresDBRepo) GetCreditCardByID(id int) (models.CreditCard, error) {
 }
 
 func (m *PostgresDBRepo) InsertCreditCard(cc models.CreditCard) (int, error) {
-	method := "creditcardss_dbrepo.InsertCreditCard"
+	method := "creditcards_dbrepo.InsertCreditCard"
 	fmlogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
@@ -171,4 +171,52 @@ func (m *PostgresDBRepo) InsertCreditCard(cc models.CreditCard) (int, error) {
 
 	fmlogger.Exit(method)
 	return id, nil
+}
+
+func (m *PostgresDBRepo) DeleteCreditCardsByUserID(id int) error {
+	method := "creditcardss_dbrepo.DeleteCreditCardsByUserID"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+		DELETE
+		FROM credit_cards
+		WHERE 
+			user_id = $1`
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+
+	if err != nil {
+		fmlogger.ExitError(method, "error occured when deleting credit cards", err)
+		return err
+	}
+
+	fmlogger.Exit(method)
+	return nil
+}
+
+func (m *PostgresDBRepo) DeleteCreditCardsByID(id int) error {
+	method := "creditcardss_dbrepo.DeleteCreditCardsByUserID"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+		DELETE
+		FROM credit_cards
+		WHERE 
+			id = $1`
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+
+	if err != nil {
+		fmlogger.ExitError(method, "error occured when deleting credit cards", err)
+		return err
+	}
+
+	fmlogger.Exit(method)
+	return nil
 }

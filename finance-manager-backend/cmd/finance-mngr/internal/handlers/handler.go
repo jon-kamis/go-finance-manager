@@ -12,6 +12,7 @@ type Handler interface {
 	UpdateBill(w http.ResponseWriter, r *http.Request)
 
 	//Credit Cards
+	DeleteCreditCardById(w http.ResponseWriter, r *http.Request)
 	GetAllUserCreditCards(w http.ResponseWriter, r *http.Request)
 	GetCreditCardById(w http.ResponseWriter, r *http.Request)
 	SaveCreditCard(w http.ResponseWriter, r *http.Request)
