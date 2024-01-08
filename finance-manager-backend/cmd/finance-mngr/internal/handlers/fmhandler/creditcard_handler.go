@@ -126,3 +126,59 @@ func (fmh *FinanceManagerHandler) GetCreditCardById(w http.ResponseWriter, r *ht
 	fmlogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, cc)
 }
+
+func (fmh *FinanceManagerHandler) DeleteCreditCardById(w http.ResponseWriter, r *http.Request) {
+	method := "creditcard_handler.DeleteCreditCardById"
+	fmlogger.Enter(method)
+
+	_, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
+	ccId, err1 := strconv.Atoi(chi.URLParam(r, "ccId"))
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when processing user id", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
+		return
+	}
+
+	if err1 != nil {
+		fmlogger.ExitError(method, "unexpected error occured when processing credit card id", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	// Validate that the bill exists
+	cc, err := fmh.DB.GetCreditCardByID(ccId)
+	if err != nil || cc.ID == 0 {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
+		fmlogger.ExitError(method, "credit card does not exist", err)
+		return
+	}
+
+	// Get loggedIn userId
+	loggedInUserId, err := fmh.Auth.GetLoggedInUserId(w, r)
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when retrieving logged in userId from HTTP Header", err)
+		fmh.JSONUtil.ErrorJSON(w, errors.New("an unexpected error has occured"), http.StatusInternalServerError)
+		return
+	}
+
+	// Validate that the loan belongs to the user
+	err = fmh.Validator.CreditCardBelongsToUser(cc, loggedInUserId)
+	if err != nil {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
+		fmlogger.ExitError(method, "credit card does not belong to logged in user", err)
+		return
+	}
+
+	// Delete the loan
+	err = fmh.DB.DeleteCreditCardsByID(ccId)
+	if err != nil {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		fmlogger.ExitError(method, "failed to delete credit card", err)
+		return
+	}
+
+	fmlogger.Exit(method)
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
+}

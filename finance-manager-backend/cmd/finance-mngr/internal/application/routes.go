@@ -87,6 +87,7 @@ func (app *Application) Routes() http.Handler {
 
 				r.Route("/{ccId}", func(r chi.Router) {
 					r.Get("/", app.Handler.GetCreditCardById)
+					r.Delete("/", app.Handler.DeleteCreditCardById)
 				})
 			})
 		})

@@ -138,6 +138,14 @@ func (fmh *FinanceManagerHandler) DeleteUserById(w http.ResponseWriter, r *http.
 		return
 	}
 
+	err = fmh.DB.DeleteCreditCardsByUserID(id)
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error when deleting credit cards by userId", err)
+		fmh.JSONUtil.ErrorJSON(w, errors.New("an unexpected error occured while attempting to delete the user"), http.StatusNotFound)
+		return
+	}
+
 	err = fmh.DB.DeleteUserByID(id)
 
 	if err != nil {
