@@ -187,11 +187,14 @@ func (s *Summary) LoadCreditCards(carr []*CreditCard) {
 
 	//Loop through each credit card and add up the values
 	for _, cc := range carr {
+		cc.CalcPayment()
+
 		i := SummaryItem{
 			Type:   expenseType,
 			Source: ccSrc,
 			Name:   cc.Name,
 			Amount: cc.Payment,
+			Balance: cc.Balance,
 		}
 
 		//Add new item and increment total values
