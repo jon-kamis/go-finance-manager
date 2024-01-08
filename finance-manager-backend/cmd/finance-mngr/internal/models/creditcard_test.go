@@ -3,6 +3,8 @@ package models
 import (
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateCanSaveCreditCard(t *testing.T) {
@@ -31,4 +33,24 @@ func TestValidateCanSaveCreditCard(t *testing.T) {
 	}
 
 	fmlogger.Exit(method)
+}
+
+func TestCalcPayment(t *testing.T) {
+
+	cc := CreditCard{
+		Balance:              100,
+		MinPayment:           35,
+		MinPaymentPercentage: 10,
+	}
+
+	//Min Payment should be the greater value between (balance * minPaymentPercentage) and MinPayment
+
+	//MinPayment is greater
+	cc.CalcPayment()
+	assert.Equal(t, cc.MinPayment, cc.Payment)
+
+	cc.Balance = 1000
+	cc.CalcPayment()
+	assert.Equal(t, 100.0, cc.Payment)
+
 }
