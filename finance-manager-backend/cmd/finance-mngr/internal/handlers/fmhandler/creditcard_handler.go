@@ -70,6 +70,11 @@ func (fmh *FinanceManagerHandler) GetAllUserCreditCards(w http.ResponseWriter, r
 
 	ccs, err := fmh.DB.GetAllUserCreditCards(id, search)
 
+	//Calculate All Payments
+	for _, cc := range ccs {
+		cc.CalcPayment()
+	}
+
 	if err != nil {
 		fmlogger.ExitError(method, "unexpected error occured when fetching credit cards", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
@@ -122,6 +127,9 @@ func (fmh *FinanceManagerHandler) GetCreditCardById(w http.ResponseWriter, r *ht
 		fmlogger.ExitError(method, constants.UserForbiddenToViewOtherUserDataError, err)
 		return
 	}
+
+	//Calculate Payment
+	cc.CalcPayment()
 
 	fmlogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, cc)
