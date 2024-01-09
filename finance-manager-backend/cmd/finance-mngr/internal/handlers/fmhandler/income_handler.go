@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -35,7 +36,7 @@ func (fmh *FinanceManagerHandler) GetAllUserIncomes(w http.ResponseWriter, r *ht
 	}
 
 	for _, i := range incomes {
-		i.PopulateEmptyValues()
+		i.PopulateEmptyValues(time.Now())
 	}
 
 	fmt.Printf("[EXIT %s]\n", method)
@@ -81,7 +82,7 @@ func (fmh *FinanceManagerHandler) GetIncomeById(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = income.PopulateEmptyValues()
+	err = income.PopulateEmptyValues(time.Now())
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
 		fmt.Printf("[%s] %v", method, err)
@@ -120,7 +121,7 @@ func (fmh *FinanceManagerHandler) SaveIncome(w http.ResponseWriter, r *http.Requ
 
 	payload.UserID = id
 
-	payload.PopulateEmptyValues()
+	payload.PopulateEmptyValues(time.Now())
 
 	err = payload.ValidateCanSaveIncome()
 	if err != nil {
@@ -192,7 +193,7 @@ func (fmh *FinanceManagerHandler) UpdateIncome(w http.ResponseWriter, r *http.Re
 	}
 
 	//Populate Income values
-	payload.PopulateEmptyValues()
+	payload.PopulateEmptyValues(time.Now())
 
 	//Validate the Income object
 	payload.ValidateCanSaveIncome()

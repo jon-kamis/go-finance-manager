@@ -73,18 +73,9 @@ func (l *Loan) PerformCalc() error {
 	principalToDate = 0
 	totalPayment = 0
 
-	err := l.ValidateCanPerformCalc()
-
-	if err != nil {
-		errMsg := "Loan calculation request is invalid"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
-		return err
-	}
-
 	// Calculate monthly payment
 	if l.MonthlyPayment < 1 {
-		err = l.PerformPaymentCalc()
+		err := l.PerformPaymentCalc()
 
 		if err != nil {
 			errMsg := "Loan calculation request is invalid"
@@ -121,6 +112,12 @@ func (l *Loan) PerformCalc() error {
 
 		paymentSchedule = append(paymentSchedule, paymentSum)
 	}
+
+	calcErr := l.Total - totalPayment
+	fmt.Printf("Total: %f, totalPayment: %f, totalInterest: %f, Calculation Err: %f\n", l.Total, totalPayment, totalInterest, calcErr)
+  
+	totalPayment += calcErr
+	totalInterest -= calcErr
 
 	l.TotalPayment = totalPayment
 	l.Interest = totalInterest
@@ -168,7 +165,7 @@ func (l *Loan) ValidateCanPerformCalc() error {
 		return errors.New(errMsg)
 	}
 
-	if l.InterestRate <= 0 {
+	if l.InterestRate < 0 {
 		errMsg := "cannot perform calculation without interest rate"
 		fmt.Printf("[%s] %s\n", method, errMsg)
 		fmt.Printf("[EXIT %s]\n", method)
@@ -204,7 +201,7 @@ func (l *Loan) ValidateCanSaveLoan() error {
 		return errors.New(errMsg)
 	}
 
-	if l.InterestRate <= 0 {
+	if l.InterestRate < 0 {
 		errMsg := "cannot save loan without interest rate"
 		fmt.Printf("[%s] %s\n", method, errMsg)
 		fmt.Printf("[EXIT %s]\n", method)
@@ -239,7 +236,7 @@ func (l *Loan) ValidateCanSaveLoan() error {
 		return errors.New(errMsg)
 	}
 
-	if l.Interest <= 0 {
+	if l.Interest < 0 {
 		errMsg := "cannot save loan without total interest"
 		fmt.Printf("[%s] %s\n", method, errMsg)
 		fmt.Printf("[EXIT %s]\n", method)
