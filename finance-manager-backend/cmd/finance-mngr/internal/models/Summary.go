@@ -3,6 +3,7 @@ package models
 import (
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"sort"
+	"time"
 )
 
 const expenseType = "expense"
@@ -119,13 +120,13 @@ func (s *Summary) LoadIncomes(iarr []*Income) {
 			Type:   incomeType,
 			Source: incomeSrc,
 			Name:   i.Name,
-			Amount: i.GetMonthlyGrossPay(),
+			Amount: i.GetMonthlyGrossPay(time.Now()),
 		}
 
 		//Add new item and increment total values
 		s.IncomeSummary.Incomes = append(s.IncomeSummary.Incomes, j)
 		totalIncome += j.Amount
-		taxes += i.GetMonthlyTaxes()
+		taxes += i.GetMonthlyTaxes(time.Now())
 	}
 
 	//Set Gross income for this month
@@ -190,10 +191,10 @@ func (s *Summary) LoadCreditCards(carr []*CreditCard) {
 		cc.CalcPayment()
 
 		i := SummaryItem{
-			Type:   expenseType,
-			Source: ccSrc,
-			Name:   cc.Name,
-			Amount: cc.Payment,
+			Type:    expenseType,
+			Source:  ccSrc,
+			Name:    cc.Name,
+			Amount:  cc.Payment,
 			Balance: cc.Balance,
 		}
 

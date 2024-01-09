@@ -1,8 +1,8 @@
 package models
 
 import (
+	"errors"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
-	"fmt"
 	"time"
 )
 
@@ -17,18 +17,24 @@ type Bill struct {
 
 func (b *Bill) ValidateCanSaveBill() error {
 	method := "Bill.ValidateCanSaveBill"
-	fmt.Printf("[ENTER %s]\n", method)
+	fmlogger.Enter(method)
 
 	if b.Name == "" {
-		returnError("cannot save bill without a name", method)
+		err := errors.New("name is required")
+		fmlogger.ExitError(method, err.Error(), err)
+		return err
 	}
 
 	if b.Amount < 0 {
-		returnError("Gross Pay is required", method)
+		err := errors.New("amount cannot be negative")
+		fmlogger.ExitError(method, err.Error(), err)
+		return err
 	}
 
 	if b.UserID <= 0 {
-		returnError("UserId is required", method)
+		err := errors.New("userId is required")
+		fmlogger.ExitError(method, err.Error(), err)
+		return err
 	}
 
 	fmlogger.Exit(method)

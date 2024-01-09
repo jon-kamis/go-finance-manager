@@ -5,6 +5,7 @@ import (
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -46,7 +47,7 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 	}
 
 	for _, i := range incomes {
-		i.PopulateEmptyValues()
+		i.PopulateEmptyValues(time.Now())
 	}
 
 	summary.LoadLoans(loans)
