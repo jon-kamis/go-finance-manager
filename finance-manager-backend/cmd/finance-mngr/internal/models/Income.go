@@ -36,8 +36,8 @@ func (i *Income) PopulateEmptyValues(t time.Time) error {
 	fmlogger.Enter(method)
 
 	//Do validations first
-	if i.Rate <= 0 && i.GrossPay <= 0 {
-		err := errors.New("rate or gross pay is required")
+	if i.Rate <= 0 {
+		err := errors.New("rate is required")
 		fmlogger.ExitError(method, err.Error(), err)
 		return err
 	}
@@ -101,7 +101,7 @@ func (i *Income) PopulateEmptyValues(t time.Time) error {
 	}
 
 	// Populate GrossPay
-	if i.Rate > 0 && i.GrossPay == 0 {
+	if i.Rate > 0 {
 		if strings.Compare(i.Type, constants.IncomeTypeHourly) == 0 {
 			i.GrossPay = i.Rate * i.Hours
 		} else {
