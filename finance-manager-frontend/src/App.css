@@ -49,6 +49,10 @@ Table thead {
     text-align: center;
 }
 
+.content p {
+    text-align: center;
+}
+
 .content-tall {
     min-height: 320px;
     max-height: 320px;
