@@ -12,6 +12,8 @@ import Register from './components/auth/Register';
 import ManageUser from './components/users/ManageUser';
 import About from './components/misc/About';
 import Bills from './components/bills/Bills';
+import CreditCards from './components/creditcards/CreditCards';
+
 
 const router = createBrowserRouter([
   {
@@ -52,6 +54,10 @@ const router = createBrowserRouter([
         path: "/users/:userId/bills",
         element: <Bills />
       },
+      {
+        path: "/users/:userId/credit-cards",
+        element: <CreditCards />
+      }
     ]
   }
 ])
