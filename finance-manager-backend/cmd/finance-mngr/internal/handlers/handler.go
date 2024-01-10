@@ -16,6 +16,7 @@ type Handler interface {
 	GetAllUserCreditCards(w http.ResponseWriter, r *http.Request)
 	GetCreditCardById(w http.ResponseWriter, r *http.Request)
 	SaveCreditCard(w http.ResponseWriter, r *http.Request)
+	UpdateCreditCard(w http.ResponseWriter, r *http.Request)
 
 	//Home
 	Home(w http.ResponseWriter, r *http.Request)

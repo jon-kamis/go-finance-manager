@@ -5,6 +5,7 @@ import (
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"finance-manager-backend/cmd/finance-mngr/internal/testingutils"
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -286,5 +287,124 @@ func tearDown() {
 	p.GormDB.Exec("DELETE FROM credit_cards")
 
 	fmlogger.Info(method, "Cleaned all credit card test data")
+	fmlogger.Exit(method)
+}
+
+func TestUpdateCreditCard_200(t *testing.T) {
+	method := "creditcard_handler_test.TestUpdateCreditCard_200"
+	fmlogger.Enter(method)
+
+	id := 67
+
+	cc := models.CreditCard{
+		ID:                   id,
+		UserID:               1,
+		Name:                 "TestUpdateCreditCard",
+		Balance:              1000.0,
+		Limit:                20000.0,
+		APR:                  26.2,
+		MinPayment:           35.00,
+		MinPaymentPercentage: 10,
+	}
+
+	p.GormDB.Create(&cc)
+
+	token := testingutils.GetAdminJWT(t)
+
+	cc.Balance = 2000.0
+
+	writer := MakeRequest(http.MethodPut, fmt.Sprintf("/users/1/credit-cards/%d", id), cc, true, token)
+	var ccDb models.CreditCard
+	p.GormDB.First(&ccDb, id)
+
+	assert.Equal(t, http.StatusOK, writer.Code)
+	assert.Equal(t, 2000.0, ccDb.Balance)
+
+	//Clean up DB after test
+	p.GormDB.Delete(ccDb)
+
+	fmlogger.Exit(method)
+}
+
+func TestUpdateCreditCard_403(t *testing.T) {
+	method := "creditcard_handler_test.TestUpdateCreditCard_403"
+	fmlogger.Enter(method)
+
+	id := 68
+
+	cc := models.CreditCard{
+		ID:                   id,
+		UserID:               1,
+		Name:                 "TestUpdateCreditCard",
+		Balance:              1000.0,
+		Limit:                20000.0,
+		APR:                  26.2,
+		MinPayment:           35.00,
+		MinPaymentPercentage: 10,
+	}
+
+	token := testingutils.GetUserJWT(t)
+
+	//URL is forbidden
+	writer := MakeRequest(http.MethodPut, fmt.Sprintf("/users/1/credit-cards/%d", id), cc, true, token)
+	assert.Equal(t, http.StatusForbidden, writer.Code)
+
+	fmlogger.Exit(method)
+}
+
+func TestUpdateCreditCard_400(t *testing.T) {
+	method := "creditcard_handler_test.TestUpdateCreditCard_400"
+	fmlogger.Enter(method)
+
+	cc := models.CreditCard{
+		UserID:               1,
+		Name:                 "TestUpdateCreditCard",
+		Balance:              1000.0,
+		Limit:                20000.0,
+		APR:                  26.2,
+		MinPayment:           35.00,
+		MinPaymentPercentage: 10,
+	}
+
+	token := testingutils.GetUserJWT(t)
+
+	writer := MakeRequest(http.MethodPut, "/users/2/credit-cards/abc", cc, true, token)
+
+	assert.Equal(t, http.StatusBadRequest, writer.Code)
+
+	fmlogger.Exit(method)
+}
+
+func TestUpdateCreditCard_404(t *testing.T) {
+	method := "creditcard_handler_test.TestUpdateCreditCard_404"
+	fmlogger.Enter(method)
+
+	id := 69
+
+	cc := models.CreditCard{
+		ID:                   id,
+		UserID:               1,
+		Name:                 "TestUpdateCreditCard",
+		Balance:              1000.0,
+		Limit:                20000.0,
+		APR:                  26.2,
+		MinPayment:           35.00,
+		MinPaymentPercentage: 10,
+	}
+
+	p.GormDB.Create(&cc)
+
+	token := testingutils.GetUserJWT(t)
+
+	//ID from url does not exist
+	writer := MakeRequest(http.MethodPut, "/users/2/credit-cards/127", cc, true, token)
+	assert.Equal(t, http.StatusNotFound, writer.Code)
+
+	//Object does exist, but belongs to another user so we get not found error
+	writer = MakeRequest(http.MethodPut, fmt.Sprintf("/users/2/credit-cards/%d", id), cc, true, token)
+	assert.Equal(t, http.StatusNotFound, writer.Code)
+
+	p.GormDB.Delete(cc)
+
 	fmlogger.Exit(method)
 }

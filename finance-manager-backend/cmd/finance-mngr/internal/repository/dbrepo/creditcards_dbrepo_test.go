@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
 
@@ -179,11 +180,10 @@ func TestDeleteCreditCardsByUserID(t *testing.T) {
 	}
 
 	p.GormDB.First(&cc, id2)
-	
+
 	if cc.ID != id2 {
 		t.Errorf("expected record with %d to still exist but gorm failed to fetch it", id2)
 	}
-
 
 	tearDown()
 	fmlogger.Exit(method)
@@ -219,6 +219,30 @@ func TestDeleteCreditCardsByID(t *testing.T) {
 		t.Errorf("expected ErrRecordNotFound after deleting entry but a different error was thrown by gorm: %v", err)
 	}
 
+	fmlogger.Exit(method)
+}
+
+func TestUpdateCreditCard(t *testing.T) {
+	method := "creditcards_dbrepo_test.TestUpdateCreditCard"
+	fmlogger.Enter(method)
+	var ccDb models.CreditCard
+	
+	//Insert Credit Card
+	cc1 := models.CreditCard{ID: 1, UserID: 1, Name: "loan1", Balance: 1000.0, APR: 0.26, MinPayment: 35.00, MinPaymentPercentage: 0.1, CreateDt: time.Now(), LastUpdateDt: time.Now()}
+	p.GormDB.Create(&cc1)
+
+	cc2 := cc1
+	cc2.Balance = 2000
+	cc2.MinPaymentPercentage = 2
+
+	err := d.UpdateCreditCard(cc2)
+
+	p.GormDB.First(&ccDb, cc2.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, cc2.Balance, ccDb.Balance)
+	assert.Equal(t, cc2.MinPaymentPercentage, ccDb.MinPaymentPercentage)
+
+	tearDown()
 	fmlogger.Exit(method)
 }
 
