@@ -2,6 +2,7 @@ package models
 
 import (
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
+	"math"
 	"sort"
 	"time"
 )
@@ -41,9 +42,16 @@ type IncomeSummary struct {
 	TotalIncome float64       `json:"totalIncome"`
 }
 
+type CreditSummary struct {
+	Total       float64 `json:"total"`
+	Available   float64 `json:"available"`
+	Utilization float64 `json:"utilization"`
+}
+
 type Summary struct {
 	IncomeSummary  IncomeSummary  `json:"incomeSummary"`
 	ExpenseSummary ExpenseSummary `json:"expenseSummary"`
+	CreditSummary  CreditSummary  `json:"creditSummary"`
 	NetFunds       float64        `json:"netFunds"`
 }
 
@@ -183,8 +191,9 @@ func (s *Summary) LoadCreditCards(carr []*CreditCard) {
 	method := "Summary.LoadCreditCards"
 	fmlogger.Enter(method)
 
-	tc := 0.0
-	tb := 0.0
+	tcost := 0.0
+	tbalance := 0.0
+	tcredit := 0.0
 
 	//Loop through each credit card and add up the values
 	for _, cc := range carr {
@@ -200,13 +209,28 @@ func (s *Summary) LoadCreditCards(carr []*CreditCard) {
 
 		//Add new item and increment total values
 		s.ExpenseSummary.Expenses = append(s.ExpenseSummary.Expenses, i)
-		tc += cc.Payment
-		tb += cc.Balance
+		tcost += cc.Payment
+		tcredit += cc.Limit
+		tbalance += cc.Balance
 	}
 
 	//Set totals for the month
-	s.ExpenseSummary.CreditCardCost = tc
-	s.ExpenseSummary.CreditCardBalance = tb
+	s.ExpenseSummary.CreditCardCost = tcost
+	s.ExpenseSummary.CreditCardBalance = tbalance
+
+	var u float64
+	if tcredit > 0 {
+		u = math.Round((tbalance / tcredit) * 100)
+	}
+
+	//Set the Credit totals
+	cs := CreditSummary{
+		Total:       tcredit,
+		Available:   tcredit - tbalance,
+		Utilization: u,
+	}
+
+	s.CreditSummary = cs
 
 	//Recalculate total cost
 	s.ExpenseSummary.CalculateExpenses()

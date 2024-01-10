@@ -102,6 +102,9 @@ func TestLoadCreditCards(t *testing.T) {
 	assert.Equal(t, float64(len(carr)), s.ExpenseSummary.CreditCardBalance)
 	assert.Equal(t, float64(len(carr)), s.ExpenseSummary.TotalCost)
 	assert.Equal(t, float64(len(carr)), s.ExpenseSummary.CreditCardCost)
+	assert.Equal(t, float64(len(carr)), s.CreditSummary.Total)
+	assert.Equal(t, 0.0, s.CreditSummary.Available)
+	assert.Equal(t, 100.0, s.CreditSummary.Utilization)
 
 	//Expenses should have the same length as array since only it was loaded
 	assert.Equal(t, len(carr), len(s.ExpenseSummary.Expenses))
@@ -170,6 +173,7 @@ func mockCreditCards() []*CreditCard {
 
 	c1 := CreditCard{
 		Name:                 "CC1",
+		Limit:                1,
 		Payment:              1,
 		MinPayment:           1,
 		MinPaymentPercentage: 10,
@@ -178,6 +182,7 @@ func mockCreditCards() []*CreditCard {
 
 	c2 := CreditCard{
 		Name:                 "CC2",
+		Limit:                1,
 		Payment:              1,
 		MinPayment:           1,
 		MinPaymentPercentage: 10,
