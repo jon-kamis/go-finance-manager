@@ -190,3 +190,62 @@ func (fmh *FinanceManagerHandler) DeleteCreditCardById(w http.ResponseWriter, r 
 	fmlogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
 }
+
+func (fmh *FinanceManagerHandler) UpdateCreditCard(w http.ResponseWriter, r *http.Request) {
+	method := "creditcard_handler.UpdateCreditCard"
+	fmlogger.Enter(method)
+
+	var payload models.CreditCard
+	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
+	ccId, err1 := strconv.Atoi(chi.URLParam(r, "ccId"))
+
+	if err != nil {
+		fmlogger.ExitError(method, constants.UserForbiddenToViewOtherUserDataError, err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
+		return
+	}
+
+	if err1 != nil {
+		fmlogger.ExitError(method, "unexpected error occured when processing credit card id", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	// Read in credit card from payload
+	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
+	if err != nil {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
+		fmlogger.ExitError(method, "failed to parse JSON object", err)
+		return
+	}
+
+	// Validate that the credit card exists
+	cc, err := fmh.DB.GetCreditCardByID(ccId)
+	if err != nil || cc.ID == 0 {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
+		fmlogger.ExitError(method, "credit card does not exist", err)
+		return
+	}
+
+	// Validate that the credit card belongs to the user. Return Not Found error to mask existence
+	err = fmh.Validator.CreditCardBelongsToUser(cc, userId)
+	if err != nil {
+		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.EntityNotFoundError), http.StatusNotFound)
+		fmlogger.ExitError(method, "credit card does not belong to logged in user", err)
+		return
+	}
+
+	//Validate the credit card object
+	payload.ValidateCanSaveCreditCard()
+
+	// Update the credit card
+	err = fmh.DB.UpdateCreditCard(payload)
+	if err != nil {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		fmlogger.ExitError(method, "failed to update credit card", err)
+		return
+	}
+
+	fmlogger.Exit(method)
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
+}

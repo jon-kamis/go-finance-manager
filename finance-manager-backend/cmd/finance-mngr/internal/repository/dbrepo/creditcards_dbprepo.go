@@ -220,3 +220,47 @@ func (m *PostgresDBRepo) DeleteCreditCardsByID(id int) error {
 	fmlogger.Exit(method)
 	return nil
 }
+
+func (m *PostgresDBRepo) UpdateCreditCard(cc models.CreditCard) error {
+	method := "creditcards_dbrepo.UpdateCreditCard"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	stmt :=
+		`UPDATE credit_cards 
+		SET
+			user_id = $2,
+			name = $3,
+			balance = $4,
+			credit_limit = $5,
+			apr = $6,
+			min_pay = $7,
+			min_pay_percentage = $8,
+			create_dt = $9,
+			last_update_dt = $10
+		WHERE
+			id = $1`
+
+	_, err := m.DB.ExecContext(ctx, stmt,
+		cc.ID,
+		cc.UserID,
+		cc.Name,
+		cc.Balance,
+		cc.Limit,
+		cc.APR,
+		cc.MinPayment,
+		cc.MinPaymentPercentage,
+		time.Now(),
+		time.Now(),
+	)
+
+	if err != nil {
+		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		return err
+	}
+
+	fmlogger.Exit(method)
+	return nil
+}

@@ -60,4 +60,5 @@ type DatabaseRepo interface {
 	DeleteCreditCardsByID(id int) error
 	DeleteCreditCardsByUserID(id int) error
 	InsertCreditCard(cc models.CreditCard) (int, error)
+	UpdateCreditCard(cc models.CreditCard) error
 }
