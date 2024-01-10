@@ -18,18 +18,18 @@ const NavMenu = (props) => {
             path: "/about",
         },
         {
-            id: 2,
-            text: "Users",
-            requiresJwt: true,
-            requiresAdmin: true,
-            path: "/users",
-        },
-        {
-            id: 3,
-            text: "Loans",
+            id: 5,
+            text: "Bills",
             requiresJwt: true,
             requiresAdmin: false,
-            path: `/users/${props.loggedInUserId}/loans`,
+            path: `/users/${props.loggedInUserId}/bills`,
+        },
+        {
+            id: 6,
+            text: "Credit Cards",
+            requiresJwt: true,
+            requiresAdmin: false,
+            path: `/users/${props.loggedInUserId}/credit-cards`
         },
         {
             id: 4,
@@ -39,12 +39,19 @@ const NavMenu = (props) => {
             path: `/users/${props.loggedInUserId}/incomes`,
         },
         {
-            id: 5,
-            text: "Bills",
+            id: 3,
+            text: "Loans",
             requiresJwt: true,
             requiresAdmin: false,
-            path: `/users/${props.loggedInUserId}/bills`,
-        }
+            path: `/users/${props.loggedInUserId}/loans`,
+        },
+        {
+            id: 2,
+            text: "Users",
+            requiresJwt: true,
+            requiresAdmin: true,
+            path: "/users",
+        },
     ];
 
     const hasRole = (key) => {
