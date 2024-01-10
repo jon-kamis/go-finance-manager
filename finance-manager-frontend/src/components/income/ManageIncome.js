@@ -84,6 +84,7 @@ const ManageIncome = forwardRef((props, ref) => {
         headers.append("Authorization", `Bearer ${jwtToken}`)
 
         income.rate = parseFloat(income.rate)
+        income.taxPercentage = parseFloat(income.taxPercentage)
 
         const requestOptions = {
             method: "PUT",

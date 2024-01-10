@@ -15,6 +15,19 @@ const Home = () => {
 
     const navigate = useNavigate();
 
+    function getSource(source) {
+        switch(source) {
+            case "bill":
+                return "Bill"
+            case "credit-card":
+                return "Credit Card"
+            case "taxes":
+                return "Taxes"
+            case "loan":
+                return "Loan"
+        }
+    }
+
     useEffect(() => {
         if (jwtToken === null || jwtToken === "") {
             navigate("/")
@@ -88,7 +101,7 @@ const Home = () => {
                                                             <>
                                                                 <tr key={e.name}>
                                                                     <td className="text-start">{e.name}</td>
-                                                                    <td className="text-start">{e.source}</td>
+                                                                    <td className="text-start">{getSource(e.source)}</td>
                                                                     <td className="text-start">${Intl.NumberFormat("en-US", numberFormatOptions).format(e.amount)}</td>
                                                                 </tr>
                                                             </>
@@ -138,7 +151,7 @@ const Home = () => {
                                                 xAxis={[
                                                     {
                                                         id: 'categories',
-                                                        data: ['Taxes', 'Loans', 'Bills'],
+                                                        data: ['Taxes', 'Loans', 'Bills', 'Credit Cards'],
                                                         scaleType: 'band',
                                                     },
                                                 ]}
@@ -147,7 +160,7 @@ const Home = () => {
                                                         type: 'bar',
                                                         stack: '',
                                                         yAxisKey: 'cost',
-                                                        data: [summary.expenseSummary.taxes, summary.expenseSummary.loanCost, summary.expenseSummary.bills],
+                                                        data: [summary.expenseSummary.taxes, summary.expenseSummary.loanCost, summary.expenseSummary.bills, summary.expenseSummary.creditCards],
                                                     },
                                                 ]}
                                                 yAxis={[

@@ -46,6 +46,13 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 		return
 	}
 
+	ccs, err := fmh.DB.GetAllUserCreditCards(id, "")
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when fetching credit cards", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
 	for _, i := range incomes {
 		i.PopulateEmptyValues(time.Now())
 	}
@@ -53,6 +60,7 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 	summary.LoadLoans(loans)
 	summary.LoadIncomes(incomes)
 	summary.LoadBills(bills)
+	summary.LoadCreditCards(ccs)
 
 	summary.Finalize()
 
