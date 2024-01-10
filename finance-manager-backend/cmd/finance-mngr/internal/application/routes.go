@@ -45,7 +45,7 @@ func (app *Application) Routes() http.Handler {
 				r.Get("/", app.Handler.GetAllUserLoans)
 				r.Post("/", app.Handler.SaveLoan)
 
-				r.Route("/{incomeId}", func(r chi.Router) {
+				r.Route("/{loanId}", func(r chi.Router) {
 					r.Get("/", app.Handler.GetLoanById)
 					r.Put("/", app.Handler.UpdateLoan)
 					r.Delete("/", app.Handler.DeleteLoanById)

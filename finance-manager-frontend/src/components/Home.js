@@ -16,7 +16,7 @@ const Home = () => {
     const navigate = useNavigate();
 
     function getSource(source) {
-        switch(source) {
+        switch (source) {
             case "bill":
                 return "Bill"
             case "credit-card":
@@ -140,6 +140,26 @@ const Home = () => {
                                 </div>
                             </div>
                         </div>
+                        <div className="container-fluid d-flex justify-content-between">
+                            <div className="col-md-4 d-flex flex-column">
+                                <div className="p-4 content">
+                                    <h2>Total Credit</h2>
+                                    <h1>${Intl.NumberFormat("en-US", numberFormatOptions).format(summary && summary.creditSummary ? summary.creditSummary.total : 0)}</h1>
+                                </div>
+                            </div>
+                            <div className="col-md-4 d-flex flex-column">
+                                <div className="p-4 content">
+                                    <h2>Available Credit</h2>
+                                    <h1>${Intl.NumberFormat("en-US", numberFormatOptions).format(summary && summary.creditSummary ? summary.creditSummary.available : 0)}</h1>
+                                </div>
+                            </div>
+                            <div className="col-md-4 d-flex flex-column">
+                                <div className="p-4 content">
+                                    <h2>Credit Utilization</h2>
+                                    <h1>{Intl.NumberFormat("en-US", numberFormatOptions).format(summary && summary.creditSummary ? summary.creditSummary.utilization : 0)}%</h1>
+                                </div>
+                            </div>
+                        </div>
                         <div className="container-fluid">
                             <div className="col-md-12 d-flex flex-column">
                                 {summary && summary.expenseSummary &&
@@ -185,6 +205,24 @@ const Home = () => {
                                                 <ChartsYAxis label="" position="left" axisId="cost" />
                                             </ChartContainer>
                                         </div>
+                                        <div className="d-flex justify-content-between">
+                                            <div className="col-md-3 flex-col">
+                                                <h1>Taxes</h1>
+                                                <p><b>${Intl.NumberFormat("en-US", numberFormatOptions).format(summary && summary.expenseSummary ? summary.expenseSummary.taxes : 0)}</b></p>
+                                            </div>
+                                            <div className="col-md-3 flex-col">
+                                                <h1>Loans</h1>
+                                                <p><b>${Intl.NumberFormat("en-US", numberFormatOptions).format(summary && summary.expenseSummary ? summary.expenseSummary.loanCost : 0)}</b></p>
+                                            </div>
+                                            <div className="col-md-3 flex-col">
+                                                <h1>Bills</h1>
+                                                <p><b>${Intl.NumberFormat("en-US", numberFormatOptions).format(summary && summary.expenseSummary ? summary.expenseSummary.bills : 0)}</b></p>
+                                            </div>
+                                            <div className="col-md-3 flex-col">
+                                                <h1>Credit Cards</h1>
+                                                <p><b>${Intl.NumberFormat("en-US", numberFormatOptions).format(summary && summary.expenseSummary ? summary.expenseSummary.creditCards : 0)}</b></p>
+                                            </div>
+                                        </div>
                                     </div>
                                 }
                             </div>
@@ -195,10 +233,10 @@ const Home = () => {
                         <div className="d-flex">
                             <div className="p-4 col-md-12 content text-center">
                                 <h1>Welcome to Finance Manager!</h1>
-                                <br/>
+                                <br />
                                 <h3>This application is designed to help manage personal finances. This is a personal project not intended for public use. Values are not gauranteed to be accurate</h3>
-                                <br/>
-                                <br/>
+                                <br />
+                                <br />
                                 <h2>Please <Link to="/login">Login</Link> to access the application</h2>
                             </div>
                         </div>
