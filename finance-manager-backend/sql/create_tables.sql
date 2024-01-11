@@ -193,6 +193,55 @@ ALTER TABLE public.incomes ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 );
 
 --
+-- Name: stocks; Type: Table; Schema: public; Owner: -
+--
+CREATE TABLE public.stocks (
+    id integer NOT NULL,
+    ticker character varying(255) NOT NULL,
+    current_price NUMERIC(10, 2) NOT NULL,
+    current_high NUMERIC(10, 2) NOT NULL,
+    current_low NUMERIC(10, 2) NOT NULL,
+    create_dt timestamp,
+    last_update_dt timestamp
+);
+
+--
+-- Name: stocks_id_seq; Type: SEQUENCE; Schema: public; Owner -
+--
+ALTER TABLE public.stocks ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stocks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+--
+-- Name: user_stocks; Type: Table; Schema: public; Owner: -
+--
+CREATE TABLE public.user_stocks (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    ticker character varying(255) NOT NULL,
+    quantity NUMERIC(10,4) NOT NULL,
+    create_dt timestamp,
+    last_update_dt timestamp
+);
+
+--
+-- Name: user_stocks_id_seq; Type: SEQUENCE; Schema: public; Owner -
+--
+ALTER TABLE public.user_stocks ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.user_stocks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+--
 -- Name: bills; Type: TABLE; Schema: public; Owner: -
 --
 
