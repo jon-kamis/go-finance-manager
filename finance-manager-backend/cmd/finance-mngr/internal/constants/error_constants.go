@@ -1,6 +1,12 @@
 //Package constants contains application constants
 package constants
 
+//Generic Errors
+const GenericForbiddenError = "forbidden"
+const GenericServerError = "an unexpected error has occured"
+const GenericNotFoundError = "not found"
+const GenericBadRequestError = "bad request"
+
 //DB Errors
 const EntityNotFoundError = "entity not found"
 const UnexpectedSQLError = "an unexpected error occured during the database call"

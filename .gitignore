@@ -9,6 +9,9 @@
 *.dylib
 **/postgres-data/**
 
+#API Key file
+API.key
+
 # Test binary, built with `go test -c`
 *.test
 
