@@ -1,3 +1,4 @@
+//Package fmUtil contains utility methods used by the Finance Manager application
 package fmUtil
 
 import (

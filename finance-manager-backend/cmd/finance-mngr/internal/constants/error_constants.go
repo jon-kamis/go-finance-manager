@@ -1,3 +1,4 @@
+//Package constants contains application constants
 package constants
 
 //DB Errors

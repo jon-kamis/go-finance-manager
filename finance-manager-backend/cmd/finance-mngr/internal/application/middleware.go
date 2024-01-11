@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+//Function EnableCORS enables CORS security on API requests
 func (app *Application) EnableCORS(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", app.FrontendUrl)
@@ -20,6 +21,8 @@ func (app *Application) EnableCORS(h http.Handler) http.Handler {
 	})
 }
 
+//Function AuthRequired is used as middleware for a router request and will block any request using it that does not have a valid
+//JWT token issues by this application
 func (app *Application) AuthRequired(next http.Handler) http.Handler {
 	method := "middleware.AuthRequired"
 	fmlogger.Enter(method)

@@ -42,6 +42,8 @@ Once installed, the app can be started with the following command from the direc
 
 `docker compose up --build`
 
+The application can then be accessed at http://localhost:3000
+
 ### Running the application in individual layers
 Alternatively, if you would like to build the application by individual layers, you can do the following
 

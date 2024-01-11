@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+//Function Routes contains the mappings of each API url to the method which implements the given API
 func (app *Application) Routes() http.Handler {
 	// Create a router r
 	r := chi.NewRouter()

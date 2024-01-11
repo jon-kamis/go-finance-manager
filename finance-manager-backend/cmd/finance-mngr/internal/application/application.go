@@ -1,3 +1,4 @@
+//Package application contains core files required to run a GO web API
 package application
 
 import (
@@ -7,6 +8,7 @@ import (
 	"finance-manager-backend/cmd/finance-mngr/internal/repository"
 )
 
+//Type Application stores environment variables and objects required to run Finance Manager
 type Application struct {
 	DSN          string
 	Domain       string

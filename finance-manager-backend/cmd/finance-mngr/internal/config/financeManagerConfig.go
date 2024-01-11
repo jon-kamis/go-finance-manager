@@ -1,5 +1,7 @@
+//Package config contains files used to read ENV values into the application as well as providing default values for each env variable
 package config
 
+//Type FinanceManagerConfig contains all of the ENV values used by the application
 type FinanceManagerConfig struct {
 	DSN          Env_value
 	JWTSecret    Env_value
@@ -11,6 +13,7 @@ type FinanceManagerConfig struct {
 	TimeZone     Env_value
 }
 
+//Function GetDefaultConfig returns a FinanceManagerConfig object containing the default values for each environment variable
 func GetDefaultConfig() FinanceManagerConfig {
 	config := FinanceManagerConfig{
 		DSN: Env_value{

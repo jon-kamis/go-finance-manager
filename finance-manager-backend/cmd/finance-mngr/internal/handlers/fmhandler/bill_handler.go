@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+//Function GetAllUserBills fetches all Bill objects for a given User and accepts a search parameter
 func (fmh *FinanceManagerHandler) GetAllUserBills(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.GetAllUserBills"
 	fmlogger.Enter(method)
@@ -36,6 +37,7 @@ func (fmh *FinanceManagerHandler) GetAllUserBills(w http.ResponseWriter, r *http
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, bills)
 }
 
+//Function GetBillById fetches a specific Bill object for a given user
 func (fmh *FinanceManagerHandler) GetBillById(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.GetBillById"
 	fmlogger.Enter(method)
@@ -75,6 +77,7 @@ func (fmh *FinanceManagerHandler) GetBillById(w http.ResponseWriter, r *http.Req
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, bill)
 }
 
+//Function SaveBill inserts a new Bill object into the database for a given user
 func (fmh *FinanceManagerHandler) SaveBill(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.SaveBill"
 	fmlogger.Enter(method)
@@ -119,6 +122,7 @@ func (fmh *FinanceManagerHandler) SaveBill(w http.ResponseWriter, r *http.Reques
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, "new loan was saved successfully")
 }
 
+//Function UpdateBill updates a specific bill by its id for a given user
 func (fmh *FinanceManagerHandler) UpdateBill(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.UpdateBill"
 	fmlogger.Enter(method)
@@ -178,6 +182,7 @@ func (fmh *FinanceManagerHandler) UpdateBill(w http.ResponseWriter, r *http.Requ
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, "Bill updated successfully")
 }
 
+//Function DeleteBillById deletes a specific bill object by its id for a given user
 func (fmh *FinanceManagerHandler) DeleteBillById(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.DeleteBillById"
 	fmlogger.Enter(method)
