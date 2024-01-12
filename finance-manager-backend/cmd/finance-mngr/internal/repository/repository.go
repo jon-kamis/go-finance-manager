@@ -110,7 +110,14 @@ type DatabaseRepo interface {
 
 	//Inserts a new stock object
 	InsertStock(s models.Stock) (int, error)
+
+	//Gets a Stock by its ticker
 	GetStockByTicker(t string) (models.Stock, error)
+
+	//Fetches the stock that has both the oldest date and last_update_dt
+	GetOldestStock() (models.Stock, error)
+
+	UpdateStock(s models.Stock) error
 
 	/*** User Stocks ***/
 

@@ -6,6 +6,7 @@ import (
 	"finance-manager-backend/cmd/finance-mngr/internal/handlers"
 	"finance-manager-backend/cmd/finance-mngr/internal/jsonutils"
 	"finance-manager-backend/cmd/finance-mngr/internal/repository"
+	"finance-manager-backend/cmd/finance-mngr/internal/stockservice.go"
 )
 
 // Type Application stores environment variables and objects required to run Finance Manager
@@ -21,4 +22,5 @@ type Application struct {
 	FrontendUrl   string
 	Handler       handlers.Handler
 	JSONUtil      jsonutils.JSONUtils
+	StocksService stockservice.StockService
 }

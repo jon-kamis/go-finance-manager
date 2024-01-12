@@ -109,9 +109,6 @@ type Handler interface {
 
 	/*** Stocks ***/
 
-	//Loads in API key for external stock calls
-	LoadApiKeyFromFile() error
-
 	//Fetches a response indicating if stocks are enabled or not
 	GetIsStocksEnabled(w http.ResponseWriter, r *http.Request)
 

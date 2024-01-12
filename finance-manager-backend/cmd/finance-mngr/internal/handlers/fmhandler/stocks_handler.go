@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (fmh *FinanceManagerHandler) loadStock(ticker string, token string) error {
+func (fmh *FinanceManagerHandler) loadStock(ticker string) error {
 	method := "stocks_handler.fetchStock"
 	fmlogger.Enter(method)
 
@@ -28,7 +28,7 @@ func (fmh *FinanceManagerHandler) loadStock(ticker string, token string) error {
 		return nil
 	}
 
-	s, err = fmh.StocksService.FetchStockWithTicker(ticker, token)
+	s, err = fmh.StocksService.FetchStockWithTicker(ticker)
 
 	if err != nil {
 		fmlogger.ExitError(method, constants.UnexpectedExternalCallError, err)
@@ -52,7 +52,7 @@ func (fmh *FinanceManagerHandler) GetIsStocksEnabled(w http.ResponseWriter, r *h
 	fmlogger.Enter(method)
 
 	re := models.StocksEnabledResponse{
-		Enabled: fmh.StocksEnabled,
+		Enabled: fmh.StocksService.GetIsStocksEnabled(),
 	}
 
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, re)
@@ -99,7 +99,7 @@ func (fmh *FinanceManagerHandler) PostStocksAPIKey(w http.ResponseWriter, r *htt
 		return
 	}
 
-	err = fmh.UpdateAndPersistAPIKey(payload.Key)
+	err = fmh.StocksService.UpdateAndPersistAPIKey(payload.Key)
 	if err != nil {
 		fmlogger.ExitError(method, constants.GenericServerError, err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.GenericServerError), http.StatusInternalServerError)
@@ -143,7 +143,7 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 	}
 
 	//Fetch or Load the requested stock
-	err = fmh.loadStock(payload.Ticker, fmh.PolygonApiKey)
+	err = fmh.loadStock(payload.Ticker)
 
 	if err != nil {
 		rerr := errors.New(constants.GenericServerError)

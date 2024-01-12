@@ -53,23 +53,32 @@ func main() {
 
 	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 	app.JSONUtil = &jsonutils.JSONUtil{}
-	app.Handler = &fmhandler.FinanceManagerHandler{
-		JSONUtil:      &jsonutils.JSONUtil{},
-		DB:            app.DB,
-		Auth:          app.Auth,
-		Validator:     &validation.FinanceManagerValidator{DB: app.DB},
-		StocksEnabled: false,
+
+	stockService := fmstockservice.FmStockService{
+		StocksEnabled:        false,
 		StocksApiKeyFileName: constants.APIKeyFileName,
-		StocksService: &fmstockservice.FmStockService{},
 	}
 
-	_ = app.Handler.LoadApiKeyFromFile()
+	stockService.LoadApiKeyFromFile()
+
+	app.StocksService = &stockService
+	app.Handler = &fmhandler.FinanceManagerHandler{
+		JSONUtil:  &jsonutils.JSONUtil{},
+		DB:        app.DB,
+		Auth:      app.Auth,
+		Validator: &validation.FinanceManagerValidator{DB: app.DB},
+
+		StocksService: &stockService,
+	}
 
 	defer app.DB.Connection().Close()
 
 	app.Domain = "fm.com"
 
 	log.Println("Starting application on port", port)
+
+	//Kick off Scheduled Jobs
+	go scheduledMinuteJobs(time.NewTicker(time.Minute*1), app)
 
 	//start a web server
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), app.Routes())
