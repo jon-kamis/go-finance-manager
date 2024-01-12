@@ -1,4 +1,4 @@
-//Package constants contains application constants
+// Package constants contains application constants
 package constants
 
 //Generic Errors
@@ -31,3 +31,8 @@ const InvalidAuthHeaderError = "authorization header is invalid"
 const InvalidSigningMethodError = "unexpected signing method"
 const ExpiredTokenError = "token is expired"
 const InvalidIssuerError = "invalid issuer"
+
+//External Calls
+const UnexpectedExternalCallError = "unexpected error was returned when making external API call"
+const FailedToParseJsonBodyError = "failed to unmarshal json payload"
+const UnexpectedResponseCodeError = "unexpected response code during remote call"

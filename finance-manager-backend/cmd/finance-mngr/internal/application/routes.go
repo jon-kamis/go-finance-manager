@@ -106,6 +106,11 @@ func (app *Application) Routes() http.Handler {
 					r.Put("/", app.Handler.UpdateCreditCard)
 				})
 			})
+
+			//Stocks
+			r.Route("/stocks", func(r chi.Router) {
+				r.Post("/", app.Handler.SaveUserStock)
+			})
 		})
 
 	})

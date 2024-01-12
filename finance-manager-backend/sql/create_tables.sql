@@ -198,9 +198,11 @@ ALTER TABLE public.incomes ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 CREATE TABLE public.stocks (
     id integer NOT NULL,
     ticker character varying(255) NOT NULL,
-    current_price NUMERIC(10, 2) NOT NULL,
-    current_high NUMERIC(10, 2) NOT NULL,
-    current_low NUMERIC(10, 2) NOT NULL,
+    high NUMERIC(10, 4) NOT NULL,
+    low NUMERIC(10, 4) NOT NULL,
+    open NUMERIC(10, 4) NOT NULL,
+    close NUMERIC(10, 4) NOT NULl,
+    date timestamp,
     create_dt timestamp,
     last_update_dt timestamp
 );

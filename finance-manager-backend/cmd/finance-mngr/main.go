@@ -8,6 +8,7 @@ import (
 	"finance-manager-backend/cmd/finance-mngr/internal/handlers/fmhandler"
 	"finance-manager-backend/cmd/finance-mngr/internal/jsonutils"
 	"finance-manager-backend/cmd/finance-mngr/internal/repository/dbrepo"
+	"finance-manager-backend/cmd/finance-mngr/internal/stockservice.go/fmstockservice"
 	"finance-manager-backend/cmd/finance-mngr/internal/validation"
 	"fmt"
 	"log"
@@ -59,6 +60,7 @@ func main() {
 		Validator:     &validation.FinanceManagerValidator{DB: app.DB},
 		StocksEnabled: false,
 		StocksApiKeyFileName: constants.APIKeyFileName,
+		StocksService: &fmstockservice.FmStockService{},
 	}
 
 	_ = app.Handler.LoadApiKeyFromFile()

@@ -118,6 +118,11 @@ type Handler interface {
 	//Initializes or overwrites the API key for stocks
 	PostStocksAPIKey(w http.ResponseWriter, r *http.Request)
 
+	/*** User Stocks ***/
+
+	//Saves New User Stocks object
+	SaveUserStock(w http.ResponseWriter, r *http.Request)
+
 	/*** Users ***/
 
 	//Deletes a specific user by id

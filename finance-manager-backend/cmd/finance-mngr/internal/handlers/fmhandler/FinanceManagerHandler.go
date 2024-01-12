@@ -5,6 +5,7 @@ import (
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/jsonutils"
 	"finance-manager-backend/cmd/finance-mngr/internal/repository"
+	"finance-manager-backend/cmd/finance-mngr/internal/stockservice.go"
 	"finance-manager-backend/cmd/finance-mngr/internal/validation"
 	"os"
 )
@@ -18,6 +19,7 @@ type FinanceManagerHandler struct {
 	PolygonApiKey        string
 	StocksEnabled        bool
 	StocksApiKeyFileName string
+	StocksService        stockservice.StockService
 }
 
 func (fmh FinanceManagerHandler) GetVersion() string {
