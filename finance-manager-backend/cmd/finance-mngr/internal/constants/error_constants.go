@@ -1,5 +1,11 @@
-//Package constants contains application constants
+// Package constants contains application constants
 package constants
+
+//Generic Errors
+const GenericForbiddenError = "forbidden"
+const GenericServerError = "an unexpected error has occured"
+const GenericNotFoundError = "not found"
+const GenericBadRequestError = "bad request"
 
 //DB Errors
 const EntityNotFoundError = "entity not found"
@@ -25,3 +31,8 @@ const InvalidAuthHeaderError = "authorization header is invalid"
 const InvalidSigningMethodError = "unexpected signing method"
 const ExpiredTokenError = "token is expired"
 const InvalidIssuerError = "invalid issuer"
+
+//External Calls
+const UnexpectedExternalCallError = "unexpected error was returned when making external API call"
+const FailedToParseJsonBodyError = "failed to unmarshal json payload"
+const UnexpectedResponseCodeError = "unexpected response code during remote call"

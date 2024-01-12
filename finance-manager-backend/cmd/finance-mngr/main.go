@@ -4,9 +4,11 @@ import (
 	"finance-manager-backend/cmd/finance-mngr/internal/application"
 	"finance-manager-backend/cmd/finance-mngr/internal/authentication"
 	"finance-manager-backend/cmd/finance-mngr/internal/config"
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
 	"finance-manager-backend/cmd/finance-mngr/internal/handlers/fmhandler"
 	"finance-manager-backend/cmd/finance-mngr/internal/jsonutils"
 	"finance-manager-backend/cmd/finance-mngr/internal/repository/dbrepo"
+	"finance-manager-backend/cmd/finance-mngr/internal/stockservice.go/fmstockservice"
 	"finance-manager-backend/cmd/finance-mngr/internal/validation"
 	"fmt"
 	"log"
@@ -52,11 +54,16 @@ func main() {
 	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 	app.JSONUtil = &jsonutils.JSONUtil{}
 	app.Handler = &fmhandler.FinanceManagerHandler{
-		JSONUtil:  &jsonutils.JSONUtil{},
-		DB:        app.DB,
-		Auth:      app.Auth,
-		Validator: &validation.FinanceManagerValidator{DB: app.DB},
+		JSONUtil:      &jsonutils.JSONUtil{},
+		DB:            app.DB,
+		Auth:          app.Auth,
+		Validator:     &validation.FinanceManagerValidator{DB: app.DB},
+		StocksEnabled: false,
+		StocksApiKeyFileName: constants.APIKeyFileName,
+		StocksService: &fmstockservice.FmStockService{},
 	}
+
+	_ = app.Handler.LoadApiKeyFromFile()
 
 	defer app.DB.Connection().Close()
 

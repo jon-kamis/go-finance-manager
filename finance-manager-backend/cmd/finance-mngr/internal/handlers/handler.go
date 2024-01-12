@@ -11,7 +11,7 @@ type Handler interface {
 
 	//Fetches all bills for a given user and accepts a search parameter
 	GetAllUserBills(w http.ResponseWriter, r *http.Request)
-	
+
 	//Fetches a specific Bill by its id for a given user
 	GetBillById(w http.ResponseWriter, r *http.Request)
 
@@ -38,14 +38,10 @@ type Handler interface {
 	//Updates a specific CreditCard by its id for a given user
 	UpdateCreditCard(w http.ResponseWriter, r *http.Request)
 
-
-
 	/*** Home ***/
 
 	//Returns API information as a heartbeat
 	Home(w http.ResponseWriter, r *http.Request)
-
-
 
 	/*** Incomes ***/
 
@@ -64,8 +60,6 @@ type Handler interface {
 	//Updates a specific Income by its id for a given user
 	UpdateIncome(w http.ResponseWriter, r *http.Request)
 
-
-
 	/*** Loans ***/
 
 	//Performs a payment schedule calculation on a Loan object
@@ -79,7 +73,7 @@ type Handler interface {
 
 	//Fetches all Loans for a given user and accepts a search parameter
 	GetAllUserLoans(w http.ResponseWriter, r *http.Request)
-	
+
 	//Fetches a specific Loan by its id for a given user
 	GetLoanById(w http.ResponseWriter, r *http.Request)
 
@@ -92,9 +86,6 @@ type Handler interface {
 	//Updates a specific Loan by its id for a given user
 	UpdateLoan(w http.ResponseWriter, r *http.Request)
 
-
-
-
 	/*** Login ***/
 
 	//Validates supplied credentials then generates and returns a JWT TokenPair
@@ -106,29 +97,37 @@ type Handler interface {
 	//Accepts a refresh token and generates a new JWT TokenPair with refreshed expiration date
 	RefreshToken(w http.ResponseWriter, r *http.Request)
 
-
-
 	/*** Registration ***/
 
 	//Validates and Inserts a new User into the database
 	Register(w http.ResponseWriter, r *http.Request)
-
-
-
 
 	/*** Roles ***/
 
 	//Fetches all Role objects
 	GetAllRoles(w http.ResponseWriter, r *http.Request)
 
+	/*** Stocks ***/
 
+	//Loads in API key for external stock calls
+	LoadApiKeyFromFile() error
 
+	//Fetches a response indicating if stocks are enabled or not
+	GetIsStocksEnabled(w http.ResponseWriter, r *http.Request)
+
+	//Initializes or overwrites the API key for stocks
+	PostStocksAPIKey(w http.ResponseWriter, r *http.Request)
+
+	/*** User Stocks ***/
+
+	//Saves New User Stocks object
+	SaveUserStock(w http.ResponseWriter, r *http.Request)
 
 	/*** Users ***/
 
 	//Deletes a specific user by id
 	DeleteUserById(w http.ResponseWriter, r *http.Request)
-	
+
 	//Fetches all user objects
 	GetAllUsers(w http.ResponseWriter, r *http.Request)
 
@@ -137,9 +136,6 @@ type Handler interface {
 
 	//Fetches a summary for a given user by id
 	GetUserSummary(w http.ResponseWriter, r *http.Request)
-
-
-	
 
 	/** User Roles **/
 
@@ -152,11 +148,8 @@ type Handler interface {
 	//Fetches a list of user Roles for a given user
 	GetUserRoles(w http.ResponseWriter, r *http.Request)
 
-
-
-
 	/** Version **/
-	
+
 	//Fetches the current API version and returns it
 	GetVersion() string
 }

@@ -8,34 +8,78 @@ import (
 type DatabaseRepo interface {
 	Connection() *sql.DB
 
-	// User functions
+	/*** User functions ***/
+
+	//Deletes a user object by its id
 	DeleteUserByID(id int) error
+
+	//Fetches a user object by its id
 	GetUserByID(id int) (*models.User, error)
+
+	//Fetches a user object by its username
 	GetUserByUsername(username string) (*models.User, error)
+
+	//Fetches a user object by either its username or its email
 	GetUserByUsernameOrEmail(username string, email string) (*models.User, error)
+
+	//Fetches all user objects
 	GetAllUsers(search string) ([]*models.User, error)
+
+	//Inserts a user object
 	InsertUser(models.User) (int, error)
+
+	//Updates an existing user object by its id
 	UpdateUserDetails(models.User) error
 
-	// Role functions
+	/*** Role functions ***/
+
+	//Fetches a role object by its code
 	GetRoleByCode(string) (*models.Role, error)
+
+	//Fetches a role object by its id
 	GetRoleById(string) (*models.Role, error)
+
+	//Fetches all role objects
 	GetAllRoles(string) ([]*models.Role, error)
 
-	// User Role functions
+	/*** User Role functions ***/
+
+	//Deletes User roles by their userId
 	DeleteUserRolesByUserID(id int) error
+
+	//Deletes a User role by its id
 	DeleteUserRoleByID(id int) error
+
+	//Fetches all user roles for a given userId
 	GetAllUserRoles(id int) ([]*models.UserRole, error)
+
+	//Fetches a User Role by its id
 	GetUserRoleByID(userRoleId int) (models.UserRole, error)
+
+	//Fetches a User Role by its roleId and userId
 	GetUserRoleByRoleIDAndUserID(roleId int, uId int) (models.UserRole, error)
+
+	//Inserts a new User Role
 	InsertUserRole(models.UserRole) (int, error)
 
-	// Loan Functions
+	/*** Loan Functions ***/
+
+	//Deletes Loans by their userId
 	DeleteLoansByUserID(id int) error
+
+	//Delets a Loan by its id
 	DeleteLoanByID(id int) error
+
+	//Fetches all loans for a given userId and accepts a search parameter
 	GetAllUserLoans(userId int, search string) ([]*models.Loan, error)
+
+	//Fetches a Loan by its id
 	GetLoanByID(id int) (models.Loan, error)
+
+	//Inserts a new Loan
 	InsertLoan(models.Loan) (int, error)
+
+	//Updates an existing loan
 	UpdateLoan(loan models.Loan) error
 
 	//Income Functions
@@ -61,4 +105,15 @@ type DatabaseRepo interface {
 	DeleteCreditCardsByUserID(id int) error
 	InsertCreditCard(cc models.CreditCard) (int, error)
 	UpdateCreditCard(cc models.CreditCard) error
+
+	/*** Stocks ***/
+
+	//Inserts a new stock object
+	InsertStock(s models.Stock) (int, error)
+	GetStockByTicker(t string) (models.Stock, error)
+
+	/*** User Stocks ***/
+
+	//Inserts a new user stock object
+	InsertUserStock(s models.UserStock) (int, error)
 }

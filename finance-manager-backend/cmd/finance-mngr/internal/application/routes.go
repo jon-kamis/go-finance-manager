@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-//Function Routes contains the mappings of each API url to the method which implements the given API
+// Function Routes contains the mappings of each API url to the method which implements the given API
 func (app *Application) Routes() http.Handler {
 	// Create a router r
 	r := chi.NewRouter()
@@ -21,7 +21,21 @@ func (app *Application) Routes() http.Handler {
 	r.Get("/refresh", app.Handler.RefreshToken)
 	r.Get("/logout", app.Handler.Logout)
 	r.Post("/register", app.Handler.Register)
-	r.Get("/roles", app.Handler.GetAllRoles)
+
+	r.Route("/roles", func(r chi.Router) {
+		r.Use(app.AuthRequired)
+		r.Get("/", app.Handler.GetAllRoles)
+	})
+
+	r.Route("/modules", func(r chi.Router) {
+		r.Use(app.AuthRequired)
+
+		r.Route("/stocks", func(r chi.Router) {
+			r.Get("/", app.Handler.GetIsStocksEnabled)
+			r.Post("/key", app.Handler.PostStocksAPIKey)
+		})
+
+	})
 
 	r.Route("/users", func(r chi.Router) {
 		r.Use(app.AuthRequired)
@@ -91,6 +105,11 @@ func (app *Application) Routes() http.Handler {
 					r.Delete("/", app.Handler.DeleteCreditCardById)
 					r.Put("/", app.Handler.UpdateCreditCard)
 				})
+			})
+
+			//Stocks
+			r.Route("/stocks", func(r chi.Router) {
+				r.Post("/", app.Handler.SaveUserStock)
 			})
 		})
 
