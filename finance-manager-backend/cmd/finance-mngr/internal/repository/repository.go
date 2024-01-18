@@ -123,4 +123,7 @@ type DatabaseRepo interface {
 
 	//Inserts a new user stock object
 	InsertUserStock(s models.UserStock) (int, error)
+
+	//Fetches all UserStocks for a given user and accepts a search string
+	GetAllUserStocks(userId int, search string) ([]*models.UserStock, error)
 }

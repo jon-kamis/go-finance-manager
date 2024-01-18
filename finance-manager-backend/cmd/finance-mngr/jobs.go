@@ -39,10 +39,20 @@ func updateStocks(t time.Time, app application.Application) {
 	}
 
 	//only run if the date of s is at least 1 days old
-	limit := time.Now().Add(-29 * time.Hour)
+	tz, err := time.LoadLocation("EST")
+	
+	if err != nil {
+		fmlogger.Error(method, constants.UnexpectedSQLError, err)
+		fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
+		return
+	}
 
-	if s.Date.Before(limit) {
-		fmlogger.Info(method, "performing update")
+	yesterday := time.Now()
+	yesterday = time.Date(yesterday.Year(), yesterday.Month(), yesterday.Day(), 9, 30, 0, 0, tz)
+	yesterday = yesterday.Add(-24 * time.Hour)
+
+	if s.Date.Before(yesterday) {
+		fmlogger.Info(method, "fetching updates for stock " + s.Ticker)
 		sn, err := app.StocksService.FetchStockWithTicker(s.Ticker)
 		
 		if err != nil {
