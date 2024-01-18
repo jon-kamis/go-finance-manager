@@ -1,6 +1,8 @@
 package fmhandler
 
 import (
+	"errors"
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
@@ -66,4 +68,60 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 
 	fmt.Printf("[EXIT %s]\n", method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, summary)
+}
+
+// Generates a summary of a user's stock portfolio and returns it
+func (fmh *FinanceManagerHandler) GetUserStockPortfolioSummary(w http.ResponseWriter, r *http.Request) {
+	method := "summary_handler.GetUserStockPortfolioSummary"
+	fmlogger.Enter(method)
+
+	//Read ID from url
+	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when reading url parameters", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
+		return
+	}
+
+	usl, err := fmh.DB.GetAllUserStocks(id, "")
+
+	if err != nil {
+		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
+		return
+	}
+
+	//Generate list of user positions
+	var pl []models.PortfolioPosition
+	var sum models.UserStockPortfolioSummary
+
+	for _, us := range usl {
+		s, err := fmh.DB.GetStockByTicker(us.Ticker)
+
+		if err != nil {
+			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
+			return
+		}
+
+		p := models.PortfolioPosition{
+			Ticker:   us.Ticker,
+			Quantity: us.Quantity,
+			Value:    (s.Close * us.Quantity),
+			Open:     s.Open,
+			Close:    s.Close,
+			High:     s.High,
+			Low:      s.Low,
+			AsOfDate: s.Date,
+		}
+
+		pl = append(pl, p)
+	}
+
+	//Load positions into summary object
+	sum.LoadPositions(pl)
+
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, sum)
+	fmlogger.Exit(method)
 }

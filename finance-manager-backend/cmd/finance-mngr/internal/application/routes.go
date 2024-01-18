@@ -110,6 +110,8 @@ func (app *Application) Routes() http.Handler {
 			//Stocks
 			r.Route("/stocks", func(r chi.Router) {
 				r.Post("/", app.Handler.SaveUserStock)
+				r.Get("/", app.Handler.GetUserStockPortfolioSummary)
+
 			})
 		})
 

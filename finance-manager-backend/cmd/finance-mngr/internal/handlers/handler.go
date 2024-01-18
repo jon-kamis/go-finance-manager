@@ -120,6 +120,9 @@ type Handler interface {
 	//Saves New User Stocks object
 	SaveUserStock(w http.ResponseWriter, r *http.Request)
 
+	//Gets a summary of a user's stock portfolio
+	GetUserStockPortfolioSummary(w http.ResponseWriter, r *http.Request)
+
 	/*** Users ***/
 
 	//Deletes a specific user by id
