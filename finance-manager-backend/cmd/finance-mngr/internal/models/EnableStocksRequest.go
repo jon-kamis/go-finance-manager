@@ -1,5 +1,5 @@
 package models
 
-type EnableStocksRequest struct {
+type EnableModuleRequest struct {
 	Key string `json:"key"`
 }

@@ -8,6 +8,10 @@ import (
 	"finance-manager-backend/cmd/finance-mngr/internal/validation"
 )
 
+// @title Go Finance Manager API
+// @version 1.0.0
+// @description This API serves personal finance endpoints. Accuracy is not garunteed
+// @BasePath /
 type FinanceManagerHandler struct {
 	JSONUtil      jsonutils.JSONUtils
 	DB            repository.DatabaseRepo

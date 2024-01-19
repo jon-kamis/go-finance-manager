@@ -2,6 +2,7 @@ package fmhandler
 
 import (
 	"errors"
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"net/http"
@@ -10,7 +11,20 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-//Function GetAllUserBills fetches all Bill objects for a given User and accepts a search parameter
+// GetAllUserBills godoc
+// @title		 Get All User Bills
+// @version 	1.0.0
+// @Tags 		Bills
+// @Summary 	Get All User Bills
+// @Description Returns an array of Bill objects belonging to a given user
+// @Param		userId path int true "User ID"
+// @Param		search query string false "Search for bills by name"
+// @Produce 	json
+// @Success 	200 {array} models.Bill
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/bills [get]
 func (fmh *FinanceManagerHandler) GetAllUserBills(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.GetAllUserBills"
 	fmlogger.Enter(method)
@@ -37,7 +51,20 @@ func (fmh *FinanceManagerHandler) GetAllUserBills(w http.ResponseWriter, r *http
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, bills)
 }
 
-//Function GetBillById fetches a specific Bill object for a given user
+// GetBillById godoc
+// @title		Get User Bill by ID
+// @version 	1.0.0
+// @Tags 		Bills
+// @Summary 	Get Bill by ID
+// @Description Returns a Bill by its ID for a given user
+// @Param		userId path int true "User ID"
+// @Param		billId path int true "Bill ID"
+// @Produce 	json
+// @Success 	200 {object} models.Bill
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/bills/{billId} [get]
 func (fmh *FinanceManagerHandler) GetBillById(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.GetBillById"
 	fmlogger.Enter(method)
@@ -77,7 +104,21 @@ func (fmh *FinanceManagerHandler) GetBillById(w http.ResponseWriter, r *http.Req
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, bill)
 }
 
-//Function SaveBill inserts a new Bill object into the database for a given user
+// SaveBill godoc
+// @title		Insert Bill
+// @version 	1.0.0
+// @Tags 		Bills
+// @Summary 	Insert Bill
+// @Description Inserts a new Bill into the Database for a given user
+// @Param		userId path int true "User ID"
+// @Param		bill body models.Bill true "The bill to insert"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/bills [post]
 func (fmh *FinanceManagerHandler) SaveBill(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.SaveBill"
 	fmlogger.Enter(method)
@@ -119,10 +160,25 @@ func (fmh *FinanceManagerHandler) SaveBill(w http.ResponseWriter, r *http.Reques
 	}
 
 	fmlogger.Exit(method)
-	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, "new loan was saved successfully")
+	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, constants.SuccessMessage)
 }
 
-//Function UpdateBill updates a specific bill by its id for a given user
+// UpdateBill godoc
+// @title		Update Bill
+// @version 	1.0.0
+// @Tags 		Bills
+// @Summary 	Update Bill
+// @Description Updates an existing Bill for a user
+// @Param		userId path int true "User ID"
+// @Param		billId path int true "ID of the bill to update"
+// @Param		bill body models.Bill true "The bill to update"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/bills/{billId} [put]
 func (fmh *FinanceManagerHandler) UpdateBill(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.UpdateBill"
 	fmlogger.Enter(method)
@@ -182,7 +238,20 @@ func (fmh *FinanceManagerHandler) UpdateBill(w http.ResponseWriter, r *http.Requ
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, "Bill updated successfully")
 }
 
-//Function DeleteBillById deletes a specific bill object by its id for a given user
+// DeleteBill godoc
+// @title		Delete Bill
+// @version 	1.0.0
+// @Tags 		Bills
+// @Summary 	Delete Bill by ID
+// @Description Deletes a user's Bill by its ID
+// @Param		userId path int true "User ID"
+// @Param		billId path int true "ID of the bill"
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/bills/{billId} [delete]
 func (fmh *FinanceManagerHandler) DeleteBillById(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.DeleteBillById"
 	fmlogger.Enter(method)

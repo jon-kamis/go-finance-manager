@@ -13,6 +13,20 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// GetUserSummary godoc
+// @title		Get Finance Summary
+// @version 	1.0.0
+// @Tags 		Summary
+// @Summary 	Get Finance Summary
+// @Description Gets a summary of all financial data for a user
+// @Param		userId path int true "User ID"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} models.Summary
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/summary [get]
 func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.Request) {
 	method := "summary_handler.GetUserSummary"
 	fmlogger.Enter(method)
@@ -71,7 +85,20 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, summary)
 }
 
-// Generates a summary of a user's stock portfolio and returns it
+// GetUserStockPortfolioSummary godoc
+// @title		Get Stock Portfolio Summary
+// @version 	1.0.0
+// @Tags 		Summary
+// @Summary 	Get Stock Portfolio Summary
+// @Description Gets a summary of all stock data for a user
+// @Param		userId path int true "User ID"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} models.UserStockPortfolioSummary
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/stocks [get]
 func (fmh *FinanceManagerHandler) GetUserStockPortfolioSummary(w http.ResponseWriter, r *http.Request) {
 	method := "summary_handler.GetUserStockPortfolioSummary"
 	fmlogger.Enter(method)

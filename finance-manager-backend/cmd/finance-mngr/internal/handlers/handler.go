@@ -97,6 +97,14 @@ type Handler interface {
 	//Accepts a refresh token and generates a new JWT TokenPair with refreshed expiration date
 	RefreshToken(w http.ResponseWriter, r *http.Request)
 
+	/*** Modules ***/
+
+	//Fetches a response indicating if a module is enabled or not
+	GetIsModuleEnabled(w http.ResponseWriter, r *http.Request)
+
+	//Initializes or overwrites the API key for a module
+	PostModuleAPIKey(w http.ResponseWriter, r *http.Request)
+
 	/*** Registration ***/
 
 	//Validates and Inserts a new User into the database
@@ -106,14 +114,6 @@ type Handler interface {
 
 	//Fetches all Role objects
 	GetAllRoles(w http.ResponseWriter, r *http.Request)
-
-	/*** Stocks ***/
-
-	//Fetches a response indicating if stocks are enabled or not
-	GetIsStocksEnabled(w http.ResponseWriter, r *http.Request)
-
-	//Initializes or overwrites the API key for stocks
-	PostStocksAPIKey(w http.ResponseWriter, r *http.Request)
 
 	/*** User Stocks ***/
 

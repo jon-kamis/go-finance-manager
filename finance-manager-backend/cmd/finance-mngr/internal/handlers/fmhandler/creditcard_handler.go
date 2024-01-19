@@ -11,6 +11,20 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// SaveCreditcard godoc
+// @title		Insert Credit Card
+// @version 	1.0.0
+// @Tags 		Credit Cards
+// @Summary 	Insert Credit Card
+// @Description Inserts a new Credit Card object for a given user
+// @Param		userId path int true "User ID"
+// @Param       creditCard body models.CreditCard true "Credit card to insert"
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/credit-cards [post]
 func (fmh *FinanceManagerHandler) SaveCreditCard(w http.ResponseWriter, r *http.Request) {
 	method := "creditcard_handler.SaveCreditCard"
 	fmlogger.Enter(method)
@@ -54,6 +68,20 @@ func (fmh *FinanceManagerHandler) SaveCreditCard(w http.ResponseWriter, r *http.
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, "success")
 }
 
+// GetAllUserCreditCards godoc
+// @title		 Get All User Credit Cards
+// @version 	1.0.0
+// @Tags 		Credit Cards
+// @Summary 	Get All User Credit Cards
+// @Description Returns an array of CreditCard objects belonging to a given user
+// @Param		userId path int true "User ID"
+// @Param		search query string false "Search for Credit Cards by name"
+// @Produce 	json
+// @Success 	200 {array} models.CreditCard
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/credit-cards [get]
 func (fmh *FinanceManagerHandler) GetAllUserCreditCards(w http.ResponseWriter, r *http.Request) {
 	method := "creditcard_handler.GetAllUserCreditCards"
 	fmlogger.Enter(method)
@@ -85,6 +113,20 @@ func (fmh *FinanceManagerHandler) GetAllUserCreditCards(w http.ResponseWriter, r
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, ccs)
 }
 
+// GetCreditCardById godoc
+// @title		Get Credit Card by ID
+// @version 	1.0.0
+// @Tags 		Credit Cards
+// @Summary 	Get Credit Card by ID
+// @Description Fetches a Credit Card by its ID for a given user
+// @Param		userId path int true "User ID"
+// @Param		ccId path int true "ID of the Credit Card"
+// @Produce 	json
+// @Success 	200 {object} models.CreditCard
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/credit-cards/{ccId} [get]
 func (fmh *FinanceManagerHandler) GetCreditCardById(w http.ResponseWriter, r *http.Request) {
 	method := "creditcard_handler.GetCreditCardById"
 	fmlogger.Enter(method)
@@ -135,6 +177,20 @@ func (fmh *FinanceManagerHandler) GetCreditCardById(w http.ResponseWriter, r *ht
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, cc)
 }
 
+// DeleteCreditCardById godoc
+// @title		Delete Credit Card by ID
+// @version 	1.0.0
+// @Tags 		Credit Cards
+// @Summary 	Delete Credit Card by ID
+// @Description Deletes a Credit Card by its ID for a given user
+// @Param		userId path int true "User ID"
+// @Param		ccId path int true "ID of the Credit Card"
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/credit-cards/{ccId} [delete]
 func (fmh *FinanceManagerHandler) DeleteCreditCardById(w http.ResponseWriter, r *http.Request) {
 	method := "creditcard_handler.DeleteCreditCardById"
 	fmlogger.Enter(method)
@@ -191,6 +247,20 @@ func (fmh *FinanceManagerHandler) DeleteCreditCardById(w http.ResponseWriter, r 
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
 }
 
+// UpdateCreditCard godoc
+// @title		Update Credit Card by ID
+// @version 	1.0.0
+// @Tags 		Credit Cards
+// @Summary 	Update Credit Card by ID
+// @Description Updates a Credit Card by its ID for a given user
+// @Param		userId path int true "User ID"
+// @Param		ccId path int true "ID of the Credit Card"
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/credit-cards/{ccId} [put]
 func (fmh *FinanceManagerHandler) UpdateCreditCard(w http.ResponseWriter, r *http.Request) {
 	method := "creditcard_handler.UpdateCreditCard"
 	fmlogger.Enter(method)

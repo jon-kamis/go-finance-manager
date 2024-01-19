@@ -11,6 +11,20 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// GetUserRoles godoc
+// @title		Get All User Roles
+// @version 	1.0.0
+// @Tags 		User Roles
+// @Summary 	Get All User Roles
+// @Description Returns an array of UserRole objects belonging to a given user
+// @Param		userId path int true "ID of the user we are searching for"
+// @Param		search query string false "Search for user role by role name"
+// @Produce 	json
+// @Success 	200 {array} models.UserRole
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/roles [get]
 func (fmh *FinanceManagerHandler) GetUserRoles(w http.ResponseWriter, r *http.Request) {
 	method := "user_role_handler.GetUserRoles"
 	fmlogger.Enter(method)
@@ -36,6 +50,20 @@ func (fmh *FinanceManagerHandler) GetUserRoles(w http.ResponseWriter, r *http.Re
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, userRoles)
 }
 
+// AddUserRoles godoc
+// @title		Add User Role
+// @version 	1.0.0
+// @Tags 		User Roles
+// @Summary 	Add User Role
+// @Description Adds a new role to a User
+// @Param		userId path int true "ID of the user to add a role to"
+// @Param		roleId path int true "ID of the role to add to the user"
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/roles/{roleId} [post]
 func (fmh *FinanceManagerHandler) AddUserRoles(w http.ResponseWriter, r *http.Request) {
 	method := "user_role_handler.AddUserRoles"
 	fmlogger.Enter(method)
@@ -105,9 +133,23 @@ func (fmh *FinanceManagerHandler) AddUserRoles(w http.ResponseWriter, r *http.Re
 	}
 
 	fmlogger.Exit(method)
-	fmh.JSONUtil.WriteJSON(w, http.StatusOK, "success")
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
 }
 
+// DeleteUserRoles godoc
+// @title		Remove User Role
+// @version 	1.0.0
+// @Tags 		User Roles
+// @Summary 	Remove User Role
+// @Description Removes a role from a a User
+// @Param		userId path int true "ID of the user to remove a role from"
+// @Param		roleId path int true "ID of the role to remove from the user"
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/roles/{roleId} [delete]
 func (fmh *FinanceManagerHandler) DeleteUserRoles(w http.ResponseWriter, r *http.Request) {
 	method := "user_role_handler.DeleteUserRoles"
 	fmlogger.Enter(method)
