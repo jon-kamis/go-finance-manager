@@ -15,6 +15,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	_ "finance-manager-backend/cmd/finance-mngr/docs"
 )
 
 const port = 8080

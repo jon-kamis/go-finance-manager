@@ -1,12 +1,26 @@
 package fmhandler
 
 import (
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
 	"net/http"
 	"time"
 )
 
+// Register godoc
+// @title		Register
+// @version 	1.0.0
+// @Tags 		Authentication
+// @Summary 	Register
+// @Description Attempts to register a new user into the application
+// @Param		user body models.User true "The User to Register"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	400 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/register [post]
 func (fmh *FinanceManagerHandler) Register(w http.ResponseWriter, r *http.Request) {
 	method := "login_handler.Register"
 	fmt.Printf("[ENTER %s]\n", method)
@@ -65,5 +79,5 @@ func (fmh *FinanceManagerHandler) Register(w http.ResponseWriter, r *http.Reques
 	}
 
 	fmt.Printf("[EXIT %s]\n", method)
-	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, "new user was created successfully")
+	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, constants.SuccessMessage)
 }

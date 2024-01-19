@@ -11,6 +11,20 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// GetAllUserIncomes godoc
+// @title		Get All User Incomes
+// @version 	1.0.0
+// @Tags 		Incomes
+// @Summary 	Get All User Incomes
+// @Description Returns an array of Income objects belonging to a given user
+// @Param		userId path int true "User ID"
+// @Param		search query string false "Search for incomes by name"
+// @Produce 	json
+// @Success 	200 {array} models.Income
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/incomes [get]
 func (fmh *FinanceManagerHandler) GetAllUserIncomes(w http.ResponseWriter, r *http.Request) {
 	method := "income_handler.GetAllUserIncomes"
 	fmt.Printf("[ENTER %s]\n", method)
@@ -43,6 +57,20 @@ func (fmh *FinanceManagerHandler) GetAllUserIncomes(w http.ResponseWriter, r *ht
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, incomes)
 }
 
+// GetIncomeById godoc
+// @title		Get Income by ID
+// @version 	1.0.0
+// @Tags 		Incomes
+// @Summary 	Get Income by ID
+// @Description Returns an Income object belonging to a given user
+// @Param		userId path int true "User ID"
+// @Param		incomeId path int true "the ID of the Income"
+// @Produce 	json
+// @Success 	200 {object} models.Income
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/incomes/{incomeId} [get]
 func (fmh *FinanceManagerHandler) GetIncomeById(w http.ResponseWriter, r *http.Request) {
 	method := "income_handler.GetIncomeById"
 	fmt.Printf("[ENTER %s]\n", method)
@@ -94,6 +122,21 @@ func (fmh *FinanceManagerHandler) GetIncomeById(w http.ResponseWriter, r *http.R
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, income)
 }
 
+// SaveIncome godoc
+// @title		Insert Income
+// @version 	1.0.0
+// @Tags 		Incomes
+// @Summary 	Insert Income
+// @Description Inserts a new Income into the Database for a given user
+// @Param		userId path int true "User ID"
+// @Param		income body models.Income true "The income to insert"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/incomes [post]
 func (fmh *FinanceManagerHandler) SaveIncome(w http.ResponseWriter, r *http.Request) {
 	method := "income_handler.SaveIncome"
 	fmt.Printf("[ENTER %s]\n", method)
@@ -143,6 +186,22 @@ func (fmh *FinanceManagerHandler) SaveIncome(w http.ResponseWriter, r *http.Requ
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, "new loan was saved successfully")
 }
 
+// UpdateIncome godoc
+// @title		Update Income
+// @version 	1.0.0
+// @Tags 		Incomes
+// @Summary 	Update Income
+// @Description Updates an existing Income for a user
+// @Param		userId path int true "User ID"
+// @Param		incomeId path int true "ID of the income to update"
+// @Param		income body models.Income true "The income to update"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/incomes/{incomeId} [put]
 func (fmh *FinanceManagerHandler) UpdateIncome(w http.ResponseWriter, r *http.Request) {
 	method := "income_handler.UpdateIncome"
 	fmt.Printf("[ENTER %s]\n", method)
@@ -211,6 +270,20 @@ func (fmh *FinanceManagerHandler) UpdateIncome(w http.ResponseWriter, r *http.Re
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, "Loan updated successfully")
 }
 
+// DeleteIncomeById godoc
+// @title		Delete Income
+// @version 	1.0.0
+// @Tags 		Incomes
+// @Summary 	Delete Income by ID
+// @Description Deletes a user's Income by its ID
+// @Param		userId path int true "User ID"
+// @Param		incomeId path int true "ID of the Income"
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/incomes/{incomeId} [delete]
 func (fmh *FinanceManagerHandler) DeleteIncomeById(w http.ResponseWriter, r *http.Request) {
 	method := "income_handler.DeleteIncomeById"
 	fmt.Printf("[ENTER %s]\n", method)

@@ -10,6 +10,19 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// GetUserByID godoc
+// @title		Get User by ID
+// @version 	1.0.0
+// @Tags 		Users
+// @Summary 	Get User by ID
+// @Description Returns a User by its ID
+// @Param		userId path int true "ID of the user to fetch"
+// @Produce 	json
+// @Success 	200 {object} models.User
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId} [get]
 func (fmh *FinanceManagerHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	method := "users_handler.GetUserByID"
 	fmlogger.Enter(method)
@@ -64,6 +77,19 @@ func (fmh *FinanceManagerHandler) GetUserByID(w http.ResponseWriter, r *http.Req
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, user)
 }
 
+// DeleteUserById godoc
+// @title		Delete User by ID
+// @version 	1.0.0
+// @Tags 		Users
+// @Summary 	Delete User by ID
+// @Description Deletes a User by its ID. Cascades to all objects owned by the user
+// @Param		userId path int true "ID of the user to fetch"
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId} [delete]
 func (fmh *FinanceManagerHandler) DeleteUserById(w http.ResponseWriter, r *http.Request) {
 	method := "users_handler.DeleteUserById"
 	fmlogger.Enter(method)
@@ -158,6 +184,19 @@ func (fmh *FinanceManagerHandler) DeleteUserById(w http.ResponseWriter, r *http.
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, "success")
 }
 
+// GetAllUsers godoc
+// @title		Get All Users
+// @version 	1.0.0
+// @Tags 		Users
+// @Summary 	Get All Users
+// @Description Returns an array of User objects
+// @Param		search query string false "Search for Users by first or last name"
+// @Produce 	json
+// @Success 	200 {array} models.User
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users [get]
 func (fmh *FinanceManagerHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	method := "users_handler.GetAllUsers"
 	fmlogger.Enter(method)

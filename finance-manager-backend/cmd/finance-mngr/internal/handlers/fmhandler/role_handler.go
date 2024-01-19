@@ -6,6 +6,17 @@ import (
 	"net/http"
 )
 
+// GetAllRoles godoc
+// @title		Get All Roles
+// @version 	1.0.0
+// @Tags 		Roles
+// @Summary 	Get All Roles
+// @Description Returns an array of Role objects
+// @Param		search query string false "Search for roles by name"
+// @Produce 	json
+// @Success 	200 {array} models.Role
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/roles [get]
 func (fmh *FinanceManagerHandler) GetAllRoles(w http.ResponseWriter, r *http.Request) {
 	method := "role_handler.GetAllRoles"
 	fmlogger.Enter(method)

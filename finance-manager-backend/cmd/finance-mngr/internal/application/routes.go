@@ -3,17 +3,22 @@ package application
 import (
 	"net/http"
 
+	_ "finance-manager-backend/cmd/finance-mngr/docs"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-// Function Routes contains the mappings of each API url to the method which implements the given API
 func (app *Application) Routes() http.Handler {
 	// Create a router r
 	r := chi.NewRouter()
 
 	r.Use(middleware.Recoverer)
 	r.Use(app.EnableCORS)
+
+	//Swagger Docs
+	r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8080/swagger/doc.json")))
 
 	r.Get("/", app.Handler.Home)
 
@@ -30,9 +35,9 @@ func (app *Application) Routes() http.Handler {
 	r.Route("/modules", func(r chi.Router) {
 		r.Use(app.AuthRequired)
 
-		r.Route("/stocks", func(r chi.Router) {
-			r.Get("/", app.Handler.GetIsStocksEnabled)
-			r.Post("/key", app.Handler.PostStocksAPIKey)
+		r.Route("/{moduleName}", func(r chi.Router) {
+			r.Get("/", app.Handler.GetIsModuleEnabled)
+			r.Post("/key", app.Handler.PostModuleAPIKey)
 		})
 
 	})
@@ -56,6 +61,7 @@ func (app *Application) Routes() http.Handler {
 			})
 
 			//Loans Routes
+			r.Get("/loans-summary", app.Handler.GetLoanSummary)
 			r.Route("/loans", func(r chi.Router) {
 				r.Get("/", app.Handler.GetAllUserLoans)
 				r.Post("/", app.Handler.SaveLoan)

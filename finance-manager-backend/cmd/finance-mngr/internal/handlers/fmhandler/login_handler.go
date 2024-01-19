@@ -3,6 +3,7 @@ package fmhandler
 import (
 	"errors"
 	"finance-manager-backend/cmd/finance-mngr/internal/authentication"
+	"finance-manager-backend/cmd/finance-mngr/internal/models/rest"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,12 +11,22 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+// Authenticate godoc
+// @title		Login
+// @version 	1.0.0
+// @Tags 		Authentication
+// @Summary 	Login
+// @Description Attempts to use passed credentials to authenticate with the application and generate JWT tokens
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} authentication.TokenPairs
+// @Failure 	400 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/authenticate [post]
 func (fmh *FinanceManagerHandler) Authenticate(w http.ResponseWriter, r *http.Request) {
 	// read json payload
-	var requestPayload struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+
+	var requestPayload models.LoginRequest
 
 	err := fmh.JSONUtil.ReadJSON(w, r, &requestPayload)
 	if err != nil {
@@ -73,6 +84,19 @@ func (fmh *FinanceManagerHandler) Authenticate(w http.ResponseWriter, r *http.Re
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, tokens)
 }
 
+// RefreshToken godoc
+// @title		Refresh Token
+// @version 	1.0.0
+// @Tags 		Authentication
+// @Summary 	Refresh Token
+// @Description Attempts to refresh Tokens using a refresh token
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} authentication.TokenPairs
+// @Failure 	400 {object} jsonutils.JSONResponse
+// @Failure 	401 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/refresh [get]
 func (fmh *FinanceManagerHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	for _, cookie := range r.Cookies() {
 		if cookie.Name == fmh.Auth.CookieName {
@@ -117,6 +141,16 @@ func (fmh *FinanceManagerHandler) RefreshToken(w http.ResponseWriter, r *http.Re
 	}
 }
 
+// Logout godoc
+// @title		Logout
+// @version 	1.0.0
+// @Tags 		Authentication
+// @Summary 	Logout
+// @Description Returns an expired refresh cookie which prevents the user from re-authenticating
+// @Accept		json
+// @Produce 	json
+// @Success 	200 
+// @Router 		/logout [get]
 func (fmh *FinanceManagerHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, fmh.Auth.GetExpiredRefreshCookie())
 	w.WriteHeader(http.StatusAccepted)

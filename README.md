@@ -70,3 +70,24 @@ These test can be run with the following commands
 | go test -coverpkg=.\cmd\finance-mngr\... .\cmd\finance-mngr\... | Run Tests and Generate Coverage Reports |
 
 `Note: The integration tests run in containers and as such require the docker engine to be running in order to work`
+
+## API Documentation
+### Viewing Documentation
+This application uses swagger to provide API documentation
+While the app is running, documentation can be accessed at `http://localhost:8080/swagger/index.html`
+
+<b>Note: You may need to update the port in the above url if you started the API on a different port</b> 
+
+### Updating or Generating Documentation
+To update or generate the swagger documentation, first cd into the finance-mngr directory, then run the following command:
+
+```powershell
+swag init -g internal/handlers/fmhandler/FinanceManagerHandler.go
+```
+
+If the command fails you may need to first download the swaggo package. This can be done with the following commands
+
+```powershell
+go install github.com/swaggo/swag/cmd/swag@latest
+go get -u github.com/swaggo/http-swagger
+```

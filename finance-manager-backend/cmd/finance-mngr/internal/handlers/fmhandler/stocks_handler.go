@@ -10,8 +10,9 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+//Loads a stock from the remote API
 func (fmh *FinanceManagerHandler) loadStock(ticker string) error {
-	method := "stocks_handler.fetchStock"
+	method := "stocks_handler.loadStock"
 	fmlogger.Enter(method)
 
 	s, err := fmh.DB.GetStockByTicker(ticker)
@@ -47,69 +48,21 @@ func (fmh *FinanceManagerHandler) loadStock(ticker string) error {
 	return nil
 }
 
-func (fmh *FinanceManagerHandler) GetIsStocksEnabled(w http.ResponseWriter, r *http.Request) {
-	method := "stocks_handler.GetIsStocksEnabled"
-	fmlogger.Enter(method)
-
-	re := models.StocksEnabledResponse{
-		Enabled: fmh.StocksService.GetIsStocksEnabled(),
-	}
-
-	fmh.JSONUtil.WriteJSON(w, http.StatusOK, re)
-	fmlogger.Exit(method)
-}
-
-func (fmh *FinanceManagerHandler) PostStocksAPIKey(w http.ResponseWriter, r *http.Request) {
-	method := "stocks_handler.PostStocksAPIKey"
-	fmlogger.Enter(method)
-
-	uId, err := fmh.Auth.GetLoggedInUserId(w, r)
-
-	//uId must be loaded successfully to proceed
-	if err != nil {
-		fmlogger.ExitError(method, constants.FailedToReadUserIdFromAuthHeaderError, err)
-		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.FailedToReadUserIdFromAuthHeaderError), http.StatusInternalServerError)
-		return
-	}
-
-	//Determine if user has admin role
-	hasRole, err := fmh.Validator.CheckIfUserHasRole(uId, "admin")
-
-	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
-		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	//User must be admin to proceed
-	if !hasRole {
-		err = errors.New(constants.GenericForbiddenError)
-		fmlogger.ExitError(method, err.Error(), err)
-		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
-		return
-	}
-
-	var payload models.EnableStocksRequest
-
-	// Read payload
-	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
-	if err != nil {
-		fmlogger.ExitError(method, constants.GenericBadRequestError, err)
-		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.GenericBadRequestError), http.StatusBadRequest)
-		return
-	}
-
-	err = fmh.StocksService.UpdateAndPersistAPIKey(payload.Key)
-	if err != nil {
-		fmlogger.ExitError(method, constants.GenericServerError, err)
-		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.GenericServerError), http.StatusInternalServerError)
-		return
-	}
-
-	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
-	fmlogger.Exit(method)
-}
-
+// SaveUserStock godoc
+// @title		Insert Stock
+// @version 	1.0.0
+// @Tags 		Stocks
+// @Summary 	Insert Stock
+// @Description Inserts a new Stock into the Database for a given user
+// @Param		userId path int true "User ID"
+// @Param		stock body models.UserStock true "The stock to insert"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/stocks [post]
 func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.Request) {
 	method := "stocks_handler.PostStocksAPIKey"
 	fmlogger.Enter(method)
