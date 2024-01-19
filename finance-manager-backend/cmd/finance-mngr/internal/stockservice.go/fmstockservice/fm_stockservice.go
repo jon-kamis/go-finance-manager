@@ -16,6 +16,7 @@ import (
 
 const base_api = "https://api.polygon.io/v2"
 const prev_close = "/aggs/ticker/%s/prev"
+const past_year = "/aggs/ticker/%s/range/1/day/%s/%s"
 
 type FmStockService struct {
 	PolygonApiKey        string
@@ -111,8 +112,8 @@ func (fss *FmStockService) FetchStockWithTicker(ticker string) (models.Stock, er
 	api := fmt.Sprintf(base_api+prev_close, ticker)
 	resp, err := fss.makeExternalCall(api)
 	var s models.Stock
-	var pc responsemodels.PreviousClose
-	var pci responsemodels.PreviousCloseItem
+	var pc responsemodels.AggResponse
+	var pci responsemodels.AggResponseItem
 
 	if err != nil {
 		fmlogger.ExitError(method, err.Error(), err)
@@ -134,6 +135,47 @@ func (fss *FmStockService) FetchStockWithTicker(ticker string) (models.Stock, er
 		Open:   pci.Open,
 		Close:  pci.Close,
 		Date:   time.UnixMilli(int64(pci.UnixTime)),
+	}
+
+	fmlogger.Exit(method)
+	return s, nil
+}
+
+func (fss *FmStockService) FetchStockWithTickerForPastYear(ticker string) ([]models.Stock, error) {
+	method := "fm_stockservice.fetchStockWithTicker"
+	fmlogger.Enter(method)
+
+	today := time.Now()
+	today = time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, time.Local)
+	limit := time.Date(today.Year()-1, today.Month(), today.Day(), 0, 0, 0, 0, time.Local)
+
+	api := fmt.Sprintf(base_api+past_year, ticker, fmt.Sprint(limit.Format("2006-01-02")), fmt.Sprint(today.Format("2006-01-02")))
+	fmt.Printf("calling external api: %s\n", api)
+	resp, err := fss.makeExternalCall(api)
+	var s []models.Stock
+	var pc responsemodels.AggResponse
+
+	if err != nil {
+		fmlogger.ExitError(method, err.Error(), err)
+		return s, err
+	}
+
+	err = json.Unmarshal(resp, &pc)
+	if err != nil {
+		fmlogger.ExitError(method, err.Error(), err)
+		return s, err
+	}
+
+	for _, pci := range pc.Results {
+		i := models.Stock{
+			Ticker: pc.Ticker,
+			High:   pci.High,
+			Low:    pci.Low,
+			Open:   pci.Open,
+			Close:  pci.Close,
+			Date:   time.UnixMilli(int64(pci.UnixTime)),
+		}
+		s = append(s, i)
 	}
 
 	fmlogger.Exit(method)

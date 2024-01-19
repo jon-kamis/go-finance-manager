@@ -8,6 +8,9 @@ type StockService interface {
 	//Fetches a Stock for a given ticker
 	FetchStockWithTicker(ticker string) (models.Stock, error)
 
+	//Fetches the past 1 year of data for a given ticker
+	FetchStockWithTickerForPastYear(ticker string) ([]models.Stock, error)
+
 	//Loads in API key for external stock calls
 	UpdateAndPersistAPIKey(k string) error
 

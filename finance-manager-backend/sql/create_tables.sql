@@ -201,7 +201,7 @@ CREATE TABLE public.stocks (
     high NUMERIC(10, 4) NOT NULL,
     low NUMERIC(10, 4) NOT NULL,
     open NUMERIC(10, 4) NOT NULL,
-    close NUMERIC(10, 4) NOT NULl,
+    close NUMERIC(10, 4) NOT NULL,
     date timestamp,
     create_dt timestamp,
     last_update_dt timestamp
@@ -212,6 +212,33 @@ CREATE TABLE public.stocks (
 --
 ALTER TABLE public.stocks ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.stocks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+--
+-- Name: stock_data; Type: Table; Schema: public; Owner: -
+--
+CREATE TABLE public.stock_data (
+    id integer NOT NULL,
+    ticker character varying(255) NOT NULL,
+    high NUMERIC(10, 4) NOT NULL,
+    low NUMERIC(10, 4) NOT NULL,
+    open NUMERIC(10, 4) NOT NULL,
+    close NUMERIC(10, 4) NOT NULL,
+    date timestamp,
+    create_dt timestamp,
+    last_update_dt timestamp
+);
+
+--
+-- Name: stock_data_id_seq; Type: SEQUENCE; Schema: public; Owner -
+--
+ALTER TABLE public.stock_data ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stock_data_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
