@@ -52,6 +52,13 @@ const NavMenu = (props) => {
             requiresAdmin: false,
             path: `/users/${props.loggedInUserId}/loans`,
         },
+        {
+            id: 8,
+            text: "Stocks",
+            requiresJwt: true,
+            requiresAdmin: false,
+            path: `/users/${props.loggedInUserId}/stocks`,
+        },
     ];
 
     const hasRole = (key) => {

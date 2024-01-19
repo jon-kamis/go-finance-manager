@@ -6,6 +6,7 @@ import (
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
+	"math"
 	"net/http"
 	"time"
 
@@ -108,7 +109,7 @@ func (fmh *FinanceManagerHandler) GetUserStockPortfolioSummary(w http.ResponseWr
 		p := models.PortfolioPosition{
 			Ticker:   us.Ticker,
 			Quantity: us.Quantity,
-			Value:    (s.Close * us.Quantity),
+			Value:    math.Round(s.Close*us.Quantity*100) / 100,
 			Open:     s.Open,
 			Close:    s.Close,
 			High:     s.High,

@@ -14,6 +14,7 @@ import About from './components/misc/About';
 import Admin from './components/admin/Admin';
 import Bills from './components/bills/Bills';
 import CreditCards from './components/creditcards/CreditCards';
+import Stocks from './components/stocks/Stocks';
 
 
 const router = createBrowserRouter([
@@ -62,6 +63,10 @@ const router = createBrowserRouter([
       {
         path: "/admin",
         element: <Admin />
+      },
+      {
+        path: "/users/:userId/stocks",
+        element: <Stocks />
       }
     ]
   }
