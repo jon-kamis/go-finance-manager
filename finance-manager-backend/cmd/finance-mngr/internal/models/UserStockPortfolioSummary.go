@@ -2,6 +2,7 @@ package models
 
 import (
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
+	"math"
 	"time"
 )
 
@@ -50,11 +51,11 @@ func (u *UserStockPortfolioSummary) CalcDailyTotals() {
 		}
 	}
 
-	u.CurrentHigh = h
-	u.CurrentLow = l
-	u.CurrentOpen = o
-	u.CurrentClose = c
-	u.CurrentValue = t
+	u.CurrentHigh = math.Round(h*100) / 100
+	u.CurrentLow = math.Round(l*100) / 100
+	u.CurrentOpen = math.Round(o*100) / 100
+	u.CurrentClose = math.Round(c*100) / 100
+	u.CurrentValue = math.Round(t*100) / 100
 	u.AsOfDate = d
 
 	fmlogger.Exit(method)
