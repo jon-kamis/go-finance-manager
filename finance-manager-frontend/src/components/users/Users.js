@@ -119,61 +119,57 @@ const Users = () => {
     }, []);
 
     return (
-        <div className="container-fluid">
-            <h1>Users</h1>
-            <div className="d-flex">
-                <div className="p-4 flex-col col-md-12 content content-xtall">
-                    <div className="row">
-                        <div className="col-md-12">
-                            <Input
-                                title={"Search"}
-                                type={"text"}
-                                className={"form-control"}
-                                name={"search"}
-                                value={search}
-                                onChange={refreshData("")}
-                            />
-                        </div>
-                    </div>
-                    <div className="content-xtall-tablecontainer">
-                        <table className="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {!error &&
-                                    <>
-                                        {users.map((u) => (
-                                            <tr key={u.id}>
-                                                <td>
-                                                    <Link to={`/admin/users/${u.id}`}>
-                                                        {u.lastName}, {u.firstName}
-                                                    </Link>
-                                                </td>
-                                                <td>{u.username}</td>
-                                                <td>{u.email}</td>
-                                                <td>
-                                                    <Input
-                                                        type="submit"
-                                                        className="btn btn-danger"
-                                                        value="Delete User"
-                                                        onClick={deleteUser(u.id)} />
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+        <>
+            <h2>User Management</h2>
+            <div className="row">
+                <div className="col-md-12">
+                    <Input
+                        title={"Search"}
+                        type={"text"}
+                        className={"form-control"}
+                        name={"search"}
+                        value={search}
+                        onChange={refreshData("")}
+                    />
                 </div>
             </div>
-        </div>
+            <div className="content-xtall-tablecontainer">
+                <table className="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {!error &&
+                            <>
+                                {users.map((u) => (
+                                    <tr key={u.id}>
+                                        <td>
+                                            <Link to={`/admin/users/${u.id}`}>
+                                                {u.lastName}, {u.firstName}
+                                            </Link>
+                                        </td>
+                                        <td>{u.username}</td>
+                                        <td>{u.email}</td>
+                                        <td>
+                                            <Input
+                                                type="submit"
+                                                className="btn btn-danger"
+                                                value="Delete User"
+                                                onClick={deleteUser(u.id)} />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </>
     )
 }
 export default Users;

@@ -11,6 +11,7 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import ManageUser from './components/users/ManageUser';
 import About from './components/misc/About';
+import Admin from './components/admin/Admin';
 import Bills from './components/bills/Bills';
 import CreditCards from './components/creditcards/CreditCards';
 
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
       {
         path: "/users/:userId/credit-cards",
         element: <CreditCards />
+      },
+      {
+        path: "/admin",
+        element: <Admin />
       }
     ]
   }
