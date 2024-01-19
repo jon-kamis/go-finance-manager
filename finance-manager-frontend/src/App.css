@@ -16,6 +16,14 @@ Table thead {
     margin: 0 0 0 0;
 }
 
+.text-success {
+    color: green;
+}
+
+.text-failure {
+    color: red;
+}
+
 .navMenu p {
     color: black;
     text-align: center;
