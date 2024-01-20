@@ -244,6 +244,8 @@ definitions:
         type: number
       high:
         type: number
+      history:
+        $ref: '#/definitions/models.PositionHistory'
       low:
         type: number
       open:
@@ -255,12 +257,48 @@ definitions:
       value:
         type: number
     type: object
+  models.PositionHistory:
+    properties:
+      count:
+        type: integer
+      endDt:
+        type: string
+      startDt:
+        type: string
+      ticker:
+        type: string
+      values:
+        items:
+          $ref: '#/definitions/models.Stock'
+        type: array
+    type: object
   models.Role:
     properties:
       code:
         type: string
       id:
         type: integer
+    type: object
+  models.Stock:
+    properties:
+      close:
+        type: number
+      createDt:
+        type: string
+      currentHigh:
+        type: number
+      currentLow:
+        type: number
+      currentPrice:
+        type: number
+      id:
+        type: integer
+      lastUpdateDt:
+        type: string
+      open:
+        type: number
+      ticker:
+        type: string
     type: object
   models.Summary:
     properties:
