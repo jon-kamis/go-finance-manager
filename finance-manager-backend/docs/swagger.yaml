@@ -1,0 +1,1756 @@
+basePath: /
+definitions:
+  authentication.TokenPairs:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  jsonutils.JSONResponse:
+    properties:
+      data: {}
+      error:
+        type: boolean
+      message:
+        type: string
+    type: object
+  models.Bill:
+    properties:
+      amount:
+        type: number
+      createDt:
+        type: string
+      id:
+        type: integer
+      lastUpdateDt:
+        type: string
+      name:
+        type: string
+      userId:
+        type: integer
+    type: object
+  models.CreditCard:
+    properties:
+      apr:
+        type: number
+      balance:
+        type: number
+      createDt:
+        type: string
+      id:
+        type: integer
+      lastUpdateDt:
+        type: string
+      limit:
+        type: number
+      minPayment:
+        type: number
+      minPaymentPercentage:
+        type: number
+      name:
+        type: string
+      payment:
+        type: number
+      userId:
+        type: integer
+    type: object
+  models.CreditSummary:
+    properties:
+      available:
+        type: number
+      total:
+        type: number
+      utilization:
+        type: number
+    type: object
+  models.EnableModuleRequest:
+    properties:
+      key:
+        type: string
+    type: object
+  models.ExpenseSummary:
+    properties:
+      bills:
+        type: number
+      creditCardBalance:
+        type: number
+      creditCards:
+        type: number
+      expenses:
+        items:
+          $ref: '#/definitions/models.SummaryItem'
+        type: array
+      loanBalance:
+        type: number
+      loanCost:
+        type: number
+      overallBalance:
+        type: number
+      taxes:
+        type: number
+      totalBalance:
+        type: number
+      totalCost:
+        type: number
+    type: object
+  models.HomeResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+      version:
+        type: string
+    type: object
+  models.Income:
+    properties:
+      createDt:
+        type: string
+      frequency:
+        type: string
+      grossPay:
+        type: number
+      hours:
+        type: number
+      id:
+        type: integer
+      lastUpdateDt:
+        type: string
+      name:
+        type: string
+      netPay:
+        type: number
+      nextDt:
+        type: string
+      rate:
+        type: number
+      startDt:
+        type: string
+      taxPercentage:
+        type: number
+      taxes:
+        type: number
+      type:
+        type: string
+      userId:
+        type: integer
+    type: object
+  models.IncomeSummary:
+    properties:
+      incomes:
+        items:
+          $ref: '#/definitions/models.SummaryItem'
+        type: array
+      totalIncome:
+        type: number
+    type: object
+  models.Loan:
+    properties:
+      id:
+        type: integer
+      interest:
+        type: number
+      interestRate:
+        type: number
+      loanTerm:
+        type: integer
+      monthlyPayment:
+        type: number
+      name:
+        type: string
+      paymentSchedule:
+        items:
+          $ref: '#/definitions/models.PaymentScheduleItem'
+        type: array
+      total:
+        type: number
+      totalCost:
+        type: number
+      totalPayment:
+        type: number
+      userId:
+        type: integer
+    type: object
+  models.LoansSummary:
+    properties:
+      count:
+        type: integer
+      monthlyCost:
+        type: number
+      totalBalance:
+        type: number
+    type: object
+  models.ModuleEnabledResponse:
+    properties:
+      enabled:
+        type: boolean
+    type: object
+  models.PaymentScheduleComparisonItem:
+    properties:
+      interest:
+        type: number
+      interestDelta:
+        type: number
+      interestNew:
+        type: number
+      interestToDate:
+        type: number
+      interestToDateDelta:
+        type: number
+      interestToDateNew:
+        type: number
+      month:
+        type: integer
+      principal:
+        type: number
+      principalDelta:
+        type: number
+      principalNew:
+        type: number
+      principalToDate:
+        type: number
+      principalToDateDelta:
+        type: number
+      principalToDateNew:
+        type: number
+      remainingBalance:
+        type: number
+      remainingBalanceDelta:
+        type: number
+      remainingBalanceNew:
+        type: number
+    type: object
+  models.PaymentScheduleItem:
+    properties:
+      interest:
+        type: number
+      interestToDate:
+        type: number
+      month:
+        type: integer
+      principal:
+        type: number
+      principalToDate:
+        type: number
+      remainingBalance:
+        type: number
+    type: object
+  models.PortfolioPosition:
+    properties:
+      asOf:
+        type: string
+      close:
+        type: number
+      high:
+        type: number
+      history:
+        $ref: '#/definitions/models.PositionHistory'
+      low:
+        type: number
+      open:
+        type: number
+      quantity:
+        type: number
+      ticker:
+        type: string
+      value:
+        type: number
+    type: object
+  models.PositionHistory:
+    properties:
+      count:
+        type: integer
+      endDt:
+        type: string
+      startDt:
+        type: string
+      ticker:
+        type: string
+      values:
+        items:
+          $ref: '#/definitions/models.Stock'
+        type: array
+    type: object
+  models.Role:
+    properties:
+      code:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.Stock:
+    properties:
+      close:
+        type: number
+      createDt:
+        type: string
+      currentHigh:
+        type: number
+      currentLow:
+        type: number
+      currentPrice:
+        type: number
+      date:
+        type: string
+      id:
+        type: integer
+      lastUpdateDt:
+        type: string
+      open:
+        type: number
+      ticker:
+        type: string
+    type: object
+  models.Summary:
+    properties:
+      creditSummary:
+        $ref: '#/definitions/models.CreditSummary'
+      expenseSummary:
+        $ref: '#/definitions/models.ExpenseSummary'
+      incomeSummary:
+        $ref: '#/definitions/models.IncomeSummary'
+      netFunds:
+        type: number
+    type: object
+  models.SummaryItem:
+    properties:
+      amount:
+        type: number
+      balance:
+        type: number
+      name:
+        type: string
+      source:
+        type: string
+      type:
+        type: string
+    type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: integer
+      lastName:
+        type: string
+      username:
+        type: string
+    type: object
+  models.UserRole:
+    properties:
+      code:
+        type: string
+      id:
+        type: integer
+      roleId:
+        type: integer
+      userId:
+        type: integer
+    type: object
+  models.UserStock:
+    properties:
+      createDt:
+        type: string
+      id:
+        type: integer
+      lastUpdateDt:
+        type: string
+      quantity:
+        type: number
+      ticker:
+        type: string
+      userId:
+        type: integer
+    type: object
+  models.UserStockPortfolioSummary:
+    properties:
+      asOf:
+        type: string
+      currentClose:
+        type: number
+      currentHigh:
+        type: number
+      currentLow:
+        type: number
+      currentOpen:
+        type: number
+      currentValue:
+        type: number
+      positions:
+        items:
+          $ref: '#/definitions/models.PortfolioPosition'
+        type: array
+    type: object
+info:
+  contact: {}
+  description: This API serves personal finance endpoints. Accuracy is not garunteed
+  title: Go Finance Manager API
+  version: 1.0.0
+paths:
+  /:
+    get:
+      description: Returns application information and health
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HomeResponse'
+      summary: Home
+      tags:
+      - Home
+  /authenticate:
+    post:
+      consumes:
+      - application/json
+      description: Attempts to use passed credentials to authenticate with the application
+        and generate JWT tokens
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/authentication.TokenPairs'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Login
+      tags:
+      - Authentication
+  /logout:
+    get:
+      consumes:
+      - application/json
+      description: Returns an expired refresh cookie which prevents the user from
+        re-authenticating
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Logout
+      tags:
+      - Authentication
+  /modules/{moduleName}:
+    get:
+      description: Returns a boolean stating whether the requested module is enabled
+        or not
+      parameters:
+      - description: The name of the module to check. Options are {stocks}
+        in: path
+        name: moduleName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ModuleEnabledResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Module Enabled
+      tags:
+      - Modules
+  /modules/{moduleName}/key:
+    post:
+      description: Adds or overwrites the API key for the given module if allowed
+        for this module
+      parameters:
+      - description: The name of the module to add a key for. Options are {stocks}
+        in: path
+        name: moduleName
+        required: true
+        type: string
+      - description: The request containing the Key to add
+        in: body
+        name: keyRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.EnableModuleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Add Module API key
+      tags:
+      - Modules
+  /refresh:
+    get:
+      consumes:
+      - application/json
+      description: Attempts to refresh Tokens using a refresh token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/authentication.TokenPairs'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Refresh Token
+      tags:
+      - Authentication
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Attempts to register a new user into the application
+      parameters:
+      - description: The User to Register
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Register
+      tags:
+      - Authentication
+  /roles:
+    get:
+      description: Returns an array of Role objects
+      parameters:
+      - description: Search for roles by name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Role'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get All Roles
+      tags:
+      - Roles
+  /users:
+    get:
+      description: Returns an array of User objects
+      parameters:
+      - description: Search for Users by first or last name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get All Users
+      tags:
+      - Users
+  /users/{userId}:
+    delete:
+      description: Deletes a User by its ID. Cascades to all objects owned by the
+        user
+      parameters:
+      - description: ID of the user to fetch
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Delete User by ID
+      tags:
+      - Users
+    get:
+      description: Returns a User by its ID
+      parameters:
+      - description: ID of the user to fetch
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get User by ID
+      tags:
+      - Users
+  /users/{userId}/bills:
+    get:
+      description: Returns an array of Bill objects belonging to a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Search for bills by name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Bill'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get All User Bills
+      tags:
+      - Bills
+    post:
+      consumes:
+      - application/json
+      description: Inserts a new Bill into the Database for a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: The bill to insert
+        in: body
+        name: bill
+        required: true
+        schema:
+          $ref: '#/definitions/models.Bill'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Insert Bill
+      tags:
+      - Bills
+  /users/{userId}/bills/{billId}:
+    delete:
+      description: Deletes a user's Bill by its ID
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID of the bill
+        in: path
+        name: billId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Delete Bill by ID
+      tags:
+      - Bills
+    get:
+      description: Returns a Bill by its ID for a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Bill ID
+        in: path
+        name: billId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Bill'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get Bill by ID
+      tags:
+      - Bills
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing Bill for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID of the bill to update
+        in: path
+        name: billId
+        required: true
+        type: integer
+      - description: The bill to update
+        in: body
+        name: bill
+        required: true
+        schema:
+          $ref: '#/definitions/models.Bill'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Update Bill
+      tags:
+      - Bills
+  /users/{userId}/credit-cards:
+    get:
+      description: Returns an array of CreditCard objects belonging to a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Search for Credit Cards by name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CreditCard'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get All User Credit Cards
+      tags:
+      - Credit Cards
+    post:
+      description: Inserts a new Credit Card object for a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Credit card to insert
+        in: body
+        name: creditCard
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreditCard'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Insert Credit Card
+      tags:
+      - Credit Cards
+  /users/{userId}/credit-cards/{ccId}:
+    delete:
+      description: Deletes a Credit Card by its ID for a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID of the Credit Card
+        in: path
+        name: ccId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Delete Credit Card by ID
+      tags:
+      - Credit Cards
+    get:
+      description: Fetches a Credit Card by its ID for a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID of the Credit Card
+        in: path
+        name: ccId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CreditCard'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get Credit Card by ID
+      tags:
+      - Credit Cards
+    put:
+      description: Updates a Credit Card by its ID for a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID of the Credit Card
+        in: path
+        name: ccId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Update Credit Card by ID
+      tags:
+      - Credit Cards
+  /users/{userId}/incomes:
+    get:
+      description: Returns an array of Income objects belonging to a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Search for incomes by name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Income'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get All User Incomes
+      tags:
+      - Incomes
+    post:
+      consumes:
+      - application/json
+      description: Inserts a new Income into the Database for a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: The income to insert
+        in: body
+        name: income
+        required: true
+        schema:
+          $ref: '#/definitions/models.Income'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Insert Income
+      tags:
+      - Incomes
+  /users/{userId}/incomes/{incomeId}:
+    delete:
+      description: Deletes a user's Income by its ID
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID of the Income
+        in: path
+        name: incomeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Delete Income by ID
+      tags:
+      - Incomes
+    get:
+      description: Returns an Income object belonging to a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: the ID of the Income
+        in: path
+        name: incomeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Income'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get Income by ID
+      tags:
+      - Incomes
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing Income for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID of the income to update
+        in: path
+        name: incomeId
+        required: true
+        type: integer
+      - description: The income to update
+        in: body
+        name: income
+        required: true
+        schema:
+          $ref: '#/definitions/models.Income'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Update Income
+      tags:
+      - Incomes
+  /users/{userId}/loans:
+    get:
+      description: Returns an array of Loan objects belonging to a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Search for loans by name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Loan'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get All User Loans
+      tags:
+      - Loans
+    post:
+      consumes:
+      - application/json
+      description: Inserts a new Loan into the Database for a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: The loan to insert
+        in: body
+        name: loan
+        required: true
+        schema:
+          $ref: '#/definitions/models.Loan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Insert Loan
+      tags:
+      - Loans
+  /users/{userId}/loans-summary:
+    get:
+      consumes:
+      - application/json
+      description: Gets a summary of all loans for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoansSummary'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get User Loan Summary
+      tags:
+      - Loans
+  /users/{userId}/loans/{loanId}:
+    delete:
+      description: Deletes a Loan object belonging to a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: the ID of the Loan
+        in: path
+        name: loanId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Loan'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Delete Loan by ID
+      tags:
+      - Loans
+    get:
+      description: Returns a Loan object belonging to a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: the ID of the Loan
+        in: path
+        name: loanId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Loan'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get Loan by ID
+      tags:
+      - Loans
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing Loan for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID of the loan to update
+        in: path
+        name: loanId
+        required: true
+        type: integer
+      - description: The loan to update
+        in: body
+        name: loan
+        required: true
+        schema:
+          $ref: '#/definitions/models.Loan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Update Loan
+      tags:
+      - Loans
+  /users/{userId}/loans/{loanId}/calculate:
+    post:
+      description: |-
+        Performs calculations on a loan and returns the loan with updated values.
+        Does not Persist values
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Loan ID. Will also accept 'new' for unsaved loan
+        in: path
+        name: loanId
+        required: true
+        type: integer
+      - description: The Loan to Calculate values for
+        in: body
+        name: loan
+        required: true
+        schema:
+          $ref: '#/definitions/models.Loan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Loan'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Calculate Loan Values
+      tags:
+      - Loans
+  /users/{userId}/loans/{loanId}/compare-payments:
+    post:
+      description: |-
+        Performs calculations on a loan and a Persisted loan with an Id, then returns a list comparing the two
+        Does not Persist values
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: The ID of the persisted loan to compare against
+        in: path
+        name: loanId
+        required: true
+        type: integer
+      - description: The new Loan to calculate and compare
+        in: body
+        name: loan
+        required: true
+        schema:
+          $ref: '#/definitions/models.Loan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.PaymentScheduleComparisonItem'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Compare Loan Payments
+      tags:
+      - Loans
+  /users/{userId}/roles:
+    get:
+      description: Returns an array of UserRole objects belonging to a given user
+      parameters:
+      - description: ID of the user we are searching for
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Search for user role by role name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.UserRole'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get All User Roles
+      tags:
+      - User Roles
+  /users/{userId}/roles/{roleId}:
+    delete:
+      description: Removes a role from a a User
+      parameters:
+      - description: ID of the user to remove a role from
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID of the role to remove from the user
+        in: path
+        name: roleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Remove User Role
+      tags:
+      - User Roles
+    post:
+      description: Adds a new role to a User
+      parameters:
+      - description: ID of the user to add a role to
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID of the role to add to the user
+        in: path
+        name: roleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Add User Role
+      tags:
+      - User Roles
+  /users/{userId}/stocks:
+    get:
+      consumes:
+      - application/json
+      description: Gets a summary of all stock data for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserStockPortfolioSummary'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get Stock Portfolio Summary
+      tags:
+      - Summary
+    post:
+      consumes:
+      - application/json
+      description: Inserts a new Stock into the Database for a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: The stock to insert
+        in: body
+        name: stock
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserStock'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Insert Stock
+      tags:
+      - Stocks
+  /users/{userId}/summary:
+    get:
+      consumes:
+      - application/json
+      description: Gets a summary of all financial data for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Summary'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get Finance Summary
+      tags:
+      - Summary
+swagger: "2.0"

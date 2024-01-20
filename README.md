@@ -66,8 +66,8 @@ The backend GO application has multiple unit and integration tests
 These test can be run with the following commands
 | Command | Description |
 | --- | ---|
-| go test .\cmd\finance-mngr\.. | Run Tests |
-| go test -coverpkg=.\cmd\finance-mngr\... .\cmd\finance-mngr\... | Run Tests and Generate Coverage Reports |
+| go test .\cmd\... .\internal\... | Run Tests |
+| go test -coverpkg=.\cmd\... .\internal\... | Run Tests and Generate Coverage Reports |
 
 `Note: The integration tests run in containers and as such require the docker engine to be running in order to work`
 
@@ -79,10 +79,10 @@ While the app is running, documentation can be accessed at `http://localhost:808
 <b>Note: You may need to update the port in the above url if you started the API on a different port</b> 
 
 ### Updating or Generating Documentation
-To update or generate the swagger documentation, first cd into the finance-mngr directory, then run the following command:
+To update or generate the swagger documentation, first cd into the finance-managaer-backend directory then run the following command:
 
 ```powershell
-swag init -g internal/handlers/fmhandler/FinanceManagerHandler.go
+swag init -g internal/finance-mngr/handlers/fmhandler/FinanceManagerHandler.go
 ```
 
 If the command fails you may need to first download the swaggo package. This can be done with the following commands
