@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
+	"finance-manager-backend/cmd/finance-mngr/internal/constants"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
 	"fmt"
@@ -124,6 +125,68 @@ func (m *PostgresDBRepo) GetLatestStockDataByTicker(t string) (models.Stock, err
 
 	fmlogger.Exit(method)
 	return s, nil
+}
+
+func (m *PostgresDBRepo) GetStockDataByTickerAndDateRange(t string, sd time.Time, ed time.Time) ([]models.Stock, error) {
+	method := "stocks_dbrepo.GetStockDataByTickerAndDateRange"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+		select
+			id, ticker, high, low, open, close, date,
+			create_dt, last_update_dt
+		FROM stock_data
+		WHERE ticker = $1
+		AND date >= $2
+		AND date <= $3
+		ORDER BY  date asc`
+
+	rows, err := m.DB.QueryContext(ctx, query, t, sd, ed)
+
+	stocks := []models.Stock{}
+	recordCount := 0
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmlogger.Exit(method)
+			return stocks, nil
+		} else {
+			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			return nil, err
+		}
+
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var s models.Stock
+		err := rows.Scan(
+			&s.ID,
+			&s.Ticker,
+			&s.High,
+			&s.Low,
+			&s.Open,
+			&s.Close,
+			&s.Date,
+			&s.CreateDt,
+			&s.LastUpdateDt,
+		)
+
+		if err != nil {
+			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			return nil, err
+		}
+
+		recordCount = recordCount + 1
+		stocks = append(stocks, s)
+	}
+
+	fmlogger.Exit(method)
+	return stocks, nil
 }
 
 func (m *PostgresDBRepo) GetStockByTicker(t string) (models.Stock, error) {

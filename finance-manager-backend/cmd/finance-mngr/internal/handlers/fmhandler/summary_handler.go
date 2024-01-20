@@ -123,14 +123,31 @@ func (fmh *FinanceManagerHandler) GetUserStockPortfolioSummary(w http.ResponseWr
 	//Generate list of user positions
 	var pl []models.PortfolioPosition
 	var sum models.UserStockPortfolioSummary
+	historyStartDt := time.Now().Add(-1 * 24 * 30 * time.Hour)
 
 	for _, us := range usl {
 		s, err := fmh.DB.GetStockByTicker(us.Ticker)
 
 		if err != nil {
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
 			fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
+			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return
+		}
+
+		sd, err := fmh.DB.GetStockDataByTickerAndDateRange(s.Ticker, historyStartDt, time.Now())
+
+		if err != nil {
+			fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
+			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			return
+		}
+
+		ph := models.PositionHistory{
+			Ticker:  us.Ticker,
+			StartDt: historyStartDt,
+			EndDt:   time.Now(),
+			Count: len(sd),
+			Values: sd,
 		}
 
 		p := models.PortfolioPosition{
@@ -142,6 +159,7 @@ func (fmh *FinanceManagerHandler) GetUserStockPortfolioSummary(w http.ResponseWr
 			High:     s.High,
 			Low:      s.Low,
 			AsOfDate: s.Date,
+			History: ph,
 		}
 
 		pl = append(pl, p)

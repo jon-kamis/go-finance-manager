@@ -16,15 +16,26 @@ type UserStockPortfolioSummary struct {
 	Positions    []PortfolioPosition `json:"positions"`
 }
 
+// Type PortfolioPosition holds values for a user's Stock
 type PortfolioPosition struct {
-	Ticker   string    `json:"ticker"`
-	Quantity float64   `json:"quantity"`
-	Value    float64   `json:"value"`
-	Open     float64   `json:"open"`
-	Close    float64   `json:"close"`
-	High     float64   `json:"high"`
-	Low      float64   `json:"low"`
-	AsOfDate time.Time `json:"asOf"`
+	Ticker   string          `json:"ticker"`
+	Quantity float64         `json:"quantity"`
+	Value    float64         `json:"value"`
+	Open     float64         `json:"open"`
+	Close    float64         `json:"close"`
+	High     float64         `json:"high"`
+	Low      float64         `json:"low"`
+	AsOfDate time.Time       `json:"asOf"`
+	History  PositionHistory `json:"history"`
+}
+
+// Type PositionHistory holds historic values for a Stock
+type PositionHistory struct {
+	Ticker  string    `json:"ticker"`
+	Count   int       `json:"count"`
+	StartDt time.Time `json:"startDt"`
+	EndDt   time.Time `json:"endDt"`
+	Values  []Stock   `json:"values"`
 }
 
 // Calculates the daily totals for a portfolio. Expects Positions to be loaded

@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
+	"time"
 )
 
 type DatabaseRepo interface {
@@ -126,6 +127,9 @@ type DatabaseRepo interface {
 
 	//Fetches latest stock data for a given ticker
 	GetLatestStockDataByTicker(t string) (models.Stock, error)
+
+	//Fetches Stock data for a given ticker and date range
+	GetStockDataByTickerAndDateRange(t string, sd time.Time, ed time.Time) ([]models.Stock, error)
 
 	/*** User Stocks ***/
 
