@@ -39,8 +39,8 @@ func updateStocks(t time.Time, app application.Application) {
 	}
 
 	//only run if the date of s is at least 1 days old
-	tz, err := time.LoadLocation("EST")
-	
+	//tz, err := time.LoadLocation("EST")
+
 	if err != nil {
 		fmlogger.Error(method, constants.UnexpectedSQLError, err)
 		fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
@@ -48,27 +48,61 @@ func updateStocks(t time.Time, app application.Application) {
 	}
 
 	yesterday := time.Now()
-	yesterday = time.Date(yesterday.Year(), yesterday.Month(), yesterday.Day(), 9, 30, 0, 0, tz)
+	yesterday = time.Date(yesterday.Year(), yesterday.Month(), yesterday.Day(), 0, 0, 0, 0, time.UTC)
 	yesterday = yesterday.Add(-24 * time.Hour)
 
+	fmt.Printf("Checking if %v is before %v\n", s.Date, yesterday)
+
 	if s.Date.Before(yesterday) {
-		fmlogger.Info(method, "fetching updates for stock " + s.Ticker)
-		sn, err := app.StocksService.FetchStockWithTicker(s.Ticker)
-		
+
+		//get last date for stockData entries
+		sd, err := app.DB.GetLatestStockDataByTicker(s.Ticker)
+
 		if err != nil {
 			fmlogger.Error(method, constants.UnexpectedSQLError, err)
 			fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
 			return
 		}
 
-		s.Open = sn.Open
-		s.Close = sn.Close
-		s.High = sn.High
-		s.Low = sn.Low
-		s.Date = sn.Date
+		var startDt time.Time
 
-		//Save updated values
+		//If sd is not loaded, then default to 1 year back
+		if sd.ID == 0 {
+			startDt = time.Now()
+			startDt = time.Date(startDt.Year()-1, startDt.Month(), startDt.Day(), 0, 0, 0, 0, time.UTC)
+		} else {
+			startDt = sd.Date
+		}
+
+		fmlogger.Info(method, "fetching updates for stock "+s.Ticker)
+		sn, err := app.StocksService.FetchStockWithTickerForDateRange(s.Ticker, startDt, time.Now())
+
+		if err != nil {
+			fmlogger.Error(method, constants.UnexpectedSQLError, err)
+			fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
+			return
+		}
+
+		//Latest index should be most up to date entry
+		i := len(sn) - 1
+
+		s.Open = sn[i].Open
+		s.Close = sn[i].Close
+		s.High = sn[i].High
+		s.Low = sn[i].Low
+		s.Date = sn[i].Date
+
+		//Save stock
 		err = app.DB.UpdateStock(s)
+
+		if err != nil {
+			fmlogger.Error(method, constants.UnexpectedSQLError, err)
+			fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
+			return
+		}
+
+		//Save Stock Data
+		err = app.DB.InsertStockData(sn)
 
 		if err != nil {
 			fmlogger.Error(method, constants.UnexpectedSQLError, err)

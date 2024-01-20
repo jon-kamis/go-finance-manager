@@ -142,7 +142,7 @@ func (fss *FmStockService) FetchStockWithTicker(ticker string) (models.Stock, er
 }
 
 func (fss *FmStockService) FetchStockWithTickerForPastYear(ticker string) ([]models.Stock, error) {
-	method := "fm_stockservice.fetchStockWithTicker"
+	method := "fm_stockservice.FetchStockWithTickerForPastYear"
 	fmlogger.Enter(method)
 
 	today := time.Now()
@@ -151,6 +151,43 @@ func (fss *FmStockService) FetchStockWithTickerForPastYear(ticker string) ([]mod
 
 	api := fmt.Sprintf(base_api+past_year, ticker, fmt.Sprint(limit.Format("2006-01-02")), fmt.Sprint(today.Format("2006-01-02")))
 	fmt.Printf("calling external api: %s\n", api)
+	resp, err := fss.makeExternalCall(api)
+	var s []models.Stock
+	var pc responsemodels.AggResponse
+
+	if err != nil {
+		fmlogger.ExitError(method, err.Error(), err)
+		return s, err
+	}
+
+	err = json.Unmarshal(resp, &pc)
+	if err != nil {
+		fmlogger.ExitError(method, err.Error(), err)
+		return s, err
+	}
+
+	for _, pci := range pc.Results {
+		i := models.Stock{
+			Ticker: pc.Ticker,
+			High:   pci.High,
+			Low:    pci.Low,
+			Open:   pci.Open,
+			Close:  pci.Close,
+			Date:   time.UnixMilli(int64(pci.UnixTime)),
+		}
+		s = append(s, i)
+	}
+
+	fmlogger.Exit(method)
+	return s, nil
+}
+
+func (fss *FmStockService) FetchStockWithTickerForDateRange(t string, d1 time.Time, d2 time.Time) ([]models.Stock, error) {
+	method := "fm_stockservice.FetchStockWithTickerForDateRange"
+	fmlogger.Enter(method)
+
+	api := fmt.Sprintf(base_api+past_year, t, fmt.Sprint(d1.Format("2006-01-02")), fmt.Sprint(d2.Format("2006-01-02")))
+
 	resp, err := fss.makeExternalCall(api)
 	var s []models.Stock
 	var pc responsemodels.AggResponse
