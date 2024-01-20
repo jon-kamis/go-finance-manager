@@ -17,10 +17,6 @@ const Stocks = () => {
         <div className="container-fluid">
             <h1>Portfolio</h1>
             <PortfolioSummary />
-            <div className="d-flex">
-                <div className="p-4 flex-col col-md-12 content content-xtall">
-                </div>
-            </div>
         </div>
     )
 }

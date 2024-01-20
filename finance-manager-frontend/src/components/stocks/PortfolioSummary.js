@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { LineChart } from '@mui/x-charts/LineChart'
 import Input from "../form/Input";
 import Toast from "../alerting/Toast";
 import { format, parseISO } from "date-fns";
@@ -88,13 +89,14 @@ const PortfolioSummary = () => {
                             <div className="flex-row">
 
                                 <h4>{p.ticker}</h4>
-                                <p className="text-start">High: ${p.high}</p>
-                                <p className="text-start">Low: ${p.low}</p>
-                                <p className="text-start">Open: ${p.open}</p>
-                                <p className="text-start">Close: ${p.close}</p>
-                                <p className="text-start">Quantity: ${p.quantity}</p>
-                                <p className="text-start">Value: ${p.value}</p>
-                                <p className="text-start">As of: {format(parseISO(p.asOf), 'MMM do yyyy')}</p>
+                                <LineChart
+                                    series={[{ 
+                                        data: p.history.values.map((v) => (v.close)), 
+                                        showMark: false,
+                                        color: p.history.values[0].close > p.history.values[p.history.count-1].close ? "red" : "green"}]}
+                                    xAxis={[{scaleType: 'point', data: p.history.values.map((v) => format(parseISO(v.date), 'MMM do yyyy'))}]}
+                                    height={200}
+                                />
 
                             </div>
 

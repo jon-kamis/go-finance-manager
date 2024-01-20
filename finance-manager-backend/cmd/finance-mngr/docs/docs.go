@@ -2427,6 +2427,9 @@ const docTemplate = `{
                 "high": {
                     "type": "number"
                 },
+                "history": {
+                    "$ref": "#/definitions/models.PositionHistory"
+                },
                 "low": {
                     "type": "number"
                 },
@@ -2444,6 +2447,29 @@ const docTemplate = `{
                 }
             }
         },
+        "models.PositionHistory": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "endDt": {
+                    "type": "string"
+                },
+                "startDt": {
+                    "type": "string"
+                },
+                "ticker": {
+                    "type": "string"
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Stock"
+                    }
+                }
+            }
+        },
         "models.Role": {
             "type": "object",
             "properties": {
@@ -2452,6 +2478,38 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.Stock": {
+            "type": "object",
+            "properties": {
+                "close": {
+                    "type": "number"
+                },
+                "createDt": {
+                    "type": "string"
+                },
+                "currentHigh": {
+                    "type": "number"
+                },
+                "currentLow": {
+                    "type": "number"
+                },
+                "currentPrice": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastUpdateDt": {
+                    "type": "string"
+                },
+                "open": {
+                    "type": "number"
+                },
+                "ticker": {
+                    "type": "string"
                 }
             }
         },

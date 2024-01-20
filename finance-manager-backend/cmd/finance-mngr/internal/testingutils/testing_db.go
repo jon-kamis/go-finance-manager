@@ -47,6 +47,7 @@ func InitTables(db *gorm.DB) {
 	db.AutoMigrate(&models.CreditCard{})
 	db.AutoMigrate(&models.Stock{})
 	db.AutoMigrate(&models.UserStock{})
+	db.AutoMigrate(&models.StockData{})
 	fmlogger.Info(method, "tables initialized")
 
 	//Seed Data
