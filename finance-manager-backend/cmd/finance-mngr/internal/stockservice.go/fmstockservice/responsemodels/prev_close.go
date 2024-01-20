@@ -1,6 +1,6 @@
 package responsemodels
 
-type PreviousCloseItem struct {
+type AggResponseItem struct {
 	Ticker              string  `json:"T"`
 	Close               float64 `json:"c"`
 	High                float64 `json:"h"`
@@ -11,12 +11,12 @@ type PreviousCloseItem struct {
 	VolumeWeightedPrice float64 `json:"vw"`
 }
 
-type PreviousClose struct {
-	Adjusted     bool                `json:"adjusted"`
-	QueryCount   int                 `json:"queryCount"`
-	RequestId    string              `json:"request_id"`
-	Results      []PreviousCloseItem `json:"results"`
-	ResultsCount int                 `json:"resultsCount"`
-	Status       string              `json:"status"`
-	Ticker       string              `json:"ticker"`
+type AggResponse struct {
+	Adjusted     bool              `json:"adjusted"`
+	QueryCount   int               `json:"queryCount"`
+	RequestId    string            `json:"request_id"`
+	Results      []AggResponseItem `json:"results"`
+	ResultsCount int               `json:"resultsCount"`
+	Status       string            `json:"status"`
+	Ticker       string            `json:"ticker"`
 }

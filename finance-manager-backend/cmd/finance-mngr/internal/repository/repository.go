@@ -119,6 +119,14 @@ type DatabaseRepo interface {
 
 	UpdateStock(s models.Stock) error
 
+	/*** Stock Data ***/
+
+	//Inserts Stock Data
+	InsertStockData(sl []models.Stock) error
+
+	//Fetches latest stock data for a given ticker
+	GetLatestStockDataByTicker(t string) (models.Stock, error)
+
 	/*** User Stocks ***/
 
 	//Inserts a new user stock object

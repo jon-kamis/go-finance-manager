@@ -29,20 +29,27 @@ func (fmh *FinanceManagerHandler) loadStock(ticker string) error {
 		return nil
 	}
 
-	s, err = fmh.StocksService.FetchStockWithTicker(ticker)
+	sl, err := fmh.StocksService.FetchStockWithTickerForPastYear(ticker)
 
 	if err != nil {
 		fmlogger.ExitError(method, constants.UnexpectedExternalCallError, err)
 		return err
 	}
 
-	//Persist the new stock object
-	_, err = fmh.DB.InsertStock(s)
+	_, err = fmh.DB.InsertStock(sl[len(sl)-1])
 
 	if err != nil {
 		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
+
+	err = fmh.DB.InsertStockData(sl)
+
+	if err != nil {
+		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		return err
+	}
+
 
 	fmlogger.Exit(method)
 	return nil

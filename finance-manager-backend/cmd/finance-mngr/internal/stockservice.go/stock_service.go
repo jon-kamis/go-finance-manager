@@ -1,12 +1,21 @@
 package stockservice
 
-import "finance-manager-backend/cmd/finance-mngr/internal/models"
+import (
+	"finance-manager-backend/cmd/finance-mngr/internal/models"
+	"time"
+)
 
-//Interface StockService is used to handle external calls
+// Interface StockService is used to handle external calls
 type StockService interface {
 
 	//Fetches a Stock for a given ticker
 	FetchStockWithTicker(ticker string) (models.Stock, error)
+
+	//Fetches the past 1 year of data for a given ticker
+	FetchStockWithTickerForPastYear(ticker string) ([]models.Stock, error)
+
+	//Fetches stocks for a given ticker and date range
+	FetchStockWithTickerForDateRange(t string, d1 time.Time, d2 time.Time) ([]models.Stock, error)
 
 	//Loads in API key for external stock calls
 	UpdateAndPersistAPIKey(k string) error

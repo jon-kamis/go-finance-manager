@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"finance-manager-backend/cmd/finance-mngr/internal/fmlogger"
 	"finance-manager-backend/cmd/finance-mngr/internal/models"
+	"fmt"
 	"time"
 )
 
@@ -40,6 +41,89 @@ func (m *PostgresDBRepo) InsertStock(s models.Stock) (int, error) {
 
 	fmlogger.Exit(method)
 	return id, nil
+}
+
+func (m *PostgresDBRepo) InsertStockData(sl []models.Stock) error {
+	method := "stock_dbrepo.InsertStockData"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	stmt :=
+		`INSERT INTO stock_data 
+			(ticker, high, low, open, close, date, create_dt, last_update_dt)
+		values 
+			($1, $2, $3, $4, $5, $6, $7, $8) returning id`
+
+	var id int
+
+	fmt.Printf("[%s] inserting %d records\n", method, len(sl))
+	for _, s := range sl {
+		err := m.DB.QueryRowContext(ctx, stmt,
+			s.Ticker,
+			s.High,
+			s.Low,
+			s.Open,
+			s.Close,
+			s.Date,
+			time.Now(),
+			time.Now(),
+		).Scan(&id)
+
+		if err != nil {
+			fmlogger.ExitError(method, "error occured when inserting stock data", err)
+			return err
+		}
+	}
+
+	fmlogger.Exit(method)
+	return nil
+}
+
+func (m *PostgresDBRepo) GetLatestStockDataByTicker(t string) (models.Stock, error) {
+	method := "stocks_dbrepo.GetLatestStockDataByTicker"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+		select
+			id, ticker, high, low, open, close, date,
+			create_dt, last_update_dt
+		FROM stock_data
+		WHERE ticker = $1
+		ORDER BY  date desc
+		limit 1`
+
+	var s models.Stock
+	row := m.DB.QueryRowContext(ctx, query, t)
+
+	err := row.Scan(
+		&s.ID,
+		&s.Ticker,
+		&s.High,
+		&s.Low,
+		&s.Open,
+		&s.Close,
+		&s.Date,
+		&s.CreateDt,
+		&s.LastUpdateDt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmlogger.Exit(method)
+			return s, nil
+		} else {
+			fmlogger.ExitError(method, "database call returned with error", err)
+			return s, err
+		}
+	}
+
+	fmlogger.Exit(method)
+	return s, nil
 }
 
 func (m *PostgresDBRepo) GetStockByTicker(t string) (models.Stock, error) {
