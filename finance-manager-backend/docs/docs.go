@@ -293,6 +293,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/stocks": {
+            "get": {
+                "description": "Gets History data for one or more stocks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stocks"
+                ],
+                "summary": "Get Stock History",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "A comma separated list of stocks to fetch positions for",
+                        "name": "tickers",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "The amount of days back we should load history for. Max is 365. Default is 30",
+                        "name": "days",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.PositionHistory"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "description": "Returns an array of User objects",
@@ -2427,9 +2486,6 @@ const docTemplate = `{
                 "high": {
                     "type": "number"
                 },
-                "history": {
-                    "$ref": "#/definitions/models.PositionHistory"
-                },
                 "low": {
                     "type": "number"
                 },
@@ -2594,6 +2650,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "createDt": {
+                    "type": "string"
+                },
+                "effectiveDt": {
+                    "type": "string"
+                },
+                "expirationDt": {
                     "type": "string"
                 },
                 "id": {

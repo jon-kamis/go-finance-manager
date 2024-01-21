@@ -244,8 +244,6 @@ definitions:
         type: number
       high:
         type: number
-      history:
-        $ref: '#/definitions/models.PositionHistory'
       low:
         type: number
       open:
@@ -353,6 +351,10 @@ definitions:
   models.UserStock:
     properties:
       createDt:
+        type: string
+      effectiveDt:
+        type: string
+      expirationDt:
         type: string
       id:
         type: integer
@@ -576,6 +578,46 @@ paths:
       summary: Get All Roles
       tags:
       - Roles
+  /stocks:
+    get:
+      consumes:
+      - application/json
+      description: Gets History data for one or more stocks
+      parameters:
+      - description: A comma separated list of stocks to fetch positions for
+        in: query
+        name: tickers
+        required: true
+        type: string
+      - description: The amount of days back we should load history for. Max is 365.
+          Default is 30
+        in: query
+        name: days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.PositionHistory'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get Stock History
+      tags:
+      - Stocks
   /users:
     get:
       description: Returns an array of User objects
