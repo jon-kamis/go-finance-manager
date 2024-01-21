@@ -12,6 +12,8 @@ type UserStock struct {
 	UserId       int       `json:"userId" gorm:"column:user_id"`
 	Ticker       string    `json:"ticker"`
 	Quantity     float64   `json:"quantity"`
+	EffectiveDt  time.Time `json:"effectiveDt" gorm:"column:effective_dt"`
+	ExpirationDt time.Time `json:"expirationDt" gorm:"column:expiration_dt"`
 	CreateDt     time.Time `json:"createDt"`
 	LastUpdateDt time.Time `json:"lastUpdateDt"`
 }

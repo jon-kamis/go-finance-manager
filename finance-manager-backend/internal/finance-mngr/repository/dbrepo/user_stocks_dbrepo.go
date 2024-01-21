@@ -17,20 +17,42 @@ func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	stmt :=
-		`INSERT INTO user_stocks 
-			(user_id, ticker, quantity, create_dt, last_update_dt)
-		values 
-			($1, $2, $3, $4, $5) returning id`
-
+	var stmt string
+	var err error
 	var id int
-	err := m.DB.QueryRowContext(ctx, stmt,
-		s.UserId,
-		s.Ticker,
-		s.Quantity,
-		time.Now(),
-		time.Now(),
-	).Scan(&id)
+
+	if !s.ExpirationDt.IsZero() {
+		stmt =
+			`INSERT INTO user_stocks 
+			(user_id, ticker, quantity, effective_dt, expiration_dt, create_dt, last_update_dt)
+		values 
+			($1, $2, $3, $4, $5, $6, $7) returning id`
+
+		err = m.DB.QueryRowContext(ctx, stmt,
+			s.UserId,
+			s.Ticker,
+			s.Quantity,
+			s.EffectiveDt,
+			s.ExpirationDt,
+			time.Now(),
+			time.Now(),
+		).Scan(&id)
+	} else {
+		stmt =
+			`INSERT INTO user_stocks 
+				(user_id, ticker, quantity, effective_dt, create_dt, last_update_dt)
+			values 
+				($1, $2, $3, $4, $5, $6) returning id`
+
+		err = m.DB.QueryRowContext(ctx, stmt,
+			s.UserId,
+			s.Ticker,
+			s.Quantity,
+			s.EffectiveDt,
+			time.Now(),
+			time.Now(),
+		).Scan(&id)
+	}
 
 	if err != nil {
 		fmlogger.ExitError(method, "error occured when inserting new bill", err)
@@ -41,7 +63,8 @@ func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 	return id, nil
 }
 
-func (m *PostgresDBRepo) GetAllUserStocks(userId int, search string) ([]*models.UserStock, error) {
+// Function GetAllUserStocks returns all user stocks with names matching search if it is included and where t is after effective dt and before expiration date if it exists
+func (m *PostgresDBRepo) GetAllUserStocks(userId int, search string, t time.Time) ([]*models.UserStock, error) {
 	method := "bills_dbrepo.GetAllUserStocks"
 	fmlogger.Enter(method)
 
@@ -63,8 +86,12 @@ func (m *PostgresDBRepo) GetAllUserStocks(userId int, search string) ([]*models.
 		WHERE
 			user_id = $1
 			AND
-			LOWER(ticker) like '%' || $2 || '%'`
-		rows, err = m.DB.QueryContext(ctx, query, userId, search)
+			effective_dt <= $2
+			AND
+			(expiration_dt IS NULL OR expiration_dt >= $2)
+			AND
+			LOWER(ticker) like '%' || $3 || '%'`
+		rows, err = m.DB.QueryContext(ctx, query, userId, t, search)
 	} else {
 		query = `
 		SELECT
@@ -72,8 +99,12 @@ func (m *PostgresDBRepo) GetAllUserStocks(userId int, search string) ([]*models.
 			create_dt, last_update_dt
 		FROM user_stocks
 		WHERE
-			user_id = $1`
-		rows, err = m.DB.QueryContext(ctx, query, userId)
+			user_id = $1
+			AND
+			effective_dt <= $2
+			AND
+			(expiration_dt IS NULL OR expiration_dt >= $2)`
+		rows, err = m.DB.QueryContext(ctx, query, userId, t)
 	}
 
 	usl := []*models.UserStock{}
