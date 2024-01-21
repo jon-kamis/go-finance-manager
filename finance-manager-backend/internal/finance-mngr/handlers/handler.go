@@ -115,6 +115,9 @@ type Handler interface {
 	//Fetches all Role objects
 	GetAllRoles(w http.ResponseWriter, r *http.Request)
 
+	/*** Stocks ***/
+	GetStockHistory(w http.ResponseWriter, r *http.Request)
+
 	/*** User Stocks ***/
 
 	//Saves New User Stocks object

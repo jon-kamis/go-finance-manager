@@ -27,6 +27,11 @@ func (app *Application) Routes() http.Handler {
 	r.Get("/logout", app.Handler.Logout)
 	r.Post("/register", app.Handler.Register)
 
+	r.Route("/stocks", func(r chi.Router) {
+		r.Use(app.AuthRequired)
+		r.Get("/", app.Handler.GetStockHistory)
+	})
+
 	r.Route("/roles", func(r chi.Router) {
 		r.Use(app.AuthRequired)
 		r.Get("/", app.Handler.GetAllRoles)
