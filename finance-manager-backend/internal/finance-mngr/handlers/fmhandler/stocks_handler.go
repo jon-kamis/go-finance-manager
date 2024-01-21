@@ -6,6 +6,9 @@ import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"net/http"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -119,5 +122,78 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	fmlogger.Exit(method)
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
+}
+
+// GetStockHistory godoc
+// @title		Get Stock History
+// @version 	1.0.0
+// @Tags 		Stocks
+// @Summary 	Get Stock History
+// @Description Gets History data for one or more stocks
+// @Param		tickers query string true "A comma separated list of stocks to fetch positions for"
+// @Param		days query int false "The amount of days back we should load history for. Max is 365. Default is 30"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {array} models.PositionHistory
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/stocks [get]
+func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http.Request) {
+	method := "stocks_handler.GetStockHistory"
+	fmlogger.Enter(method)
+
+	tickers := r.URL.Query().Get("tickers")
+	dStr := r.URL.Query().Get("days")
+	var d int
+	var err error
+	var rArr []models.PositionHistory
+
+	if tickers == "" {
+		err = errors.New("tickers param is required")
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
+		fmlogger.ExitError(method, err.Error(), err)
+		return
+	}
+
+	if dStr == "" {
+		d = 30
+	} else {
+		d, err = strconv.Atoi(dStr)
+
+		if err != nil {
+			fmh.JSONUtil.ErrorJSON(w, errors.New("days param is invalid"), http.StatusBadRequest)
+			fmlogger.ExitError(method, err.Error(), err)
+			return
+		}
+	}
+
+	historyStartDt := time.Now().Add(-1 * 24 * time.Duration(d) * time.Hour)
+	tArr := strings.Split(tickers, ",")
+
+	for _, t := range tArr {
+
+		sd, err := fmh.DB.GetStockDataByTickerAndDateRange(t, historyStartDt, time.Now())
+
+		if err != nil {
+			fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
+			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			return
+		}
+
+		ph := models.PositionHistory{
+			Ticker:  t,
+			StartDt: historyStartDt,
+			EndDt:   time.Now(),
+			Count:   len(sd),
+			Values:  sd,
+		}
+
+		rArr = append(rArr, ph)
+	}
+
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, rArr)
 	fmlogger.Exit(method)
 }

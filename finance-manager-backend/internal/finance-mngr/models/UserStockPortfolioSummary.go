@@ -26,7 +26,6 @@ type PortfolioPosition struct {
 	High     float64         `json:"high"`
 	Low      float64         `json:"low"`
 	AsOfDate time.Time       `json:"asOf"`
-	History  PositionHistory `json:"history"`
 }
 
 // Type PositionHistory holds historic values for a Stock

@@ -9,6 +9,9 @@
 *.dylib
 **/postgres-data/**
 
+#VSCode workspace
+.vscode/**
+
 #API Key file
 API.key
 

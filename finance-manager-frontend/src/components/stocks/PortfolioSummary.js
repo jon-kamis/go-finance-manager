@@ -11,6 +11,7 @@ const PortfolioSummary = () => {
     const { numberFormatOptions } = useOutletContext();
 
     const [portfolioSummary, setPortfolioSummary] = useState([]);
+    const [posHist, setPosHist] = useState([]);
 
     let { userId } = useParams();
 
@@ -40,6 +41,41 @@ const PortfolioSummary = () => {
                 console.log(err)
             })
     }
+
+    useEffect(() => {
+        if (jwtToken === null || jwtToken === "") {
+            navigate("/")
+        }
+
+        if (portfolioSummary.positions) {
+            const headers = new Headers();
+            headers.append("Content-Type", "application/json")
+            headers.append("Authorization", `Bearer ${jwtToken}`)
+            const requestOptions = {
+                method: "GET",
+                headers: headers,
+            }
+
+            let stockList = []
+            portfolioSummary.positions.map(s => stockList.push(s.ticker))
+            let stockStr = stockList.join(",")
+
+            fetch(`${apiUrl}/stocks?tickers=${stockStr}`, requestOptions)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.error) {
+                        Toast(data.message, "error")
+                    } else {
+                        setPosHist(data);
+                    }
+                })
+                .catch(err => {
+                    Toast(err.message, "error")
+                    console.log(err)
+                })
+        }
+
+    }, [portfolioSummary]);
 
     useEffect(() => {
         if (jwtToken === null || jwtToken === "") {
@@ -84,17 +120,18 @@ const PortfolioSummary = () => {
                         <h2>Positions</h2>
                     </div>
                     <div className="content-xtall-tablecontainer">
-                        {portfolioSummary && portfolioSummary.positions && portfolioSummary.positions.map((p) => (
+                        {posHist && posHist.length > 0 && posHist.map((p) => (
 
                             <div className="flex-row">
 
                                 <h4>{p.ticker}</h4>
                                 <LineChart
-                                    series={[{ 
-                                        data: p.history.values.map((v) => (v.close)), 
+                                    series={[{
+                                        data: p.values.map((v) => (v.close)),
                                         showMark: false,
-                                        color: p.history.values[0].close > p.history.values[p.history.count-1].close ? "red" : "green"}]}
-                                    xAxis={[{scaleType: 'point', data: p.history.values.map((v) => format(parseISO(v.date), 'MMM do yyyy'))}]}
+                                        color: p.values[0].close > p.values[p.count - 1].close ? "red" : "green"
+                                    }]}
+                                    xAxis={[{ scaleType: 'point', data: p.values.map((v) => format(parseISO(v.date), 'MMM do yyyy')) }]}
                                     height={200}
                                 />
 
