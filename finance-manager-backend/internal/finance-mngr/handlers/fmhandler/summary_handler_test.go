@@ -74,7 +74,7 @@ func setupStockTestData() {
 	}
 
 	p.GormDB.Create(&s1)
-	p.GormDB.Create(&us1)
+	fmh.DB.InsertUserStock(us1)
 
 }
 
