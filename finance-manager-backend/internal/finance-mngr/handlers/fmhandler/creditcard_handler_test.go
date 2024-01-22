@@ -4,7 +4,7 @@ import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"finance-manager-backend/internal/finance-mngr/testingutils"
+	"finance-manager-backend/test"
 	"fmt"
 	"net/http"
 	"testing"
@@ -19,7 +19,7 @@ func TestGetAllUserCreditCards_200(t *testing.T) {
 	fmlogger.Enter(method)
 
 	setup()
-	token := testingutils.GetAdminJWT(t)
+	token := test.GetAdminJWT(t)
 
 	writer := MakeRequest(http.MethodGet, "/users/1/credit-cards", nil, true, token)
 
@@ -33,7 +33,7 @@ func TestGetAllUserCreditCards_403(t *testing.T) {
 	method := "creditcard_handler_test.TestGetAllUserCreditCards_403"
 	fmlogger.Enter(method)
 
-	token := testingutils.GetUserJWT(t)
+	token := test.GetUserJWT(t)
 
 	writer := MakeRequest(http.MethodGet, "/users/1/credit-cards", nil, true, token)
 
@@ -57,7 +57,7 @@ func TestSaveCreditCard_200(t *testing.T) {
 		MinPaymentPercentage: 10,
 	}
 
-	token := testingutils.GetAdminJWT(t)
+	token := test.GetAdminJWT(t)
 
 	writer := MakeRequest(http.MethodPost, "/users/1/credit-cards", cc, true, token)
 
@@ -89,7 +89,7 @@ func TestSaveCreditCard_403(t *testing.T) {
 		MinPaymentPercentage: 10,
 	}
 
-	token := testingutils.GetUserJWT(t)
+	token := test.GetUserJWT(t)
 
 	writer := MakeRequest(http.MethodPost, "/users/1/credit-cards", cc, true, token)
 
@@ -111,7 +111,7 @@ func TestSaveCreditCard_400(t *testing.T) {
 		MinPaymentPercentage: 10,
 	}
 
-	token := testingutils.GetAdminJWT(t)
+	token := test.GetAdminJWT(t)
 
 	//Empty Object
 	writer := MakeRequest(http.MethodPost, "/users/1/credit-cards", nil, true, token)
@@ -133,7 +133,7 @@ func TestGetCreditCardById_200(t *testing.T) {
 	fmlogger.Enter(method)
 
 	setup()
-	token := testingutils.GetUserJWT(t)
+	token := test.GetUserJWT(t)
 
 	writer := MakeRequest(http.MethodGet, "/users/2/credit-cards/3", nil, true, token)
 	assert.Equal(t, http.StatusOK, writer.Code)
@@ -147,7 +147,7 @@ func TestGetCreditCardById_403(t *testing.T) {
 	fmlogger.Enter(method)
 
 	setup()
-	token := testingutils.GetUserJWT(t)
+	token := test.GetUserJWT(t)
 
 	//Credit Card belongs to other user
 	writer := MakeRequest(http.MethodGet, "/users/2/credit-cards/1", nil, true, token)
@@ -166,7 +166,7 @@ func TestGetCreditCardById_400(t *testing.T) {
 	fmlogger.Enter(method)
 
 	setup()
-	token := testingutils.GetUserJWT(t)
+	token := test.GetUserJWT(t)
 
 	//Invalid ID
 	writer := MakeRequest(http.MethodGet, "/users/2/credit-cards/a", nil, true, token)
@@ -181,7 +181,7 @@ func TestGetCreditCardById_404(t *testing.T) {
 	fmlogger.Enter(method)
 
 	setup()
-	token := testingutils.GetUserJWT(t)
+	token := test.GetUserJWT(t)
 
 	//Invalid ID
 	writer := MakeRequest(http.MethodGet, "/users/2/credit-cards/4", nil, true, token)
@@ -196,7 +196,7 @@ func TestDeleteCreditCardById_200(t *testing.T) {
 	fmlogger.Enter(method)
 
 	setup()
-	token := testingutils.GetAdminJWT(t)
+	token := test.GetAdminJWT(t)
 
 	writer := MakeRequest(http.MethodDelete, "/users/1/credit-cards/1", nil, true, token)
 	assert.Equal(t, http.StatusOK, writer.Code)
@@ -218,7 +218,7 @@ func TestDeleteCreditCardById_400(t *testing.T) {
 	fmlogger.Enter(method)
 
 	setup()
-	token := testingutils.GetAdminJWT(t)
+	token := test.GetAdminJWT(t)
 
 	writer := MakeRequest(http.MethodDelete, "/users/1/credit-cards/a", nil, true, token)
 	assert.Equal(t, http.StatusBadRequest, writer.Code)
@@ -233,8 +233,8 @@ func TestDeleteCreditCardById_403(t *testing.T) {
 	fmlogger.Enter(method)
 
 	setup()
-	uToken := testingutils.GetUserJWT(t)
-	aToken := testingutils.GetAdminJWT(t)
+	uToken := test.GetUserJWT(t)
+	aToken := test.GetAdminJWT(t)
 
 	//User attempting to act on other user
 	writer := MakeRequest(http.MethodDelete, "/users/1/credit-cards/1", nil, true, uToken)
@@ -254,7 +254,7 @@ func TestDeleteCreditCardById_404(t *testing.T) {
 	fmlogger.Enter(method)
 
 	setup()
-	token := testingutils.GetAdminJWT(t)
+	token := test.GetAdminJWT(t)
 
 	writer := MakeRequest(http.MethodDelete, "/users/1/credit-cards/112", nil, true, token)
 	assert.Equal(t, http.StatusNotFound, writer.Code)
@@ -309,7 +309,7 @@ func TestUpdateCreditCard_200(t *testing.T) {
 
 	p.GormDB.Create(&cc)
 
-	token := testingutils.GetAdminJWT(t)
+	token := test.GetAdminJWT(t)
 
 	cc.Balance = 2000.0
 
@@ -343,7 +343,7 @@ func TestUpdateCreditCard_403(t *testing.T) {
 		MinPaymentPercentage: 10,
 	}
 
-	token := testingutils.GetUserJWT(t)
+	token := test.GetUserJWT(t)
 
 	//URL is forbidden
 	writer := MakeRequest(http.MethodPut, fmt.Sprintf("/users/1/credit-cards/%d", id), cc, true, token)
@@ -366,7 +366,7 @@ func TestUpdateCreditCard_400(t *testing.T) {
 		MinPaymentPercentage: 10,
 	}
 
-	token := testingutils.GetUserJWT(t)
+	token := test.GetUserJWT(t)
 
 	writer := MakeRequest(http.MethodPut, "/users/2/credit-cards/abc", cc, true, token)
 
@@ -394,7 +394,7 @@ func TestUpdateCreditCard_404(t *testing.T) {
 
 	p.GormDB.Create(&cc)
 
-	token := testingutils.GetUserJWT(t)
+	token := test.GetUserJWT(t)
 
 	//ID from url does not exist
 	writer := MakeRequest(http.MethodPut, "/users/2/credit-cards/127", cc, true, token)

@@ -5,7 +5,7 @@ import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/internal/finance-mngr/repository/dbrepo"
-	"finance-manager-backend/internal/finance-mngr/testingutils"
+	"finance-manager-backend/test"
 	"fmt"
 	"os"
 	"testing"
@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var p testingutils.DockerTestPlatform
+var p test.DockerTestPlatform
 var fss FmStockService
 
 func TestMain(m *testing.M) {
@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 	fmlogger.Enter(method)
 
 	//Setup testing platform using docker
-	p = testingutils.Setup(m)
+	p = test.Setup(m)
 	db := &dbrepo.PostgresDBRepo{DB: p.DB}
 
 	fss = FmStockService{
@@ -34,7 +34,7 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 
 	//Tear down testing platform
-	testingutils.TearDown(p)
+	test.TearDown(p)
 
 	fmlogger.Exit(method)
 	os.Exit(code)
@@ -155,11 +155,11 @@ func TestGetUserPortfolioBalanceHistory(t *testing.T) {
 		EffectiveDt: d.Add(-3 * 24 * time.Hour),
 	}
 	us3 := models.UserStock{
-		ID:          24,
-		UserId:      1,
-		Ticker:      "MSFT",
-		Quantity:    1,
-		EffectiveDt: d.Add(-4 * 24 * time.Hour),
+		ID:           24,
+		UserId:       1,
+		Ticker:       "MSFT",
+		Quantity:     1,
+		EffectiveDt:  d.Add(-4 * 24 * time.Hour),
 		ExpirationDt: sql.NullTime{Time: d.Add(-3 * 24 * time.Hour).Add(-1 * time.Millisecond)},
 	}
 
@@ -203,9 +203,9 @@ func TestGetUserPortfolioBalanceHistory(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, 5, len(hist))
-	assert.Equal(t, 2.0, dvm[d])//AAPL is expired, MSFT is worth 1 and quantity is x2
-	assert.Equal(t, 4.0, dvm[d.Add(-24 * time.Hour)]) //Both AAPL and MSFT are unexpired, both worth 1 with quantity x2
-	assert.Equal(t, 3.0, dvm[d.Add(-24 * 4 * time.Hour)])//AAPL has quanity x2, MSFT has quantity x1, both have value of 1. Expect 3
+	assert.Equal(t, 2.0, dvm[d])                      //AAPL is expired, MSFT is worth 1 and quantity is x2
+	assert.Equal(t, 4.0, dvm[d.Add(-24*time.Hour)])   //Both AAPL and MSFT are unexpired, both worth 1 with quantity x2
+	assert.Equal(t, 3.0, dvm[d.Add(-24*4*time.Hour)]) //AAPL has quanity x2, MSFT has quantity x1, both have value of 1. Expect 3
 
 	//Cleanup
 	p.GormDB.Exec("DELETE FROM user_stocks")

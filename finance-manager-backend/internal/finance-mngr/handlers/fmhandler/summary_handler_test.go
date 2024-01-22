@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"finance-manager-backend/internal/finance-mngr/testingutils"
+	"finance-manager-backend/test"
 	"net/http"
 	"testing"
 	"time"
@@ -16,7 +16,7 @@ func TestGetUserStockPortfolioSummary_200(t *testing.T) {
 	method := "summary_handler_test.TestGetUserStockPortfolioSummary_200"
 	fmlogger.Enter(method)
 
-	token := testingutils.GetUserJWT(t)
+	token := test.GetUserJWT(t)
 	var resp models.UserStockPortfolioSummary
 
 	setupStockTestData()
@@ -41,7 +41,7 @@ func TestGetUserStockPortfolioSummary_403(t *testing.T) {
 	method := "summary_handler_test.TestGetUserStockPortfolioSummary_403"
 	fmlogger.Enter(method)
 
-	token := testingutils.GetUserJWT(t)
+	token := test.GetUserJWT(t)
 
 	writer := MakeRequest(http.MethodGet, "/users/1/stocks", nil, true, token)
 	assert.Equal(t, http.StatusForbidden, writer.Code)

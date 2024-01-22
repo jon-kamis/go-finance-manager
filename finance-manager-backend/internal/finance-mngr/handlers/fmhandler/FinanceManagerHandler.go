@@ -19,6 +19,7 @@ type FinanceManagerHandler struct {
 	Validator     validation.AppValidator
 	Version       string
 	StocksService stockservice.StockService
+	ApiPort int
 }
 
 func (fmh FinanceManagerHandler) GetVersion() string {

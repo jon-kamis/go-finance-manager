@@ -1,4 +1,4 @@
-package testingutils
+package test
 
 import (
 	"database/sql"

@@ -8,7 +8,7 @@ import (
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/repository/dbrepo"
 	"finance-manager-backend/internal/finance-mngr/stockservice/fmstockservice"
-	"finance-manager-backend/internal/finance-mngr/testingutils"
+	"finance-manager-backend/test"
 	"finance-manager-backend/internal/finance-mngr/validation"
 	"net/http"
 	"net/http/httptest"
@@ -20,7 +20,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-var p testingutils.DockerTestPlatform
+var p test.DockerTestPlatform
 var fmh FinanceManagerHandler
 var app application.Application
 
@@ -29,14 +29,14 @@ func TestMain(m *testing.M) {
 	fmlogger.Enter(method)
 
 	//Setup testing platform using docker
-	p = testingutils.Setup(m)
+	p = test.Setup(m)
 	db := &dbrepo.PostgresDBRepo{DB: p.DB}
 	app.StocksService = &fmstockservice.FmStockService{StocksEnabled: false}
 	fmh = FinanceManagerHandler{
 		DB:            db,
 		JSONUtil:      &jsonutils.JSONUtil{},
 		Validator:     &validation.FinanceManagerValidator{DB: db},
-		Auth:          testingutils.GetTestAuth(),
+		Auth:          test.GetTestAuth(),
 		StocksService: app.StocksService,
 	}
 
@@ -48,7 +48,7 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 
 	//Tear down testing platform
-	testingutils.TearDown(p)
+	test.TearDown(p)
 
 	fmlogger.Exit(method)
 	os.Exit(code)

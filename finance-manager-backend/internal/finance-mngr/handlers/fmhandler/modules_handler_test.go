@@ -3,7 +3,7 @@ package fmhandler
 import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"finance-manager-backend/internal/finance-mngr/testingutils"
+	"finance-manager-backend/test"
 	"net/http"
 	"testing"
 
@@ -14,7 +14,7 @@ func TestGetIsModuleEnabled(t *testing.T) {
 	method := "modules_handler_test.TestGetIsModuleEnabled"
 	fmlogger.Enter(method)
 
-	token := testingutils.GetAdminJWT(t)
+	token := test.GetAdminJWT(t)
 
 	writer := MakeRequest(http.MethodGet, "/modules/stocks", nil, true, token)
 	assert.Equal(t, http.StatusOK, writer.Code)
