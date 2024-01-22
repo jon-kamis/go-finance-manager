@@ -7,13 +7,13 @@ import (
 )
 
 type UserStockPortfolioSummary struct {
-	CurrentValue float64                   `json:"currentValue"`
-	CurrentHigh  float64                   `json:"currentHigh"`
-	CurrentLow   float64                   `json:"currentLow"`
-	CurrentOpen  float64                   `json:"currentOpen"`
-	CurrentClose float64                   `json:"currentClose"`
-	AsOfDate     time.Time                 `json:"asOf"`
-	Positions    []PortfolioPosition       `json:"positions"`
+	CurrentValue float64             `json:"currentValue"`
+	CurrentHigh  float64             `json:"currentHigh"`
+	CurrentLow   float64             `json:"currentLow"`
+	CurrentOpen  float64             `json:"currentOpen"`
+	CurrentClose float64             `json:"currentClose"`
+	AsOfDate     time.Time           `json:"asOf"`
+	Positions    []PortfolioPosition `json:"positions"`
 }
 
 // Type PortfolioBalanceHistory Holds a record for the overall balance of the user's stocks for a given date
@@ -36,11 +36,17 @@ type PortfolioPosition struct {
 
 // Type PositionHistory holds historic values for a Stock
 type PositionHistory struct {
-	Ticker  string    `json:"ticker"`
-	Count   int       `json:"count"`
-	StartDt time.Time `json:"startDt"`
-	EndDt   time.Time `json:"endDt"`
-	Values  []Stock   `json:"values"`
+	Ticker          string    `json:"ticker"`
+	High            float64   `json:"high"`
+	Low             float64   `json:"low"`
+	Open            float64   `json:"open"`
+	Close           float64   `json:"close"`
+	Delta           float64   `json:"delta"`
+	DeltaPercentage float64   `json:"deltaPercentage"`
+	Count           int       `json:"count"`
+	StartDt         time.Time `json:"startDt"`
+	EndDt           time.Time `json:"endDt"`
+	Values          []Stock   `json:"values"`
 }
 
 // Calculates the daily totals for a portfolio. Expects Positions to be loaded
