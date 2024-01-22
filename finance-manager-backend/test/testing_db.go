@@ -1,4 +1,4 @@
-package testingutils
+package test
 
 import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"

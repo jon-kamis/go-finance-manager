@@ -3,7 +3,7 @@ package validation
 import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"finance-manager-backend/internal/finance-mngr/testingutils"
+	"finance-manager-backend/test"
 	"testing"
 	"time"
 )
@@ -12,13 +12,13 @@ func TestUserRoleBelongsToUser(t *testing.T) {
 	method := "userroles_validation_test.TestUserRoleBelongsToUser"
 	fmlogger.Enter(method)
 
-	userId := testingutils.TestingAdmin.ID
+	userId := test.TestingAdmin.ID
 
 	userRole := models.UserRole{
 		ID:           1,
 		UserId:       userId,
-		RoleId:       testingutils.AdminRole.ID,
-		Code:         testingutils.AdminRole.Code,
+		RoleId:       test.AdminRole.ID,
+		Code:         test.AdminRole.Code,
 		CreateDt:     time.Now(),
 		LastUpdateDt: time.Now(),
 	}
@@ -60,8 +60,8 @@ func TestUserRoleExistsAndBelongsToUser(t *testing.T) {
 	userRole := models.UserRole{
 		ID:           23,
 		UserId:       23,
-		RoleId:       testingutils.AdminRole.ID,
-		Code:         testingutils.AdminRole.Code,
+		RoleId:       test.AdminRole.ID,
+		Code:         test.AdminRole.Code,
 		CreateDt:     time.Now(),
 		LastUpdateDt: time.Now(),
 	}

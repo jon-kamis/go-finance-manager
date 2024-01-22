@@ -2,7 +2,7 @@ package dbrepo
 
 import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
-	"finance-manager-backend/internal/finance-mngr/testingutils"
+	test "finance-manager-backend/test"
 	"os"
 	"testing"
 
@@ -12,21 +12,21 @@ import (
 )
 
 var d PostgresDBRepo
-var p testingutils.DockerTestPlatform
+var p test.DockerTestPlatform
 
 func TestMain(m *testing.M) {
 	method := "validation_test.TestMain"
 	fmlogger.Enter(method)
 
 	//Setup testing platform using docker
-	p = testingutils.Setup(m)
+	p = test.Setup(m)
 	d = PostgresDBRepo{DB: p.DB}
 
 	//Execute Code
 	code := m.Run()
 
 	//Tear down testing platform
-	testingutils.TearDown(p)
+	test.TearDown(p)
 
 	fmlogger.Exit(method)
 	os.Exit(code)

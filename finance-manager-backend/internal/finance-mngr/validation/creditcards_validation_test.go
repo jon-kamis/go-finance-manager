@@ -3,7 +3,7 @@ package validation
 import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"finance-manager-backend/internal/finance-mngr/testingutils"
+	"finance-manager-backend/test"
 	"testing"
 )
 
@@ -11,7 +11,7 @@ func TestCreditCardBelongsToUser(t *testing.T) {
 	method := "creditcards_validation_test.TestCreditCardBelongsToUser"
 	fmlogger.Enter(method)
 
-	userId := testingutils.TestingAdmin.ID
+	userId := test.TestingAdmin.ID
 
 	cc := models.CreditCard{
 		ID:                   1,

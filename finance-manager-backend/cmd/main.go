@@ -69,8 +69,9 @@ func main() {
 		DB:        app.DB,
 		Auth:      app.Auth,
 		Validator: &validation.FinanceManagerValidator{DB: app.DB},
-
+		Version: constants.AppVersion,
 		StocksService: &stockService,
+		ApiPort: port,
 	}
 
 	defer app.DB.Connection().Close()

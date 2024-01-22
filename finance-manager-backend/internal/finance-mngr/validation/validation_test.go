@@ -3,7 +3,7 @@ package validation
 import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/repository/dbrepo"
-	"finance-manager-backend/internal/finance-mngr/testingutils"
+	"finance-manager-backend/test"
 	"os"
 	"testing"
 
@@ -13,21 +13,21 @@ import (
 )
 
 var fmv FinanceManagerValidator
-var p testingutils.DockerTestPlatform
+var p test.DockerTestPlatform
 
 func TestMain(m *testing.M) {
 	method := "validation_test.TestMain"
 	fmlogger.Enter(method)
 
 	//Setup testing platform using docker
-	p = testingutils.Setup(m)
+	p = test.Setup(m)
 	fmv = FinanceManagerValidator{DB: &dbrepo.PostgresDBRepo{DB: p.DB}}
 
 	//Execute Code
 	code := m.Run()
 
 	//Tear down testing platform
-	testingutils.TearDown(p)
+	test.TearDown(p)
 
 	fmlogger.Exit(method)
 	os.Exit(code)
