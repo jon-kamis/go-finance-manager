@@ -28,7 +28,7 @@ func TestInsertUserStock(t *testing.T) {
 	err = p.GormDB.First(&sDb, id).Error
 
 	assert.Nil(t, err)
-	assert.True(t, sDb.ExpirationDt.IsZero())
+	assert.True(t, sDb.ExpirationDt.Time.IsZero())
 	assert.Equal(t, id, sDb.ID)
 	assert.Equal(t, s.UserId, sDb.UserId)
 	assert.Equal(t, s.Ticker, sDb.Ticker)
@@ -38,7 +38,7 @@ func TestInsertUserStock(t *testing.T) {
 	p.GormDB.Delete(sDb)
 
 	var sDb2 models.UserStock
-	s.ExpirationDt = time.Now()
+	s.ExpirationDt.Time = time.Now()
 	id, err = d.InsertUserStock(s)
 	assert.Nil(t, err)
 	assert.Greater(t, id, 0)
@@ -46,7 +46,7 @@ func TestInsertUserStock(t *testing.T) {
 	err = p.GormDB.Where("id=?",id).Find(&sDb2).Error
 
 	assert.Nil(t, err)
-	assert.False(t, sDb2.ExpirationDt.IsZero())
+	assert.False(t, sDb2.ExpirationDt.Time.IsZero())
 	assert.Equal(t, id, sDb2.ID)
 
 	p.GormDB.Delete(sDb2)

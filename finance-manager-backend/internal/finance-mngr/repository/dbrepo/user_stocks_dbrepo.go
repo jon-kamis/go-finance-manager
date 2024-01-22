@@ -21,7 +21,7 @@ func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 	var err error
 	var id int
 
-	if !s.ExpirationDt.IsZero() {
+	if !s.ExpirationDt.Time.IsZero() {
 		stmt =
 			`INSERT INTO user_stocks 
 			(user_id, ticker, quantity, effective_dt, expiration_dt, create_dt, last_update_dt)
@@ -33,7 +33,7 @@ func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 			s.Ticker,
 			s.Quantity,
 			s.EffectiveDt,
-			s.ExpirationDt,
+			s.ExpirationDt.Time,
 			time.Now(),
 			time.Now(),
 		).Scan(&id)
@@ -80,7 +80,7 @@ func (m *PostgresDBRepo) GetAllUserStocks(userId int, search string, t time.Time
 
 		query = `
 		SELECT
-			id, user_id, ticker, quantity,
+			id, user_id, ticker, quantity, effective_dt, expiration_dt,
 			create_dt, last_update_dt
 		FROM user_stocks
 		WHERE
@@ -95,7 +95,7 @@ func (m *PostgresDBRepo) GetAllUserStocks(userId int, search string, t time.Time
 	} else {
 		query = `
 		SELECT
-			id, user_id, ticker, quantity,
+			id, user_id, ticker, quantity, effective_dt, expiration_dt,
 			create_dt, last_update_dt
 		FROM user_stocks
 		WHERE
@@ -129,6 +129,8 @@ func (m *PostgresDBRepo) GetAllUserStocks(userId int, search string, t time.Time
 			&u.UserId,
 			&u.Ticker,
 			&u.Quantity,
+			&u.EffectiveDt,
+			&u.ExpirationDt,
 			&u.CreateDt,
 			&u.LastUpdateDt,
 		)
@@ -164,7 +166,7 @@ func (m *PostgresDBRepo) GetAllUserStocksByDateRange(userId int, search string, 
 
 		query = `
 		SELECT
-			id, user_id, ticker, quantity,
+			id, user_id, ticker, quantity, effective_dt, expiration_dt,
 			create_dt, last_update_dt
 		FROM user_stocks
 		WHERE
@@ -179,7 +181,7 @@ func (m *PostgresDBRepo) GetAllUserStocksByDateRange(userId int, search string, 
 	} else {
 		query = `
 		SELECT
-			id, user_id, ticker, quantity,
+			id, user_id, ticker, quantity, effective_dt, expiration_dt,
 			create_dt, last_update_dt
 		FROM user_stocks
 		WHERE
@@ -213,6 +215,8 @@ func (m *PostgresDBRepo) GetAllUserStocksByDateRange(userId int, search string, 
 			&u.UserId,
 			&u.Ticker,
 			&u.Quantity,
+			&u.EffectiveDt,
+			&u.ExpirationDt,
 			&u.CreateDt,
 			&u.LastUpdateDt,
 		)

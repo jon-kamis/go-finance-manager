@@ -235,7 +235,7 @@ func (fss *FmStockService) GetUserPortfolioBalanceHistory(uId int, d int) ([]mod
 	ed := time.Now()
 
 	//Validate passed values
-	if uId == 0 {
+	if uId <= 0 {
 		err = errors.New("uId is required")
 		fmlogger.ExitError(method, err.Error(), err)
 		return hist, err
@@ -278,8 +278,9 @@ func (fss *FmStockService) GetUserPortfolioBalanceHistory(uId int, d int) ([]mod
 			d1 = us.EffectiveDt
 		}
 
-		if !us.ExpirationDt.IsZero() && us.ExpirationDt.Before(ed) {
-			d2 = us.ExpirationDt
+		fmt.Printf("user stock %s effective %v, expires %v\n", us.Ticker, us.EffectiveDt, us.ExpirationDt)
+		if !us.ExpirationDt.Time.IsZero() && us.ExpirationDt.Time.Before(ed) {
+			d2 = us.ExpirationDt.Time
 		} else {
 			d2 = ed
 		}
@@ -294,6 +295,7 @@ func (fss *FmStockService) GetUserPortfolioBalanceHistory(uId int, d int) ([]mod
 		//Next, Loop through stock Data for this entry and add totals to each date in map
 		for _, s := range sl {
 			val := (us.Quantity * s.Close)
+			fmt.Printf("Adding stock %s to date %v\n", us.Ticker, s.Date)
 			if histMap[s.Date] == 0 {
 				histMap[s.Date] = val
 			} else {
