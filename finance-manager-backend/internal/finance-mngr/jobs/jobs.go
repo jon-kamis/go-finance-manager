@@ -47,27 +47,35 @@ func updateStocks(t time.Time, app application.Application) {
 		return
 	}
 
-	yesterday := time.Now()
-	yesterday = time.Date(yesterday.Year(), yesterday.Month(), yesterday.Day(), 0, 0, 0, 0, time.UTC)
-	yesterday = yesterday.Add(-24 * time.Hour)
+	//We should check against the latest weekday
 
-	fmt.Printf("Checking if %v is before %v\n", s.Date, yesterday)
+	compareDt := time.Now()
+	compareDt = time.Date(compareDt.Year(), compareDt.Month(), compareDt.Day(), 0, 0, 0, 0, time.UTC)
+	
+	if compareDt.Weekday() == time.Sunday {
+		compareDt = compareDt.Add(-2 * 24 * time.Hour)
+	} else {
+		compareDt = compareDt.Add(-1 * 24 * time.Hour)
+	}
 
-	if s.Date.Before(yesterday) {
+	//get last date for stockData entries
+	sd, err := app.DB.GetLatestStockDataByTicker(s.Ticker)
 
-		//get last date for stockData entries
-		sd, err := app.DB.GetLatestStockDataByTicker(s.Ticker)
+	if err != nil {
+		fmlogger.Error(method, constants.UnexpectedSQLError, err)
+		fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
+		return
+	}
 
-		if err != nil {
-			fmlogger.Error(method, constants.UnexpectedSQLError, err)
-			fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
-			return
-		}
+	fmt.Printf("Checking if %v is before %v. Or if stock data is not loaded\n", s.Date, compareDt)
+
+	if s.Date.Before(compareDt) ||  sd.ID == 0 {
 
 		var startDt time.Time
 
 		//If sd is not loaded, then default to 1 year back
 		if sd.ID == 0 {
+			fmlogger.Info(method, "stock data was not loaded. Loading stock data now")
 			startDt = time.Now()
 			startDt = time.Date(startDt.Year()-1, startDt.Month(), startDt.Day(), 0, 0, 0, 0, time.UTC)
 		} else {
@@ -75,7 +83,7 @@ func updateStocks(t time.Time, app application.Application) {
 		}
 
 		fmlogger.Info(method, "fetching updates for stock "+s.Ticker)
-		sn, err := app.StocksService.FetchStockWithTickerForDateRange(s.Ticker, startDt, time.Now())
+		sn, err := app.StocksService.FetchStockWithTickerForDateRange(s.Ticker, startDt, compareDt)
 
 		if err != nil {
 			fmlogger.Error(method, constants.UnexpectedSQLError, err)

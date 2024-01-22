@@ -6,7 +6,6 @@ import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -128,12 +127,12 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 
 // GetStockHistory godoc
 // @title		Get Stock History
-// @version 	1.0.0
+// @version 	2.0.0
 // @Tags 		Stocks
 // @Summary 	Get Stock History
 // @Description Gets History data for one or more stocks
 // @Param		tickers query string true "A comma separated list of stocks to fetch positions for"
-// @Param		days query int false "The amount of days back we should load history for. Max is 365. Default is 30"
+// @Param		histLength query int false "The lenght of history to fetch. Available values are 'week', 'month', and 'year'. Default is 'week'"
 // @Accept		json
 // @Produce 	json
 // @Success 	200 {array} models.PositionHistory
@@ -146,7 +145,8 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 	fmlogger.Enter(method)
 
 	tickers := r.URL.Query().Get("tickers")
-	dStr := r.URL.Query().Get("days")
+	hlStr := r.URL.Query().Get("histLength")
+
 	var d int
 	var err error
 	var rArr []models.PositionHistory
@@ -158,16 +158,19 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 		return
 	}
 
-	if dStr == "" {
-		d = 30
-	} else {
-		d, err = strconv.Atoi(dStr)
+	if hlStr == "" {
+		hlStr = constants.LengthWeek
+	}
 
-		if err != nil {
-			fmh.JSONUtil.ErrorJSON(w, errors.New("days param is invalid"), http.StatusBadRequest)
-			fmlogger.ExitError(method, err.Error(), err)
-			return
-		}
+	switch hlStr {
+	case constants.LengthWeek:
+		d = 7
+	case constants.LengthMonth:
+		d = 31
+	case constants.LengthYear:
+		d = 365
+	default:
+		d = 7
 	}
 
 	historyStartDt := time.Now().Add(-1 * 24 * time.Duration(d) * time.Hour)

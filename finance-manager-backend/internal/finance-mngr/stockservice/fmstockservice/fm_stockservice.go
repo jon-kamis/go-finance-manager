@@ -191,6 +191,8 @@ func (fss *FmStockService) FetchStockWithTickerForDateRange(t string, d1 time.Ti
 
 	api := fmt.Sprintf(base_api+past_year, t, fmt.Sprint(d1.Format("2006-01-02")), fmt.Sprint(d2.Format("2006-01-02")))
 
+	fmt.Printf("[%s] attempting to call external API: %s\n", method, api)
+
 	resp, err := fss.makeExternalCall(api)
 	var s []models.Stock
 	var pc responsemodels.AggResponse
@@ -278,7 +280,6 @@ func (fss *FmStockService) GetUserPortfolioBalanceHistory(uId int, d int) ([]mod
 			d1 = us.EffectiveDt
 		}
 
-		fmt.Printf("user stock %s effective %v, expires %v\n", us.Ticker, us.EffectiveDt, us.ExpirationDt)
 		if !us.ExpirationDt.Time.IsZero() && us.ExpirationDt.Time.Before(ed) {
 			d2 = us.ExpirationDt.Time
 		} else {
@@ -295,7 +296,6 @@ func (fss *FmStockService) GetUserPortfolioBalanceHistory(uId int, d int) ([]mod
 		//Next, Loop through stock Data for this entry and add totals to each date in map
 		for _, s := range sl {
 			val := (us.Quantity * s.Close)
-			fmt.Printf("Adding stock %s to date %v\n", us.Ticker, s.Date)
 			if histMap[s.Date] == 0 {
 				histMap[s.Date] = val
 			} else {
