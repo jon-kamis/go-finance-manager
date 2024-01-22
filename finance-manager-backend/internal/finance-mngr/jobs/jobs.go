@@ -69,7 +69,7 @@ func updateStocks(t time.Time, app application.Application) {
 		return
 	}
 
-	fmt.Printf("Checking if %v is before %v. Or if stock data is not loaded\n", s.Date, compareDt)
+	fmt.Printf("[%s] Checking if %v is before %v. Or if stock data is not loaded\n", method, s.Date, compareDt)
 
 	if s.Date.Before(compareDt) ||  sd.ID == 0 {
 

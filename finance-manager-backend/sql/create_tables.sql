@@ -247,6 +247,11 @@ ALTER TABLE public.stock_data ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 );
 
 --
+-- Name: unique_ticker_day_constraint; Type: CONSTRAINT; Schema: public; Owner -
+--
+ALTER TABLE stock_data ADD CONSTRAINT unique_ticker_day_constraint UNIQUE (ticker, date);
+
+--
 -- Name: user_stocks; Type: Table; Schema: public; Owner: -
 --
 CREATE TABLE public.user_stocks (
