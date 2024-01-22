@@ -127,12 +127,12 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 
 // GetStockHistory godoc
 // @title		Get Stock History
-// @version 	2.0.0
+// @version 	2.1.0
 // @Tags 		Stocks
 // @Summary 	Get Stock History
 // @Description Gets History data for one or more stocks
 // @Param		tickers query string true "A comma separated list of stocks to fetch positions for"
-// @Param		histLength query int false "The lenght of history to fetch. Available values are 'week', 'month', and 'year'. Default is 'week'"
+// @Param		histLength query int false "The lenght of history to fetch. Available values are 'day', 'week', 'month', and 'year'. Default is 'month'"
 // @Accept		json
 // @Produce 	json
 // @Success 	200 {array} models.PositionHistory
@@ -163,6 +163,8 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 	}
 
 	switch hlStr {
+	case constants.LengthDay:
+		d = 1
 	case constants.LengthWeek:
 		d = 7
 	case constants.LengthMonth:
@@ -170,7 +172,7 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 	case constants.LengthYear:
 		d = 365
 	default:
-		d = 7
+		d = 31
 	}
 
 	historyStartDt := time.Now().Add(-1 * 24 * time.Duration(d) * time.Hour)
@@ -186,8 +188,39 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 			return
 		}
 
+		var high float64
+		var low float64
+		var open float64
+		var close float64
+		var delta float64
+		var deltaPercentage float64
+
+		high = sd[0].High
+		low = sd[0].Low
+		open = sd[0].Open
+		close = sd[len(sd)-1].Close
+		delta = sd[len(sd)-1].Close - sd[0].Close
+		deltaPercentage = delta / sd[0].Close * 100
+
+		//Populate high and low
+		for _, s := range sd {
+			if s.High > high {
+				high = s.High
+			}
+
+			if s.Low < low {
+				low = s.Low
+			}
+		}
+
 		ph := models.PositionHistory{
 			Ticker:  t,
+			High: high,
+			Low: low,
+			Open: open,
+			Close: close,
+			Delta: delta,
+			DeltaPercentage: deltaPercentage,
 			StartDt: historyStartDt,
 			EndDt:   time.Now(),
 			Count:   len(sd),

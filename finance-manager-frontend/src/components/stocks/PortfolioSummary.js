@@ -4,6 +4,7 @@ import { LineChart } from '@mui/x-charts/LineChart'
 import Toast from "../alerting/Toast";
 import { format, parseISO } from "date-fns";
 import PortfolioHistory from "./PortfolioHistory";
+import PositionDetail from "./PositionDetail"
 import Select from "../form/Select";
 
 const PortfolioSummary = () => {
@@ -94,8 +95,10 @@ const PortfolioSummary = () => {
 
     return (
         <>
-            <div className="container-fluid content">
-                <div className="col-md-12 d-flex p-4 justify-content-between">
+            <div className="container-fluid content p-4">
+                <h2>Current Statistics</h2>
+                <div className="col-md-12 d-flex justify-content-between">
+
                     <div className="flex-col">
                         <h5>Current Value</h5>
                         <h4>${Intl.NumberFormat("en-US", numberFormatOptions).format(portfolioSummary ? portfolioSummary.currentValue : 0)}</h4>
@@ -121,41 +124,14 @@ const PortfolioSummary = () => {
                         <h4>{portfolioSummary && portfolioSummary.asOf ? format(parseISO(portfolioSummary.asOf), 'MMM do yyyy') : "-"}</h4>
                     </div>
                 </div>
+                <br />
                 <div className="d-flex">
-                    <div className="flex-col p-4 col-md-3">
-                        <div className="flex-row">
-                            <h2>Positions</h2>
-                        </div>
-                        <div className="content-xtall-tablecontainer">
-                            {posHist && posHist.length > 0 && posHist.map((p) => (
 
-                                <div className="flex-row">
-
-                                    <h4>{p.ticker}</h4>
-                                    {p.count > 0 ?
-                                        <LineChart
-                                            series={[{
-                                                data: p.values.map((v) => (v.close)),
-                                                showMark: false,
-                                                color: p.values[0].close > p.values[p.count - 1].close ? "red" : "green"
-                                            }]}
-                                            xAxis={[{ scaleType: 'point', data: p.values.map((v) => format(parseISO(v.date), 'MMM do yyyy')) }]}
-                                            height={200}
-                                        />
-                                        :
-                                        <h5>Data Not Available</h5>
-                                    }
-
-                                </div>
-
-                            ))}
-                        </div>
-                    </div>
-                    <div className="flex-col p-4 col-md-9">
+                    <div className="flex-col col-md-12">
                         <div className="d-flex col-md-12 justify-content-between">
 
                             <div className="flex-col col-md-10">
-                                <h2>Portfolio Balance</h2>
+                                <h2>Balance</h2>
                             </div>
                             <div className="flex-col col-md-2">
                                 <Select
@@ -169,8 +145,29 @@ const PortfolioSummary = () => {
                                 />
                             </div>
                         </div>
-                        <PortfolioHistory histLength = {histLength}/>
+                        <PortfolioHistory histLength={histLength} />
                     </div>
+                </div>
+            </div>
+            <div className="content container-fluid p-4">
+                <div className="content-xtall-tablecontainer ">
+                    <h2>Current Positions</h2>
+
+                    {posHist && posHist.length > 0 && posHist.map((p) => (
+
+                        <PositionDetail position={p} portfolioSummary={portfolioSummary.positions[portfolioSummary.positions.findIndex(i => i.ticker == p.ticker)]}/>
+
+                    ))}
+                    <div className="container-fluid">
+                        <div className="flex-col p-4 col-md-12">
+                            <div className="flex-row">
+                            </div>
+                            <div className="">
+
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </>

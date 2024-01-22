@@ -54,7 +54,6 @@ func setupStockTestData() {
 	s1 := models.Stock{
 		ID:           23,
 		Ticker:       "AAPL",
-		Cost:         1,
 		High:         1,
 		Low:          1,
 		Open:         1,
