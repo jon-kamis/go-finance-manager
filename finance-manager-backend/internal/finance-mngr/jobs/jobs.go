@@ -52,7 +52,9 @@ func updateStocks(t time.Time, app application.Application) {
 	compareDt := time.Now()
 	compareDt = time.Date(compareDt.Year(), compareDt.Month(), compareDt.Day(), 0, 0, 0, 0, time.UTC)
 	
-	if compareDt.Weekday() == time.Sunday {
+	if compareDt.Weekday() == time.Monday {
+		compareDt = compareDt.Add(-3 * 24 * time.Hour)
+	} else if compareDt.Weekday() == time.Sunday {
 		compareDt = compareDt.Add(-2 * 24 * time.Hour)
 	} else {
 		compareDt = compareDt.Add(-1 * 24 * time.Hour)
