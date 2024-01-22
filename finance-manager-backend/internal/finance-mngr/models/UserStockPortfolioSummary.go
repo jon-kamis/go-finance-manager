@@ -7,25 +7,31 @@ import (
 )
 
 type UserStockPortfolioSummary struct {
-	CurrentValue float64             `json:"currentValue"`
-	CurrentHigh  float64             `json:"currentHigh"`
-	CurrentLow   float64             `json:"currentLow"`
-	CurrentOpen  float64             `json:"currentOpen"`
-	CurrentClose float64             `json:"currentClose"`
-	AsOfDate     time.Time           `json:"asOf"`
-	Positions    []PortfolioPosition `json:"positions"`
+	CurrentValue float64                   `json:"currentValue"`
+	CurrentHigh  float64                   `json:"currentHigh"`
+	CurrentLow   float64                   `json:"currentLow"`
+	CurrentOpen  float64                   `json:"currentOpen"`
+	CurrentClose float64                   `json:"currentClose"`
+	AsOfDate     time.Time                 `json:"asOf"`
+	Positions    []PortfolioPosition       `json:"positions"`
+}
+
+// Type PortfolioBalanceHistory Holds a record for the overall balance of the user's stocks for a given date
+type PortfolioBalanceHistory struct {
+	Date    time.Time `json:"date"`
+	Balance float64   `json:"balance"`
 }
 
 // Type PortfolioPosition holds values for a user's Stock
 type PortfolioPosition struct {
-	Ticker   string          `json:"ticker"`
-	Quantity float64         `json:"quantity"`
-	Value    float64         `json:"value"`
-	Open     float64         `json:"open"`
-	Close    float64         `json:"close"`
-	High     float64         `json:"high"`
-	Low      float64         `json:"low"`
-	AsOfDate time.Time       `json:"asOf"`
+	Ticker   string    `json:"ticker"`
+	Quantity float64   `json:"quantity"`
+	Value    float64   `json:"value"`
+	Open     float64   `json:"open"`
+	Close    float64   `json:"close"`
+	High     float64   `json:"high"`
+	Low      float64   `json:"low"`
+	AsOfDate time.Time `json:"asOf"`
 }
 
 // Type PositionHistory holds historic values for a Stock

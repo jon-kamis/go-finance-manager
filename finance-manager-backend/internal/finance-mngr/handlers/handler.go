@@ -118,6 +118,8 @@ type Handler interface {
 	/*** Stocks ***/
 	GetStockHistory(w http.ResponseWriter, r *http.Request)
 
+	GetUserStockPortfolioHistory(w http.ResponseWriter, r *http.Request)
+
 	/*** User Stocks ***/
 
 	//Saves New User Stocks object

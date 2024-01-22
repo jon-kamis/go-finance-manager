@@ -236,6 +236,13 @@ definitions:
       remainingBalance:
         type: number
     type: object
+  models.PortfolioBalanceHistory:
+    properties:
+      balance:
+        type: number
+      date:
+        type: string
+    type: object
   models.PortfolioPosition:
     properties:
       asOf:
@@ -299,6 +306,15 @@ definitions:
         type: number
       ticker:
         type: string
+    type: object
+  models.StockPortfolioHistoryResponse:
+    properties:
+      count:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/models.PortfolioBalanceHistory'
+        type: array
     type: object
   models.Summary:
     properties:
@@ -1691,6 +1707,44 @@ paths:
       summary: Add User Role
       tags:
       - User Roles
+  /users/{userId}/stock-portfolio-history:
+    get:
+      consumes:
+      - application/json
+      description: Gets History of a User's Stock Portfolio Balance
+      parameters:
+      - description: The ID of the user to get Portfolio History for
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: The lenght of history to fetch. Available values are 'week',
+          'month', and 'year'. Default is 'week'
+        in: query
+        name: histLength
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StockPortfolioHistoryResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get User Stock Portfolio History
+      tags:
+      - Stocks
   /users/{userId}/stocks:
     get:
       consumes:
