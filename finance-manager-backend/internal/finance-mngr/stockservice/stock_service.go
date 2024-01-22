@@ -25,4 +25,9 @@ type StockService interface {
 
 	//Loads the stock API from a file
 	LoadApiKeyFromFile() error
+
+	//Gets the Balance history of a user's portfolio.
+	//uId - The userId to search for
+	//d - The number of days to pull history for
+	GetUserPortfolioBalanceHistory(uId int, d int) ([]models.PortfolioBalanceHistory, error)
 }

@@ -197,3 +197,66 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, rArr)
 	fmlogger.Exit(method)
 }
+
+// GetStockHistory godoc
+// @title		Get User Stock Portfolio History
+// @version 	1.0.0
+// @Tags 		Stocks
+// @Summary 	Get User Stock Portfolio History
+// @Description Gets History of a User's Stock Portfolio Balance
+// @Param		userId path int true "The ID of the user to get Portfolio History for"
+// @Param		histLength query int false "The lenght of history to fetch. Available values are 'week', 'month', and 'year'. Default is 'week'"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} models.StockPortfolioHistoryResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/stock-portfolio-history [get]
+func (fmh *FinanceManagerHandler) GetUserStockPortfolioHistory(w http.ResponseWriter, r *http.Request) {
+	method := "stocks_handler.GetUserStockPortfolioHistory"
+	fmlogger.Enter(method)
+
+	var resp models.StockPortfolioHistoryResponse
+	var err error
+	var hl int
+
+	//Read URL variables
+	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
+	hlStr := r.URL.Query().Get("histLength")
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when reading url parameters", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
+		return
+	}
+
+	if hlStr == "" {
+		hlStr = constants.LengthWeek
+	}
+
+	switch hlStr {
+	case constants.LengthWeek:
+		hl = 7
+	case constants.LengthMonth:
+		hl = 31
+	case constants.LengthYear:
+		hl = 365
+	default:
+		hl = 7
+	}
+
+	//Load positions History object
+	h, err := fmh.StocksService.GetUserPortfolioBalanceHistory(id, hl)
+	resp.Items = h
+	resp.Count = len(h)
+
+	if err != nil {
+		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.GenericServerError), http.StatusInternalServerError)
+		fmlogger.ExitError(method, constants.GenericServerError, err)
+		return
+	}
+
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, resp)
+	fmlogger.Exit(method)
+}

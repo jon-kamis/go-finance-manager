@@ -1954,6 +1954,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/{userId}/stock-portfolio-history": {
+            "get": {
+                "description": "Gets History of a User's Stock Portfolio Balance",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stocks"
+                ],
+                "summary": "Get User Stock Portfolio History",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "The ID of the user to get Portfolio History for",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "The lenght of history to fetch. Available values are 'week', 'month', and 'year'. Default is 'week'",
+                        "name": "histLength",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StockPortfolioHistoryResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{userId}/stocks": {
             "get": {
                 "description": "Gets a summary of all stock data for a user",
@@ -2474,6 +2530,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.PortfolioBalanceHistory": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                }
+            }
+        },
         "models.PortfolioPosition": {
             "type": "object",
             "properties": {
@@ -2569,6 +2636,20 @@ const docTemplate = `{
                 },
                 "ticker": {
                     "type": "string"
+                }
+            }
+        },
+        "models.StockPortfolioHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PortfolioBalanceHistory"
+                    }
                 }
             }
         },

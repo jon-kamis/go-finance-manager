@@ -4,7 +4,7 @@ import (
 	"finance-manager-backend/internal/finance-mngr/authentication"
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/repository"
-	"finance-manager-backend/internal/finance-mngr/stockservice.go"
+	"finance-manager-backend/internal/finance-mngr/stockservice"
 	"finance-manager-backend/internal/finance-mngr/validation"
 )
 

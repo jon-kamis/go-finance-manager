@@ -6,7 +6,7 @@ import (
 	"finance-manager-backend/internal/finance-mngr/handlers"
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/repository"
-	"finance-manager-backend/internal/finance-mngr/stockservice.go"
+	"finance-manager-backend/internal/finance-mngr/stockservice"
 )
 
 // Type Application stores environment variables and objects required to run Finance Manager

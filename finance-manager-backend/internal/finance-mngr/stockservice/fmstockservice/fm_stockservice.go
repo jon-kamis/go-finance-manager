@@ -6,11 +6,13 @@ import (
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"finance-manager-backend/internal/finance-mngr/stockservice.go/fmstockservice/responsemodels"
+	"finance-manager-backend/internal/finance-mngr/repository"
+	"finance-manager-backend/internal/finance-mngr/stockservice/fmstockservice/responsemodels"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"sort"
 	"time"
 )
 
@@ -22,6 +24,7 @@ type FmStockService struct {
 	PolygonApiKey        string
 	StocksEnabled        bool
 	StocksApiKeyFileName string
+	DB                   repository.DatabaseRepo
 }
 
 // Return if stocks is enabled
@@ -217,4 +220,103 @@ func (fss *FmStockService) FetchStockWithTickerForDateRange(t string, d1 time.Ti
 
 	fmlogger.Exit(method)
 	return s, nil
+}
+
+// Function GetUserPortfolioBalanceHistory fetches the Portfolio Balance History for a user for a given timeframe
+// uId - The ID of the user to fetch history for
+// d - The number of past days to pull history for. Maximum is 365
+func (fss *FmStockService) GetUserPortfolioBalanceHistory(uId int, d int) ([]models.PortfolioBalanceHistory, error) {
+	method := "fm_stockservice.GetUserPortfolioBalanceHistory"
+	fmlogger.Enter(method)
+
+	var hist []models.PortfolioBalanceHistory
+	var sd time.Time
+	var err error
+	ed := time.Now()
+
+	//Validate passed values
+	if uId == 0 {
+		err = errors.New("uId is required")
+		fmlogger.ExitError(method, err.Error(), err)
+		return hist, err
+	}
+
+	if d < 1 || d > 365 {
+		err = errors.New("d must be between 1 and 365 inclusively")
+		fmlogger.ExitError(method, err.Error(), err)
+		return hist, err
+	}
+
+	//First Load User Positions for date range
+	sd = ed.Add(-1 * time.Duration(d) * 24 * time.Hour)
+
+	usl, err := fss.DB.GetAllUserStocksByDateRange(uId, "", sd, ed)
+
+	if err != nil {
+		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		return hist, err
+	}
+
+	//No stocks exist
+	if len(usl) == 0 {
+		fmlogger.Info(method, "User has no stocks for this timeframe")
+		fmlogger.Exit(method)
+		return hist, nil
+	}
+
+	//Next Loop through each user position and load stock data for that position. Add total value for each date
+	histMap := make(map[time.Time]float64)
+
+	for _, us := range usl {
+
+		var d1 time.Time
+		var d2 time.Time
+
+		if us.EffectiveDt.Before(sd) {
+			d1 = sd
+		} else {
+			d1 = us.EffectiveDt
+		}
+
+		if !us.ExpirationDt.IsZero() && us.ExpirationDt.Before(ed) {
+			d2 = us.ExpirationDt
+		} else {
+			d2 = ed
+		}
+
+		sl, err := fss.DB.GetStockDataByTickerAndDateRange(us.Ticker, d1, d2)
+
+		if err != nil {
+			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			return hist, err
+		}
+
+		//Next, Loop through stock Data for this entry and add totals to each date in map
+		for _, s := range sl {
+			val := (us.Quantity * s.Close)
+			if histMap[s.Date] == 0 {
+				histMap[s.Date] = val
+			} else {
+				histMap[s.Date] = val + histMap[s.Date]
+			}
+		}
+	}
+
+	//Sort data and Generate History Items list. Data is sorted to help the user read output
+
+	keys := make([]time.Time, 0, len(histMap))
+	for k := range histMap {
+		keys = append(keys, k)
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i].Before(keys[j])
+	})
+
+	for _, key := range keys {
+		hist = append(hist, models.PortfolioBalanceHistory{Date: key, Balance: histMap[key]})
+	}
+
+	fmlogger.Exit(method)
+	return hist, nil
 }

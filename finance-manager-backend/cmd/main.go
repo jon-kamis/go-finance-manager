@@ -9,7 +9,7 @@ import (
 	"finance-manager-backend/internal/finance-mngr/jobs"
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/repository/dbrepo"
-	"finance-manager-backend/internal/finance-mngr/stockservice.go/fmstockservice"
+	"finance-manager-backend/internal/finance-mngr/stockservice/fmstockservice"
 	"finance-manager-backend/internal/finance-mngr/validation"
 	"fmt"
 	"log"
@@ -58,6 +58,7 @@ func main() {
 	stockService := fmstockservice.FmStockService{
 		StocksEnabled:        false,
 		StocksApiKeyFileName: constants.APIKeyFileName,
+		DB: app.DB,
 	}
 
 	stockService.LoadApiKeyFromFile()

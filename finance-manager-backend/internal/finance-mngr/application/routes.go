@@ -122,7 +122,10 @@ func (app *Application) Routes() http.Handler {
 			r.Route("/stocks", func(r chi.Router) {
 				r.Post("/", app.Handler.SaveUserStock)
 				r.Get("/", app.Handler.GetUserStockPortfolioSummary)
+			})
 
+			r.Route("/stock-portfolio-history", func(r chi.Router) {
+				r.Get("/", app.Handler.GetUserStockPortfolioHistory)
 			})
 		})
 

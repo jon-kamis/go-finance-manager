@@ -7,7 +7,7 @@ import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/repository/dbrepo"
-	"finance-manager-backend/internal/finance-mngr/stockservice.go/fmstockservice"
+	"finance-manager-backend/internal/finance-mngr/stockservice/fmstockservice"
 	"finance-manager-backend/internal/finance-mngr/testingutils"
 	"finance-manager-backend/internal/finance-mngr/validation"
 	"net/http"
