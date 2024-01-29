@@ -131,7 +131,7 @@ const PortfolioSummary = () => {
                         <div className="d-flex col-md-12 justify-content-between">
 
                             <div className="flex-col col-md-10">
-                                <h2>Balance</h2>
+                                <h2>Balance History</h2>
                             </div>
                             <div className="flex-col col-md-2">
                                 <Select
@@ -158,16 +158,6 @@ const PortfolioSummary = () => {
                         <PositionDetail position={p} portfolioSummary={portfolioSummary.positions[portfolioSummary.positions.findIndex(i => i.ticker == p.ticker)]}/>
 
                     ))}
-                    <div className="container-fluid">
-                        <div className="flex-col p-4 col-md-12">
-                            <div className="flex-row">
-                            </div>
-                            <div className="">
-
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </>

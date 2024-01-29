@@ -267,7 +267,7 @@ func (fss *FmStockService) GetUserPortfolioBalanceHistory(uId int, d int) ([]mod
 	}
 
 	//Next Loop through each user position and load stock data for that position. Add total value for each date
-	histMap := make(map[time.Time]float64)
+	histMap := make(map[time.Time]models.PortfolioBalanceHistory)
 
 	for _, us := range usl {
 
@@ -295,11 +295,28 @@ func (fss *FmStockService) GetUserPortfolioBalanceHistory(uId int, d int) ([]mod
 
 		//Next, Loop through stock Data for this entry and add totals to each date in map
 		for _, s := range sl {
-			val := (us.Quantity * s.Close)
-			if histMap[s.Date] == 0 {
-				histMap[s.Date] = val
+			if histMap[s.Date].Date.IsZero() {
+				
+				//Initialize value
+				hd := models.PortfolioBalanceHistory{
+					Date: s.Date,
+					Close: us.Quantity * s.Close,
+					Open: us.Quantity * s.Open,
+					High: us.Quantity * s.High,
+					Low: us.Quantity * s.Low,
+				}
+
+				histMap[s.Date] = hd
 			} else {
-				histMap[s.Date] = val + histMap[s.Date]
+
+				//Pull obj from map and update values before reinserting
+				hd := histMap[s.Date]
+				hd.Close += (us.Quantity * s.Close)
+				hd.Open += (us.Quantity * s.Open)
+				hd.High += (us.Quantity * s.High)
+				hd.Low += (us.Quantity * s.Low)
+
+				histMap[s.Date] = hd
 			}
 		}
 	}
@@ -316,7 +333,7 @@ func (fss *FmStockService) GetUserPortfolioBalanceHistory(uId int, d int) ([]mod
 	})
 
 	for _, key := range keys {
-		hist = append(hist, models.PortfolioBalanceHistory{Date: key, Balance: histMap[key]})
+		hist = append(hist, histMap[key])
 	}
 
 	fmlogger.Exit(method)

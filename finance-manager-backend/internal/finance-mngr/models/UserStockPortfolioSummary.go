@@ -18,8 +18,11 @@ type UserStockPortfolioSummary struct {
 
 // Type PortfolioBalanceHistory Holds a record for the overall balance of the user's stocks for a given date
 type PortfolioBalanceHistory struct {
-	Date    time.Time `json:"date"`
-	Balance float64   `json:"balance"`
+	Date  time.Time `json:"date"`
+	High  float64   `json:"high"`
+	Low   float64   `json:"low"`
+	Open  float64   `json:"open"`
+	Close float64   `json:"close"`
 }
 
 // Type PortfolioPosition holds values for a user's Stock

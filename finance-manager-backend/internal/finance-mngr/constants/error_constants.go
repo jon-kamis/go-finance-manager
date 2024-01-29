@@ -10,6 +10,7 @@ const GenericBadRequestError = "bad request"
 //DB Errors
 const EntityNotFoundError = "entity not found"
 const UnexpectedSQLError = "an unexpected error occured during the database call"
+const InsertMultStockDataError = "one or more errors occured when inserting stock data"
 
 const FailedToLoadUserError = "failed to load user"
 
