@@ -1,6 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import { forwardRef, useEffect, useState } from "react";
 import { LineChart } from '@mui/x-charts/LineChart'
+import { ArrowDropUp, ArrowDropDown } from '@mui/icons-material'
 import { format, parseISO } from "date-fns";
 
 const PositionDetail = forwardRef((props, ref) => {
@@ -25,7 +26,7 @@ const PositionDetail = forwardRef((props, ref) => {
                                     <div className="flex-col">
 
                                         <h4 className={props.position.delta > 0 ? "text-success" : "text-failure"}>
-                                            {props.position.delta < 0 ? "-" : ""}
+                                            {props.position.delta > 0 ? <ArrowDropUp/> : <ArrowDropDown/>}
                                             ${Intl.NumberFormat("en-US", numberFormatOptions).format(props.position ? Math.abs(props.position.delta) : 0)}
                                         </h4>
                                     </div>
@@ -36,7 +37,8 @@ const PositionDetail = forwardRef((props, ref) => {
                                     </div>
                                     <div className="flex-col">
                                         <h4 className={props.position.delta > 0 ? "text-success" : "text-failure"}>
-                                            {Intl.NumberFormat("en-US", numberFormatOptions).format(props.position ? props.position.deltaPercentage : 0)}
+                                            {props.position.delta > 0 ? <ArrowDropUp/> : <ArrowDropDown/>}
+                                            {Intl.NumberFormat("en-US", numberFormatOptions).format(props.position ? Math.abs(props.position.deltaPercentage) : 0)}%
                                         </h4>
                                     </div>
                                 </div>
@@ -88,7 +90,7 @@ const PositionDetail = forwardRef((props, ref) => {
                                                 <h4>Current Value:</h4>
                                             </div>
                                             <div className="flex-col">
-                                                <h4>${props.portfolioSummary.value}</h4>
+                                                <h4>${Intl.NumberFormat("en-US", numberFormatOptions).format(props.portfolioSummary.value)}</h4>
                                             </div>
                                         </div>
                                     </>

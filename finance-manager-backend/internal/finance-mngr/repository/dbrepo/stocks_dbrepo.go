@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
@@ -50,6 +51,8 @@ func (m *PostgresDBRepo) InsertStockData(sl []models.Stock) error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
+	foundErr := false
+	var errList []error
 
 	stmt :=
 		`INSERT INTO stock_data 
@@ -73,9 +76,20 @@ func (m *PostgresDBRepo) InsertStockData(sl []models.Stock) error {
 		).Scan(&id)
 
 		if err != nil {
-			fmlogger.ExitError(method, "error occured when inserting stock data", err)
-			return err
+
+			foundErr = true
+			errMsg := fmt.Sprintf("Error occured when inserting %s for %v: %s", s.Ticker, s.Date, err.Error())
+			errList = append(errList, errors.New(errMsg))
 		}
+	}
+
+	if foundErr {
+		for _, err := range errList {
+			fmlogger.Info(method, err.Error())
+		}
+		err := errors.New(constants.InsertMultStockDataError)
+		fmlogger.ExitError(method, constants.InsertMultStockDataError, err)
+		return err
 	}
 
 	fmlogger.Exit(method)

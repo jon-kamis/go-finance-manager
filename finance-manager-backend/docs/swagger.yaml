@@ -238,10 +238,16 @@ definitions:
     type: object
   models.PortfolioBalanceHistory:
     properties:
-      balance:
+      close:
         type: number
       date:
         type: string
+      high:
+        type: number
+      low:
+        type: number
+      open:
+        type: number
     type: object
   models.PortfolioPosition:
     properties:
@@ -264,10 +270,22 @@ definitions:
     type: object
   models.PositionHistory:
     properties:
+      close:
+        type: number
       count:
         type: integer
+      delta:
+        type: number
+      deltaPercentage:
+        type: number
       endDt:
         type: string
+      high:
+        type: number
+      low:
+        type: number
+      open:
+        type: number
       startDt:
         type: string
       ticker:
@@ -290,18 +308,16 @@ definitions:
         type: number
       createDt:
         type: string
-      currentHigh:
-        type: number
-      currentLow:
-        type: number
-      currentPrice:
-        type: number
       date:
         type: string
+      high:
+        type: number
       id:
         type: integer
       lastUpdateDt:
         type: string
+      low:
+        type: number
       open:
         type: number
       ticker:
@@ -309,12 +325,20 @@ definitions:
     type: object
   models.StockPortfolioHistoryResponse:
     properties:
+      close:
+        type: number
       count:
         type: integer
+      high:
+        type: number
       items:
         items:
           $ref: '#/definitions/models.PortfolioBalanceHistory'
         type: array
+      low:
+        type: number
+      open:
+        type: number
     type: object
   models.Summary:
     properties:
@@ -365,23 +389,6 @@ definitions:
         type: integer
     type: object
   models.UserStock:
-    properties:
-      createDt:
-        type: string
-      effectiveDt:
-        type: string
-      expirationDt:
-        type: string
-      id:
-        type: integer
-      lastUpdateDt:
-        type: string
-      quantity:
-        type: number
-      ticker:
-        type: string
-      userId:
-        type: integer
     type: object
   models.UserStockPortfolioSummary:
     properties:
@@ -605,10 +612,10 @@ paths:
         name: tickers
         required: true
         type: string
-      - description: The amount of days back we should load history for. Max is 365.
-          Default is 30
+      - description: The lenght of history to fetch. Available values are 'day', 'week',
+          'month', and 'year'. Default is 'month'
         in: query
-        name: days
+        name: histLength
         type: integer
       produces:
       - application/json

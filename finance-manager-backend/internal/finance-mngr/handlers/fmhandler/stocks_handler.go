@@ -199,8 +199,8 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 		low = sd[0].Low
 		open = sd[0].Open
 		close = sd[len(sd)-1].Close
-		delta = sd[len(sd)-1].Close - sd[0].Close
-		deltaPercentage = delta / sd[0].Close * 100
+		delta = sd[len(sd)-1].Close - sd[0].Open
+		deltaPercentage = delta / sd[0].Open * 100
 
 		//Populate high and low
 		for _, s := range sd {
@@ -286,6 +286,27 @@ func (fmh *FinanceManagerHandler) GetUserStockPortfolioHistory(w http.ResponseWr
 	h, err := fmh.StocksService.GetUserPortfolioBalanceHistory(id, hl)
 	resp.Items = h
 	resp.Count = len(h)
+	
+	//Get highest and lowest value
+	high := h[0].High
+	low := h[0].Low
+
+	for _, i := range h {
+		if i.Low < low {
+			low = i.Low
+		}
+
+		if i.High > high {
+			high = i.High
+		}
+	}
+
+	resp.High = high
+	resp.Low = low
+	resp.Open = h[0].Open
+	resp.Close = h[len(h)-1].Close
+	resp.Delta = resp.Close - resp.Open
+	resp.DeltaPercentage = resp.Delta / resp.Open * 100
 
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.GenericServerError), http.StatusInternalServerError)

@@ -81,7 +81,7 @@ func updateStocks(t time.Time, app application.Application) {
 			startDt = time.Now()
 			startDt = time.Date(startDt.Year()-1, startDt.Month(), startDt.Day(), 0, 0, 0, 0, time.UTC)
 		} else {
-			startDt = sd.Date
+			startDt = sd.Date.Add(24 * time.Hour)
 		}
 
 		fmlogger.Info(method, "fetching updates for stock "+s.Ticker)

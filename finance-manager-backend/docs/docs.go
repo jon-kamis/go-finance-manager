@@ -316,8 +316,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "The amount of days back we should load history for. Max is 365. Default is 30",
-                        "name": "days",
+                        "description": "The lenght of history to fetch. Available values are 'day', 'week', 'month', and 'year'. Default is 'month'",
+                        "name": "histLength",
                         "in": "query"
                     }
                 ],
@@ -2533,11 +2533,20 @@ const docTemplate = `{
         "models.PortfolioBalanceHistory": {
             "type": "object",
             "properties": {
-                "balance": {
+                "close": {
                     "type": "number"
                 },
                 "date": {
                     "type": "string"
+                },
+                "high": {
+                    "type": "number"
+                },
+                "low": {
+                    "type": "number"
+                },
+                "open": {
+                    "type": "number"
                 }
             }
         },
@@ -2573,11 +2582,29 @@ const docTemplate = `{
         "models.PositionHistory": {
             "type": "object",
             "properties": {
+                "close": {
+                    "type": "number"
+                },
                 "count": {
                     "type": "integer"
                 },
+                "delta": {
+                    "type": "number"
+                },
+                "deltaPercentage": {
+                    "type": "number"
+                },
                 "endDt": {
                     "type": "string"
+                },
+                "high": {
+                    "type": "number"
+                },
+                "low": {
+                    "type": "number"
+                },
+                "open": {
+                    "type": "number"
                 },
                 "startDt": {
                     "type": "string"
@@ -2613,23 +2640,20 @@ const docTemplate = `{
                 "createDt": {
                     "type": "string"
                 },
-                "currentHigh": {
-                    "type": "number"
-                },
-                "currentLow": {
-                    "type": "number"
-                },
-                "currentPrice": {
-                    "type": "number"
-                },
                 "date": {
                     "type": "string"
+                },
+                "high": {
+                    "type": "number"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "lastUpdateDt": {
                     "type": "string"
+                },
+                "low": {
+                    "type": "number"
                 },
                 "open": {
                     "type": "number"
@@ -2642,14 +2666,26 @@ const docTemplate = `{
         "models.StockPortfolioHistoryResponse": {
             "type": "object",
             "properties": {
+                "close": {
+                    "type": "number"
+                },
                 "count": {
                     "type": "integer"
+                },
+                "high": {
+                    "type": "number"
                 },
                 "items": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.PortfolioBalanceHistory"
                     }
+                },
+                "low": {
+                    "type": "number"
+                },
+                "open": {
+                    "type": "number"
                 }
             }
         },
@@ -2728,33 +2764,7 @@ const docTemplate = `{
             }
         },
         "models.UserStock": {
-            "type": "object",
-            "properties": {
-                "createDt": {
-                    "type": "string"
-                },
-                "effectiveDt": {
-                    "type": "string"
-                },
-                "expirationDt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "lastUpdateDt": {
-                    "type": "string"
-                },
-                "quantity": {
-                    "type": "number"
-                },
-                "ticker": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "integer"
-                }
-            }
+            "type": "object"
         },
         "models.UserStockPortfolioSummary": {
             "type": "object",

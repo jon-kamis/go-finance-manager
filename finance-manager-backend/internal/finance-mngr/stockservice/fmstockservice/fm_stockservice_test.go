@@ -198,7 +198,7 @@ func TestGetUserPortfolioBalanceHistory(t *testing.T) {
 
 	for _, h := range hist {
 		fmt.Printf("Adding date %v\n", h.Date)
-		dvm[h.Date] = h.Balance
+		dvm[h.Date] = h.Close
 	}
 
 	assert.Nil(t, err)
