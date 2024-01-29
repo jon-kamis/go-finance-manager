@@ -38,7 +38,7 @@ const PositionDetail = forwardRef((props, ref) => {
                                     <div className="flex-col">
                                         <h4 className={props.position.delta > 0 ? "text-success" : "text-failure"}>
                                             {props.position.delta > 0 ? <ArrowDropUp/> : <ArrowDropDown/>}
-                                            {Intl.NumberFormat("en-US", numberFormatOptions).format(props.position ? props.position.deltaPercentage : 0)}%
+                                            {Intl.NumberFormat("en-US", numberFormatOptions).format(props.position ? Math.abs(props.position.deltaPercentage) : 0)}%
                                         </h4>
                                     </div>
                                 </div>
