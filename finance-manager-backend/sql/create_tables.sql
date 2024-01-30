@@ -259,6 +259,7 @@ CREATE TABLE public.user_stocks (
     user_id integer NOT NULL,
     ticker character varying(255) NOT NULL,
     quantity NUMERIC(10,4) NOT NULL,
+    type character varying(255) NOT NULL DEFAULT 'o',
     effective_dt timestamp NOT NULL,
     expiration_dt timestamp NOT NULL,
     create_dt timestamp,

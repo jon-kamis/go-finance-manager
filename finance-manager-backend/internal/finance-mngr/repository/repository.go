@@ -137,7 +137,7 @@ type DatabaseRepo interface {
 	InsertUserStock(s models.UserStock) (int, error)
 
 	//Fetches all UserStocks for a given user and accepts a search string
-	GetAllUserStocks(userId int, search string, t time.Time) ([]*models.UserStock, error)
+	GetAllUserStocks(userId int, stockType string, search string, t time.Time) ([]*models.UserStock, error)
 
 	//Fetches all UserStocks for a given user and accepts a search string
 	GetAllUserStocksByDateRange(userId int, search string, ts time.Time, te time.Time) ([]*models.UserStock, error)

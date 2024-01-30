@@ -112,7 +112,7 @@ func (fmh *FinanceManagerHandler) GetUserStockPortfolioSummary(w http.ResponseWr
 		return
 	}
 
-	usl, err := fmh.DB.GetAllUserStocks(id, "", time.Now())
+	usl, err := fmh.DB.GetAllUserStocks(id, constants.UserStockTypeOwn, "", time.Now())
 
 	if err != nil {
 		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)

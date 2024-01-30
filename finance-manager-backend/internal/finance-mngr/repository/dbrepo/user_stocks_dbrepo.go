@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"fmt"
@@ -21,17 +22,23 @@ func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 	var err error
 	var id int
 
+	//Set default type
+	if s.Type == "" {
+		s.Type = constants.UserStockTypeOwn
+	}
+
 	if !s.ExpirationDt.Time.IsZero() {
 		stmt =
 			`INSERT INTO user_stocks 
-			(user_id, ticker, quantity, effective_dt, expiration_dt, create_dt, last_update_dt)
+			(user_id, ticker, quantity, type, effective_dt, expiration_dt, create_dt, last_update_dt)
 		values 
-			($1, $2, $3, $4, $5, $6, $7) returning id`
+			($1, $2, $3, $4, $5, $6, $7, $8) returning id`
 
 		err = m.DB.QueryRowContext(ctx, stmt,
 			s.UserId,
 			s.Ticker,
 			s.Quantity,
+			s.Type,
 			s.EffectiveDt,
 			s.ExpirationDt.Time,
 			time.Now(),
@@ -40,7 +47,7 @@ func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 	} else {
 		stmt =
 			`INSERT INTO user_stocks 
-				(user_id, ticker, quantity, effective_dt, create_dt, last_update_dt)
+				(user_id, ticker, quantity, type, effective_dt, create_dt, last_update_dt)
 			values 
 				($1, $2, $3, $4, $5, $6) returning id`
 
@@ -48,6 +55,7 @@ func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 			s.UserId,
 			s.Ticker,
 			s.Quantity,
+			s.Type,
 			s.EffectiveDt,
 			time.Now(),
 			time.Now(),
@@ -64,7 +72,7 @@ func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 }
 
 // Function GetAllUserStocks returns all user stocks with names matching search if it is included and where t is after effective dt and before expiration date if it exists
-func (m *PostgresDBRepo) GetAllUserStocks(userId int, search string, t time.Time) ([]*models.UserStock, error) {
+func (m *PostgresDBRepo) GetAllUserStocks(userId int, stockType string, search string, t time.Time) ([]*models.UserStock, error) {
 	method := "stocks_dbrepo.GetAllUserStocks"
 	fmlogger.Enter(method)
 
@@ -74,6 +82,11 @@ func (m *PostgresDBRepo) GetAllUserStocks(userId int, search string, t time.Time
 	var query string
 	var err error
 	var rows *sql.Rows
+
+	//Set to default stock type
+	if stockType == "" {
+		stockType = constants.UserStockTypeOwn
+	}
 
 	if search != "" {
 		search = strings.ToLower(search)
@@ -86,12 +99,14 @@ func (m *PostgresDBRepo) GetAllUserStocks(userId int, search string, t time.Time
 		WHERE
 			user_id = $1
 			AND
-			effective_dt <= $2
+			type=$2
 			AND
-			(expiration_dt IS NULL OR expiration_dt >= $2)
+			effective_dt <= $3
 			AND
-			LOWER(ticker) like '%' || $3 || '%'`
-		rows, err = m.DB.QueryContext(ctx, query, userId, t, search)
+			(expiration_dt IS NULL OR expiration_dt >= $3)
+			AND
+			LOWER(ticker) like '%' || $4 || '%'`
+		rows, err = m.DB.QueryContext(ctx, query, userId, stockType, t, search)
 	} else {
 		query = `
 		SELECT
@@ -101,10 +116,12 @@ func (m *PostgresDBRepo) GetAllUserStocks(userId int, search string, t time.Time
 		WHERE
 			user_id = $1
 			AND
-			effective_dt <= $2
+			type = $2
 			AND
-			(expiration_dt IS NULL OR expiration_dt >= $2)`
-		rows, err = m.DB.QueryContext(ctx, query, userId, t)
+			effective_dt <= $3
+			AND
+			(expiration_dt IS NULL OR expiration_dt >= $3)`
+		rows, err = m.DB.QueryContext(ctx, query, userId, stockType, t)
 	}
 
 	usl := []*models.UserStock{}
