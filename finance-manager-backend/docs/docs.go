@@ -2672,6 +2672,12 @@ const docTemplate = `{
                 "count": {
                     "type": "integer"
                 },
+                "delta": {
+                    "type": "number"
+                },
+                "deltaPercentage": {
+                    "type": "number"
+                },
                 "high": {
                     "type": "number"
                 },

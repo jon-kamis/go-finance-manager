@@ -7,12 +7,13 @@ import (
 	"time"
 )
 
-// User struct contains a data link between user's and their stocks
+// UserStock struct contains a data link between user's and their stocks
 type UserStock struct {
 	ID           int          `json:"id"`
 	UserId       int          `json:"userId" gorm:"column:user_id"`
 	Ticker       string       `json:"ticker"`
 	Quantity     float64      `json:"quantity"`
+	Type         string       `json:"type"`
 	EffectiveDt  time.Time    `json:"effectiveDt" gorm:"column:effective_dt"`
 	ExpirationDt sql.NullTime `json:"expirationDt" gorm:"column:expiration_dt"`
 	CreateDt     time.Time    `json:"createDt"`

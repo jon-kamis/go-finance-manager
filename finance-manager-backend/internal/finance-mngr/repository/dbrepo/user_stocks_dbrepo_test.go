@@ -1,6 +1,7 @@
 package dbrepo
 
 import (
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"testing"
@@ -14,9 +15,9 @@ func TestInsertUserStock(t *testing.T) {
 	fmlogger.Enter(method)
 
 	s := models.UserStock{
-		UserId:   1,
-		Ticker:   "TEST1",
-		Quantity: 2,
+		UserId:      1,
+		Ticker:      "TEST1",
+		Quantity:    2,
 		EffectiveDt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 	}
 
@@ -43,7 +44,7 @@ func TestInsertUserStock(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Greater(t, id, 0)
 
-	err = p.GormDB.Where("id=?",id).Find(&sDb2).Error
+	err = p.GormDB.Where("id=?", id).Find(&sDb2).Error
 
 	assert.Nil(t, err)
 	assert.False(t, sDb2.ExpirationDt.Time.IsZero())
@@ -60,6 +61,7 @@ func TestGetAllUserStocks(t *testing.T) {
 
 	s1 := models.UserStock{
 		UserId:      1,
+		Type: constants.UserStockTypeOwn,
 		Ticker:      "TEST1",
 		Quantity:    2,
 		EffectiveDt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -67,15 +69,25 @@ func TestGetAllUserStocks(t *testing.T) {
 
 	s2 := models.UserStock{
 		UserId:      1,
+		Type: constants.UserStockTypeOwn,
 		Ticker:      "TEST2",
 		Quantity:    2,
 		EffectiveDt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 	}
 
 	s3 := models.UserStock{
-		UserId:   2,
-		Ticker:   "TEST2",
-		Quantity: 2,
+		UserId:      2,
+		Type: constants.UserStockTypeOwn,
+		Ticker:      "TEST2",
+		Quantity:    2,
+		EffectiveDt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+	}
+
+	s4 := models.UserStock{
+		UserId:      1,
+		Type: constants.UserStockTypeWatch,
+		Ticker:      "TEST2",
+		Quantity:    2,
 		EffectiveDt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 	}
 
@@ -83,21 +95,28 @@ func TestGetAllUserStocks(t *testing.T) {
 	id1, _ := d.InsertUserStock(s1)
 	id2, _ := d.InsertUserStock(s2)
 	id3, _ := d.InsertUserStock(s3)
+	id4, _ := d.InsertUserStock(s4)
 
 	//Get all user stocks with no search
-	stocks, err := d.GetAllUserStocks(1, "", time.Now())
+	stocks, err := d.GetAllUserStocks(1, "", "", time.Now())
 	assert.Nil(t, err)
 	assert.NotNil(t, stocks)
 	assert.Equal(t, 2, len(stocks))
 
 	//Get all user stocks that have number 2 in ticker. Expect 1 result
-	stocks, err = d.GetAllUserStocks(1, "2", time.Now())
+	stocks, err = d.GetAllUserStocks(1, "", "2", time.Now())
+	assert.Nil(t, err)
+	assert.NotNil(t, stocks)
+	assert.Equal(t, 1, len(stocks))
+
+	//Get user stock watchlist
+	stocks, err = d.GetAllUserStocks(1, constants.UserStockTypeWatch, "", time.Now())
 	assert.Nil(t, err)
 	assert.NotNil(t, stocks)
 	assert.Equal(t, 1, len(stocks))
 
 	//Get all user stocks for user with no data
-	stocks, err = d.GetAllUserStocks(3, "", time.Now())
+	stocks, err = d.GetAllUserStocks(3, "", "", time.Now())
 	assert.Nil(t, err)
 	assert.NotNil(t, stocks)
 	assert.Equal(t, 0, len(stocks))
@@ -106,9 +125,11 @@ func TestGetAllUserStocks(t *testing.T) {
 	s1.ID = id1
 	s2.ID = id2
 	s3.ID = id3
+	s4.ID = id4
 	p.GormDB.Delete(s1)
 	p.GormDB.Delete(s2)
 	p.GormDB.Delete(s3)
+	p.GormDB.Delete(s4)
 
 	fmlogger.Exit(method)
 }
