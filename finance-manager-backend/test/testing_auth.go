@@ -67,3 +67,27 @@ func GetUserJWT(t *testing.T) (token string) {
 	return tokens.Token
 
 }
+
+func GetUserJWTWithId(t *testing.T, id int) (token string) {
+	method := "testing_auth.GetUserJWT"
+	fmlogger.Enter(method)
+
+	u := authentication.JwtUser{
+		ID:        id,
+		FirstName: TestingUser.FirstName,
+		LastName:  TestingUser.LastName,
+		Roles:     "user",
+	}
+
+	//generate tokens
+	auth := GetTestAuth()
+	tokens, err := auth.GenerateTokenPair(&u)
+
+	if err != nil {
+		t.Errorf("error occured when generating tokens: %s", err)
+	}
+
+	fmlogger.Exit(method)
+	return tokens.Token
+
+}

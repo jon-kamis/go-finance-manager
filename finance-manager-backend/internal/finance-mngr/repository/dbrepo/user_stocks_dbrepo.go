@@ -49,7 +49,7 @@ func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 			`INSERT INTO user_stocks 
 				(user_id, ticker, quantity, type, effective_dt, create_dt, last_update_dt)
 			values 
-				($1, $2, $3, $4, $5, $6) returning id`
+				($1, $2, $3, $4, $5, $6, $7) returning id`
 
 		err = m.DB.QueryRowContext(ctx, stmt,
 			s.UserId,
@@ -63,7 +63,7 @@ func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 	}
 
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when inserting new bill", err)
+		fmlogger.ExitError(method, "error occured when inserting new user stock", err)
 		return -1, err
 	}
 

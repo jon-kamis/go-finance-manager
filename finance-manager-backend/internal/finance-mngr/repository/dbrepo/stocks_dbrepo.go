@@ -37,7 +37,7 @@ func (m *PostgresDBRepo) InsertStock(s models.Stock) (int, error) {
 	).Scan(&id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when inserting new bill", err)
+		fmlogger.ExitError(method, "error occured when inserting new stock", err)
 		return -1, err
 	}
 
