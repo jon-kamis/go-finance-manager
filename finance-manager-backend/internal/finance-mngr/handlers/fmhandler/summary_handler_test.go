@@ -21,7 +21,7 @@ func TestGetUserStockPortfolioSummary_200(t *testing.T) {
 
 	setupStockTestData()
 
-	writer := MakeRequest(http.MethodGet, "/users/2/stocks", nil, true, token)
+	writer := MakeRequest(http.MethodGet, "/users/2/stock-portfolio", nil, true, token)
 	assert.Equal(t, http.StatusOK, writer.Code)
 
 	//Read response values
@@ -43,7 +43,7 @@ func TestGetUserStockPortfolioSummary_403(t *testing.T) {
 
 	token := test.GetUserJWT(t)
 
-	writer := MakeRequest(http.MethodGet, "/users/1/stocks", nil, true, token)
+	writer := MakeRequest(http.MethodGet, "/users/1/stock-portfolio", nil, true, token)
 	assert.Equal(t, http.StatusForbidden, writer.Code)
 
 	fmlogger.Exit(method)

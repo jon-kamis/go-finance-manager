@@ -98,7 +98,7 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 // @Failure 	403 {object} jsonutils.JSONResponse
 // @Failure 	404 {object} jsonutils.JSONResponse
 // @Failure 	500 {object} jsonutils.JSONResponse
-// @Router 		/users/{userId}/stocks [get]
+// @Router 		/users/{userId}/stock-portfolio [get]
 func (fmh *FinanceManagerHandler) GetUserStockPortfolioSummary(w http.ResponseWriter, r *http.Request) {
 	method := "summary_handler.GetUserStockPortfolioSummary"
 	fmlogger.Enter(method)

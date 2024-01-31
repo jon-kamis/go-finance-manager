@@ -128,6 +128,9 @@ type Handler interface {
 	//Gets a summary of a user's stock portfolio
 	GetUserStockPortfolioSummary(w http.ResponseWriter, r *http.Request)
 
+	//Gets a List of a user's stocks
+	GetUserStocks(w http.ResponseWriter, r *http.Request)
+
 	/*** Users ***/
 
 	//Deletes a specific user by id

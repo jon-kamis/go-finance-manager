@@ -2,6 +2,7 @@ package fmstockservice
 
 import (
 	"database/sql"
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/internal/finance-mngr/repository/dbrepo"
@@ -142,6 +143,7 @@ func TestGetUserPortfolioBalanceHistory(t *testing.T) {
 	us1 := models.UserStock{
 		ID:           22,
 		UserId:       1,
+		Type: constants.UserStockTypeOwn,
 		Ticker:       "AAPL",
 		Quantity:     2,
 		EffectiveDt:  d.Add(-5 * 24 * time.Hour),
@@ -150,6 +152,7 @@ func TestGetUserPortfolioBalanceHistory(t *testing.T) {
 	us2 := models.UserStock{
 		ID:          23,
 		UserId:      1,
+		Type: constants.UserStockTypeOwn,
 		Ticker:      "MSFT",
 		Quantity:    2,
 		EffectiveDt: d.Add(-3 * 24 * time.Hour),
@@ -157,6 +160,7 @@ func TestGetUserPortfolioBalanceHistory(t *testing.T) {
 	us3 := models.UserStock{
 		ID:           24,
 		UserId:       1,
+		Type: constants.UserStockTypeOwn,
 		Ticker:       "MSFT",
 		Quantity:     1,
 		EffectiveDt:  d.Add(-4 * 24 * time.Hour),

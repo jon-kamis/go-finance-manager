@@ -125,6 +125,63 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
 }
 
+// GetUserStocks godoc
+// @title		Get User Stocks
+// @version 	1.0.0
+// @Tags 		Stocks
+// @Summary 	Get User Stocks
+// @Description Gets a list of stocks currently owned or watched by a given user
+// @Param		userId path string true "The ID of the user to fetch stocks for"
+// @Param		type query string false "The Type of stocks to fetch. Available types are {'own','watchlist'}. Default is 'own'."
+// @Param		search query string false "Search for User stocks by ticker"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {array} models.Stock
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/stocks [get]
+func (fmh *FinanceManagerHandler) GetUserStocks(w http.ResponseWriter, r *http.Request) {
+	method := "stocks_handler.GetUserStocks"
+	fmlogger.Enter(method)
+
+	//Read ID from url
+	uid, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
+
+	if err != nil {
+		fmlogger.ExitError(method, "user is not authorized to access other user data", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
+		return
+	}
+
+	stockType := r.URL.Query().Get("type")
+	search := r.URL.Query().Get("search")
+	var sl []models.Stock
+
+	usl, err := fmh.DB.GetAllUserStocks(uid, stockType, search, time.Now())
+
+	if err != nil {
+		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	for _, us := range usl {
+		s, err := fmh.DB.GetStockByTicker(us.Ticker)
+		
+		if err != nil {
+			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		sl = append(sl, s)
+	}
+
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, sl)
+	fmlogger.Exit(method)
+}
+
 // GetStockHistory godoc
 // @title		Get Stock History
 // @version 	2.1.0
@@ -214,17 +271,17 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 		}
 
 		ph := models.PositionHistory{
-			Ticker:  t,
-			High: high,
-			Low: low,
-			Open: open,
-			Close: close,
-			Delta: delta,
+			Ticker:          t,
+			High:            high,
+			Low:             low,
+			Open:            open,
+			Close:           close,
+			Delta:           delta,
 			DeltaPercentage: deltaPercentage,
-			StartDt: historyStartDt,
-			EndDt:   time.Now(),
-			Count:   len(sd),
-			Values:  sd,
+			StartDt:         historyStartDt,
+			EndDt:           time.Now(),
+			Count:           len(sd),
+			Values:          sd,
 		}
 
 		rArr = append(rArr, ph)
@@ -286,7 +343,7 @@ func (fmh *FinanceManagerHandler) GetUserStockPortfolioHistory(w http.ResponseWr
 	h, err := fmh.StocksService.GetUserPortfolioBalanceHistory(id, hl)
 	resp.Items = h
 	resp.Count = len(h)
-	
+
 	//Get highest and lowest value
 	high := h[0].High
 	low := h[0].Low
