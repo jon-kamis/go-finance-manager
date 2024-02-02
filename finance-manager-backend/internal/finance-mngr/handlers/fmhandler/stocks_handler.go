@@ -5,6 +5,7 @@ import (
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
+	"finance-manager-backend/internal/finance-mngr/models/restmodels"
 	"net/http"
 	"strings"
 	"time"
@@ -125,6 +126,107 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
 }
 
+// ModifyStockOperation godoc
+// @title		Modify Stock Operation
+// @version 	1.0.0
+// @Tags 		Stocks
+// @Summary 	Modify User Stock
+// @Description Modifies a user's stock. This is an add or remove operation and can be used to post new stock
+// @Param		userId path int true "ID of the user to modify stocks for"
+// @Param		request body restmodels.ModifyStockRequest true "The request to process"
+// @Accept		json
+// @Produce 	json
+// @Success 	200 {object} jsonutils.JSONResponse
+// @Failure 	403 {object} jsonutils.JSONResponse
+// @Failure 	404 {object} jsonutils.JSONResponse
+// @Failure 	500 {object} jsonutils.JSONResponse
+// @Router 		/users/{userId}/stock-operation [post]
+func (fmh *FinanceManagerHandler) ModifyStockOperation(w http.ResponseWriter, r *http.Request) {
+	method := "stocks_handler.ModifyStockOperation"
+	fmlogger.Enter(method)
+
+	var p restmodels.ModifyStockRequest
+
+	//Read UserId from url
+	uId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
+
+	if err != nil {
+		fmlogger.ExitError(method, "user is not authorized to access other user data", err)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
+		return
+	}
+
+	// Read in request from payload
+	err = fmh.JSONUtil.ReadJSON(w, r, &p)
+	if err != nil {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
+		fmlogger.ExitError(method, "failed to parse json payload", err)
+		return
+	}
+
+	// Validate Request
+	isValid, errMsg := p.IsValidRequest()
+
+	if !isValid {
+		err = errors.New(errMsg)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
+		fmlogger.ExitError(method, errMsg, err)
+		return
+	}
+
+	//Load stock if required
+	err = fmh.loadStock(p.Ticker)
+
+	if err != nil {
+		rerr := errors.New(constants.GenericServerError)
+		fmh.JSONUtil.ErrorJSON(w, rerr, http.StatusInternalServerError)
+		fmlogger.ExitError(method, constants.UnexpectedExternalCallError, err)
+		return
+	}
+
+	//Prior user stock
+	var usp models.UserStock
+
+	us := models.UserStock{
+		UserId:      uId,
+		Ticker:      p.Ticker,
+		Type:        constants.UserStockTypeOwn,
+		EffectiveDt: p.Date,
+	}
+
+	err = fmh.Service.LoadPriorUserStockForTransaction(p, &usp, &us)
+	if err != nil {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		fmlogger.ExitError(method, constants.UnexpectedExternalCallError, err)
+		return
+	}
+
+	//Update usp if it exists
+	if usp.ID != 0 {
+		err = fmh.DB.UpdateUserStock(usp)
+
+		if err != nil {
+			fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+			fmlogger.ExitError(method, "unexpected error occured when inserting credit card", err)
+			return
+		}
+	}
+
+	//Save new user stock created by operation if quantity is greater than 0
+	if us.Quantity > 0 {
+		_, err = fmh.DB.InsertUserStock(us)
+
+		if err != nil {
+			fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+			fmlogger.ExitError(method, "unexpected error occured when inserting credit card", err)
+			return
+		}
+	}
+
+	fmlogger.Exit(method)
+	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
+}
+
 // GetUserStocks godoc
 // @title		Get User Stocks
 // @version 	1.0.0
@@ -168,7 +270,7 @@ func (fmh *FinanceManagerHandler) GetUserStocks(w http.ResponseWriter, r *http.R
 
 	for _, us := range usl {
 		s, err := fmh.DB.GetStockByTicker(us.Ticker)
-		
+
 		if err != nil {
 			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
 			fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)

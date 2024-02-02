@@ -29,7 +29,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.HomeResponse"
+                            "$ref": "#/definitions/restmodels.HomeResponse"
                         }
                     }
                 }
@@ -1954,6 +1954,115 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/{userId}/stock-operation": {
+            "post": {
+                "description": "Modifies a user's stock. This is an add or remove operation and can be used to post new stock",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stocks"
+                ],
+                "summary": "Modify User Stock",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user to modify stocks for",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The request to process",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/restmodels.ModifyStockRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{userId}/stock-portfolio": {
+            "get": {
+                "description": "Gets a summary of all stock data for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Summary"
+                ],
+                "summary": "Get Stock Portfolio Summary",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserStockPortfolioSummary"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{userId}/stock-portfolio-history": {
             "get": {
                 "description": "Gets History of a User's Stock Portfolio Balance",
@@ -2012,7 +2121,7 @@ const docTemplate = `{
         },
         "/users/{userId}/stocks": {
             "get": {
-                "description": "Gets a summary of all stock data for a user",
+                "description": "Gets a list of stocks currently owned or watched by a given user",
                 "consumes": [
                     "application/json"
                 ],
@@ -2020,23 +2129,38 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Summary"
+                    "Stocks"
                 ],
-                "summary": "Get Stock Portfolio Summary",
+                "summary": "Get User Stocks",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "User ID",
+                        "type": "string",
+                        "description": "The ID of the user to fetch stocks for",
                         "name": "userId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The Type of stocks to fetch. Available types are {'own','watchlist'}. Default is 'own'.",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search for User stocks by ticker",
+                        "name": "search",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserStockPortfolioSummary"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Stock"
+                            }
                         }
                     },
                     "403": {
@@ -2310,20 +2434,6 @@ const docTemplate = `{
                 },
                 "totalCost": {
                     "type": "number"
-                }
-            }
-        },
-        "models.HomeResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
                 }
             }
         },
@@ -2800,6 +2910,54 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "restmodels.HomeResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "restmodels.ModifyStockRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "The amount to modify",
+                    "type": "number"
+                },
+                "date": {
+                    "description": "Date of operation",
+                    "type": "string"
+                },
+                "operation": {
+                    "description": "The operation. Options are 'buy' and 'sell'",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/stockoperation.ModifyStockOperation"
+                        }
+                    ]
+                },
+                "ticker": {
+                    "description": "The ticker to modify",
+                    "type": "string"
+                }
+            }
+        },
+        "stockoperation.ModifyStockOperation": {
+            "type": "string",
+            "enum": [
+                ""
+            ],
+            "x-enum-varnames": [
+                "Undefined"
+            ]
         }
     }
 }`

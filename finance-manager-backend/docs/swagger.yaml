@@ -94,15 +94,6 @@ definitions:
       totalCost:
         type: number
     type: object
-  models.HomeResponse:
-    properties:
-      message:
-        type: string
-      status:
-        type: string
-      version:
-        type: string
-    type: object
   models.Income:
     properties:
       createDt:
@@ -413,6 +404,37 @@ definitions:
           $ref: '#/definitions/models.PortfolioPosition'
         type: array
     type: object
+  restmodels.HomeResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+      version:
+        type: string
+    type: object
+  restmodels.ModifyStockRequest:
+    properties:
+      amount:
+        description: The amount to modify
+        type: number
+      date:
+        description: Date of operation
+        type: string
+      operation:
+        allOf:
+        - $ref: '#/definitions/stockoperation.ModifyStockOperation'
+        description: The operation. Options are 'buy' and 'sell'
+      ticker:
+        description: The ticker to modify
+        type: string
+    type: object
+  stockoperation.ModifyStockOperation:
+    enum:
+    - ""
+    type: string
+    x-enum-varnames:
+    - Undefined
 info:
   contact: {}
   description: This API serves personal finance endpoints. Accuracy is not garunteed
@@ -428,7 +450,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.HomeResponse'
+            $ref: '#/definitions/restmodels.HomeResponse'
       summary: Home
       tags:
       - Home
@@ -1718,6 +1740,79 @@ paths:
       summary: Add User Role
       tags:
       - User Roles
+  /users/{userId}/stock-operation:
+    post:
+      consumes:
+      - application/json
+      description: Modifies a user's stock. This is an add or remove operation and
+        can be used to post new stock
+      parameters:
+      - description: ID of the user to modify stocks for
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: The request to process
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/restmodels.ModifyStockRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Modify User Stock
+      tags:
+      - Stocks
+  /users/{userId}/stock-portfolio:
+    get:
+      consumes:
+      - application/json
+      description: Gets a summary of all stock data for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserStockPortfolioSummary'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Get Stock Portfolio Summary
+      tags:
+      - Summary
   /users/{userId}/stock-portfolio-history:
     get:
       consumes:
@@ -1760,20 +1855,31 @@ paths:
     get:
       consumes:
       - application/json
-      description: Gets a summary of all stock data for a user
+      description: Gets a list of stocks currently owned or watched by a given user
       parameters:
-      - description: User ID
+      - description: The ID of the user to fetch stocks for
         in: path
         name: userId
         required: true
-        type: integer
+        type: string
+      - description: The Type of stocks to fetch. Available types are {'own','watchlist'}.
+          Default is 'own'.
+        in: query
+        name: type
+        type: string
+      - description: Search for User stocks by ticker
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserStockPortfolioSummary'
+            items:
+              $ref: '#/definitions/models.Stock'
+            type: array
         "403":
           description: Forbidden
           schema:
@@ -1786,9 +1892,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/jsonutils.JSONResponse'
-      summary: Get Stock Portfolio Summary
+      summary: Get User Stocks
       tags:
-      - Summary
+      - Stocks
     post:
       consumes:
       - application/json

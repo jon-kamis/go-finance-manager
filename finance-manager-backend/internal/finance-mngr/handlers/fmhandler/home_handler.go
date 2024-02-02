@@ -2,7 +2,7 @@ package fmhandler
 
 import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
-	models "finance-manager-backend/internal/finance-mngr/models/rest"
+	"finance-manager-backend/internal/finance-mngr/models/restmodels"
 	"html/template"
 	"net/http"
 )
@@ -14,7 +14,7 @@ import (
 // @Summary Home
 // @Description Returns application information and health
 // @Produce json
-// @Success 200 {object} models.HomeResponse
+// @Success 200 {object} restmodels.HomeResponse
 // @Router / [get]
 func (fmh *FinanceManagerHandler) Home(w http.ResponseWriter, r *http.Request) {
 
@@ -23,18 +23,18 @@ func (fmh *FinanceManagerHandler) Home(w http.ResponseWriter, r *http.Request) {
 
 	tmpl := template.Must(template.ParseFiles("./web/template/home.html"))
 
-	var apiInfo = models.HomeResponse{
+	var apiInfo = restmodels.HomeResponse{
 		Status:  "active",
 		Message: "Finance Manager Backend up and running!",
 		Version: fmh.GetVersion(),
 	}
 
 	tmpl.Execute(w, struct {
-		ApiInfo models.HomeResponse
+		ApiInfo restmodels.HomeResponse
 		Port    int
 	}{
 		ApiInfo: apiInfo,
-		Port: fmh.ApiPort,
+		Port:    fmh.ApiPort,
 	})
 	fmlogger.Exit(method)
 }

@@ -9,6 +9,7 @@ import (
 	"finance-manager-backend/internal/finance-mngr/jobs"
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/repository/dbrepo"
+	"finance-manager-backend/internal/finance-mngr/service/fmservice"
 	"finance-manager-backend/internal/finance-mngr/stockservice/fmstockservice"
 	"finance-manager-backend/internal/finance-mngr/validation"
 	"fmt"
@@ -58,20 +59,21 @@ func main() {
 	stockService := fmstockservice.FmStockService{
 		StocksEnabled:        false,
 		StocksApiKeyFileName: constants.APIKeyFileName,
-		DB: app.DB,
+		DB:                   app.DB,
 	}
 
 	stockService.LoadApiKeyFromFile()
 
 	app.StocksService = &stockService
 	app.Handler = &fmhandler.FinanceManagerHandler{
-		JSONUtil:  &jsonutils.JSONUtil{},
-		DB:        app.DB,
-		Auth:      app.Auth,
-		Validator: &validation.FinanceManagerValidator{DB: app.DB},
-		Version: constants.AppVersion,
+		JSONUtil:      &jsonutils.JSONUtil{},
+		DB:            app.DB,
+		Auth:          app.Auth,
+		Validator:     &validation.FinanceManagerValidator{DB: app.DB},
+		Version:       constants.AppVersion,
 		StocksService: &stockService,
-		ApiPort: port,
+		Service:       &fmservice.FMService{DB: app.DB},
+		ApiPort:       port,
 	}
 
 	defer app.DB.Connection().Close()

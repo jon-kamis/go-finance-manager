@@ -131,6 +131,8 @@ type Handler interface {
 	//Gets a List of a user's stocks
 	GetUserStocks(w http.ResponseWriter, r *http.Request)
 
+	ModifyStockOperation(w http.ResponseWriter, r *http.Request)
+
 	/*** Users ***/
 
 	//Deletes a specific user by id

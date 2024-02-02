@@ -8,3 +8,7 @@ const LengthYear = "year"
 
 const UserStockTypeOwn = "o"
 const UserStockTypeWatch = "w"
+
+const ModifyStockOperationAdd = "add"
+const ModifyStockOperationRemove = "remove"
+const ModifyStockOperationUndefined = "undefined"
