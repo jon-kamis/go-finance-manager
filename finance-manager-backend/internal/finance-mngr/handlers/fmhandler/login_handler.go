@@ -3,7 +3,7 @@ package fmhandler
 import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/authentication"
-	"finance-manager-backend/internal/finance-mngr/models/rest"
+	"finance-manager-backend/internal/finance-mngr/models/restmodels"
 	"net/http"
 	"strconv"
 	"strings"
@@ -26,7 +26,7 @@ import (
 func (fmh *FinanceManagerHandler) Authenticate(w http.ResponseWriter, r *http.Request) {
 	// read json payload
 
-	var requestPayload models.LoginRequest
+	var requestPayload restmodels.LoginRequest
 
 	err := fmh.JSONUtil.ReadJSON(w, r, &requestPayload)
 	if err != nil {

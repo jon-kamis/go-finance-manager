@@ -34,7 +34,7 @@ const PortfolioSummary = () => {
             headers: headers,
         }
 
-        fetch(`${apiUrl}/users/${userId}/stocks`, requestOptions)
+        fetch(`${apiUrl}/users/${userId}/stock-portfolio`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {

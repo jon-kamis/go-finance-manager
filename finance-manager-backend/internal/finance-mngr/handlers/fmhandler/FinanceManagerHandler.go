@@ -4,6 +4,7 @@ import (
 	"finance-manager-backend/internal/finance-mngr/authentication"
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/repository"
+	"finance-manager-backend/internal/finance-mngr/service"
 	"finance-manager-backend/internal/finance-mngr/stockservice"
 	"finance-manager-backend/internal/finance-mngr/validation"
 )
@@ -18,8 +19,9 @@ type FinanceManagerHandler struct {
 	Auth          authentication.Auth
 	Validator     validation.AppValidator
 	Version       string
+	Service       service.Service
 	StocksService stockservice.StockService
-	ApiPort int
+	ApiPort       int
 }
 
 func (fmh FinanceManagerHandler) GetVersion() string {

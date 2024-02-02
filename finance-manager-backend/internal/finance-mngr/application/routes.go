@@ -124,6 +124,7 @@ func (app *Application) Routes() http.Handler {
 				r.Get("/", app.Handler.GetUserStocks)
 			})
 
+			r.Post("/stock-operation", app.Handler.ModifyStockOperation)
 			r.Get("/stock-portfolio", app.Handler.GetUserStockPortfolioSummary)
 			r.Get("/stock-portfolio-history", app.Handler.GetUserStockPortfolioHistory)
 		})

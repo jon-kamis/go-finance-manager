@@ -37,3 +37,11 @@ const InvalidIssuerError = "invalid issuer"
 const UnexpectedExternalCallError = "unexpected error was returned when making external API call"
 const FailedToParseJsonBodyError = "failed to unmarshal json payload"
 const UnexpectedResponseCodeError = "unexpected response code during remote call"
+
+//Stock Errors
+const StockOperationInvalidOperationError = "invalid stock operation"
+const StockOperationInvalidDateError = "date is required and cannot be a future date"
+const StockOperationInvalidAmountError = "amount must be greater than 0"
+const StockOperationTickerRequiredError = "ticker is required"
+const StockOperationAlreadyExistsError = "a stock operation already exists for the given time"
+const StockOperationBelowZeroError = "stock operations cannot result in a quantity below 0"

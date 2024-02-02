@@ -1,4 +1,4 @@
-package models
+package restmodels
 
 type LoginRequest struct {
 	Username string `json:"username"`

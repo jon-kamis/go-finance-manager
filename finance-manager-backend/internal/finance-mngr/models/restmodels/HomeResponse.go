@@ -1,4 +1,4 @@
-package models
+package restmodels
 
 type HomeResponse struct {
 	Status  string `json:"status"`

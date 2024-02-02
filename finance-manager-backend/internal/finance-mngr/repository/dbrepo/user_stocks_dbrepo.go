@@ -227,7 +227,7 @@ func (m *PostgresDBRepo) GetAllUserStocksByDateRange(userId int, search string, 
 
 	for rows.Next() {
 		var u models.UserStock
-		err := rows.Scan(
+		err = rows.Scan(
 			&u.ID,
 			&u.UserId,
 			&u.Ticker,
@@ -250,4 +250,92 @@ func (m *PostgresDBRepo) GetAllUserStocksByDateRange(userId int, search string, 
 	fmt.Printf("[%s] retrieved %d records\n", method, recordCount)
 	fmlogger.Exit(method)
 	return usl, nil
+}
+
+//Function GetFirstUserStockBeforeDate returns the user stock with the closest effective date before or equal to d where userId and ticker match uId and t respectively
+func (m *PostgresDBRepo) GetUserStockByUserIdTickerAndDate(uId int, t string, d time.Time) (models.UserStock, error) {
+	method := "user_stocks_dbrepo.GetFirstUserStockBeforeDate"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+		SELECT
+			id, user_id, ticker, quantity, type, effective_dt, expiration_dt,
+			create_dt, last_update_dt
+		FROM user_stocks
+		WHERE
+			user_id = $1
+		AND
+			ticker = $2
+		AND
+			effective_dt <= $3
+		AND
+			(expiration_dt IS NULL OR expiration_dt >= $3)`
+
+	row := m.DB.QueryRowContext(ctx, query, uId, t, d)
+	
+	var us models.UserStock
+
+	err := row.Scan(
+		&us.ID,
+		&us.UserId,
+		&us.Ticker,
+		&us.Quantity,
+		&us.Type,
+		&us.EffectiveDt,
+		&us.ExpirationDt,
+		&us.CreateDt,
+		&us.LastUpdateDt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return us, nil
+		} else {
+			fmlogger.ExitError(method, "database call returned with error", err)
+			return us, err
+		}
+	}
+
+	fmlogger.Exit(method)
+	return us, nil
+}
+
+//Function UpdateUserStock updates a user stock object in the database
+func (m *PostgresDBRepo) UpdateUserStock(us models.UserStock) error {
+	method := "stocks_dbrepo.UpdateStock"
+	fmlogger.Enter(method)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	stmt :=
+		`UPDATE user_stocks 
+		SET
+			quantity = $2,
+			effective_dt = $3,
+			expiration_dt = $4,
+			type = $5,
+			last_update_dt = $6
+		WHERE
+			id = $1`
+
+	_, err := m.DB.ExecContext(ctx, stmt,
+		us.ID,
+		us.Quantity,
+		us.EffectiveDt,
+		us.ExpirationDt.Time,
+		us.Type,
+		time.Now(),
+	)
+
+	if err != nil {
+		fmlogger.ExitError(method, "unexpected error occured when updating stock", err)
+		return err
+	}
+
+	fmlogger.Exit(method)
+	return nil
 }

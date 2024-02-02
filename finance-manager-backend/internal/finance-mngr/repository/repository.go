@@ -141,4 +141,10 @@ type DatabaseRepo interface {
 
 	//Fetches all UserStocks for a given user and accepts a search string
 	GetAllUserStocksByDateRange(userId int, search string, ts time.Time, te time.Time) ([]*models.UserStock, error)
+
+	//Fetches A user stock with the given userId and ticker with the closest effective date before or equal to d
+	GetUserStockByUserIdTickerAndDate(uId int, t string, d time.Time) (models.UserStock, error)
+
+	//Updates a user stock
+	UpdateUserStock(us models.UserStock) error
 }
