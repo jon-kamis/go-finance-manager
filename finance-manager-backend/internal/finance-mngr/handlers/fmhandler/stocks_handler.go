@@ -32,7 +32,7 @@ func (fmh *FinanceManagerHandler) loadStock(ticker string) error {
 		return nil
 	}
 
-	sl, err := fmh.StocksService.FetchStockWithTickerForPastYear(ticker)
+	sl, err := fmh.ExternalService.FetchStockWithTickerForPastYear(ticker)
 
 	if err != nil {
 		fmlogger.ExitError(method, constants.UnexpectedExternalCallError, err)
@@ -442,7 +442,7 @@ func (fmh *FinanceManagerHandler) GetUserStockPortfolioHistory(w http.ResponseWr
 	}
 
 	//Load positions History object
-	h, err := fmh.StocksService.GetUserPortfolioBalanceHistory(id, hl)
+	h, err := fmh.Service.GetUserPortfolioBalanceHistory(id, hl)
 	resp.Items = h
 	resp.Count = len(h)
 

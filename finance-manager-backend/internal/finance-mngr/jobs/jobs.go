@@ -24,7 +24,7 @@ func updateStocks(t time.Time, app application.Application) {
 	method := "jobs.updateStocks"
 	fmt.Printf("[%s] began execution at %v\n", method, t)
 
-	if !app.StocksService.GetIsStocksEnabled() {
+	if !app.ExternalService.GetIsStocksEnabled() {
 		fmlogger.Info(method, "stocks are not enabled")
 		fmt.Printf("[%s] completed execution at %v\n", method, time.Now())
 		return
@@ -51,7 +51,7 @@ func updateStocks(t time.Time, app application.Application) {
 
 	compareDt := time.Now()
 	compareDt = time.Date(compareDt.Year(), compareDt.Month(), compareDt.Day(), 0, 0, 0, 0, time.UTC)
-	
+
 	if compareDt.Weekday() == time.Monday {
 		compareDt = compareDt.Add(-3 * 24 * time.Hour)
 	} else if compareDt.Weekday() == time.Sunday {
@@ -71,7 +71,7 @@ func updateStocks(t time.Time, app application.Application) {
 
 	fmt.Printf("[%s] Checking if %v is before %v. Or if stock data is not loaded\n", method, s.Date, compareDt)
 
-	if s.Date.Before(compareDt) ||  sd.ID == 0 {
+	if s.Date.Before(compareDt) || sd.ID == 0 {
 
 		var startDt time.Time
 
@@ -85,7 +85,7 @@ func updateStocks(t time.Time, app application.Application) {
 		}
 
 		fmlogger.Info(method, "fetching updates for stock "+s.Ticker)
-		sn, err := app.StocksService.FetchStockWithTickerForDateRange(s.Ticker, startDt, compareDt)
+		sn, err := app.ExternalService.FetchStockWithTickerForDateRange(s.Ticker, startDt, compareDt)
 
 		if err != nil {
 			fmlogger.Error(method, constants.UnexpectedSQLError, err)

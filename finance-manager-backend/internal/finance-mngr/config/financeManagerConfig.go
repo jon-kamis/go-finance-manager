@@ -1,4 +1,4 @@
-//Package config contains files used to read ENV values into the application as well as providing default values for each env variable
+// Package config contains files used to read ENV values into the application as well as providing default values for each env variable
 package config
 
 //Type FinanceManagerConfig contains all of the ENV values used by the application
@@ -11,6 +11,7 @@ type FinanceManagerConfig struct {
 	Domain       Env_value
 	FrontendUrl  Env_value
 	TimeZone     Env_value
+	PolygonApi   Env_value
 }
 
 //Function GetDefaultConfig returns a FinanceManagerConfig object containing the default values for each environment variable
@@ -47,6 +48,10 @@ func GetDefaultConfig() FinanceManagerConfig {
 		TimeZone: Env_value{
 			envName:    "TimeZone",
 			defaultVal: "America/New_York",
+		},
+		PolygonApi: Env_value{
+			envName: "PolygonApi",
+			defaultVal: "https://api.polygon.io/v2",
 		},
 	}
 

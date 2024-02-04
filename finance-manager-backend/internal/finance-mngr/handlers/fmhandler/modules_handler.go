@@ -31,7 +31,7 @@ func (fmh *FinanceManagerHandler) GetIsModuleEnabled(w http.ResponseWriter, r *h
 
 	switch name {
 	case constants.StockModuleName:
-		re.Enabled = fmh.StocksService.GetIsStocksEnabled()
+		re.Enabled = fmh.ExternalService.GetIsStocksEnabled()
 	default:
 		//Requested module does not exist
 		err := errors.New(constants.GenericNotFoundError)
@@ -101,7 +101,7 @@ func (fmh *FinanceManagerHandler) PostModuleAPIKey(w http.ResponseWriter, r *htt
 
 	switch name {
 	case constants.StockModuleName:
-		err = fmh.StocksService.UpdateAndPersistAPIKey(payload.Key)
+		err = fmh.ExternalService.UpdateAndPersistAPIKey(payload.Key)
 		if err != nil {
 			fmlogger.ExitError(method, constants.GenericServerError, err)
 			fmh.JSONUtil.ErrorJSON(w, errors.New(constants.GenericServerError), http.StatusInternalServerError)

@@ -1,4 +1,4 @@
-package responsemodels
+package restmodels
 
 type AggResponseItem struct {
 	Ticker              string  `json:"T"`

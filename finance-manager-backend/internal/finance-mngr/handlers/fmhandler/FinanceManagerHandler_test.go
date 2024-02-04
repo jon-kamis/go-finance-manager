@@ -7,9 +7,10 @@ import (
 	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/repository/dbrepo"
-	"finance-manager-backend/internal/finance-mngr/stockservice/fmstockservice"
-	"finance-manager-backend/test"
+	"finance-manager-backend/internal/finance-mngr/service/fmservice"
+	"finance-manager-backend/internal/finance-mngr/service/polygonservice"
 	"finance-manager-backend/internal/finance-mngr/validation"
+	"finance-manager-backend/test"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -31,13 +32,13 @@ func TestMain(m *testing.M) {
 	//Setup testing platform using docker
 	p = test.Setup(m)
 	db := &dbrepo.PostgresDBRepo{DB: p.DB}
-	app.StocksService = &fmstockservice.FmStockService{StocksEnabled: false}
 	fmh = FinanceManagerHandler{
-		DB:            db,
-		JSONUtil:      &jsonutils.JSONUtil{},
-		Validator:     &validation.FinanceManagerValidator{DB: db},
-		Auth:          test.GetTestAuth(),
-		StocksService: app.StocksService,
+		DB:              db,
+		JSONUtil:        &jsonutils.JSONUtil{},
+		Validator:       &validation.FinanceManagerValidator{DB: db},
+		Auth:            test.GetTestAuth(),
+		Service:         &fmservice.FMService{},
+		ExternalService: &polygonservice.PolygonService{},
 	}
 
 	//Set application's handler
