@@ -31,8 +31,8 @@ func ExitError(method string, msg string, err error) {
 }
 
 //Fucntion Info returns a formatted string containing a custom message and the method that the message is coming from
-func Info(method string, msg string) {
-	fmt.Printf(info_msg, method, msg)
+func Info(method string, msg string, args ...interface{}) {
+	fmt.Printf(fmt.Sprintf(info_msg, method, msg), args...)
 }
 
 //Function InfoObj returns a formatted string containing a custom message, the method that the message is coming from, and one object of any type

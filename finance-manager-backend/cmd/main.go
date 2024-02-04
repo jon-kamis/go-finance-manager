@@ -5,12 +5,13 @@ import (
 	"finance-manager-backend/internal/finance-mngr/authentication"
 	"finance-manager-backend/internal/finance-mngr/config"
 	"finance-manager-backend/internal/finance-mngr/constants"
+	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/handlers/fmhandler"
 	"finance-manager-backend/internal/finance-mngr/jobs"
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/repository/dbrepo"
 	"finance-manager-backend/internal/finance-mngr/service/fmservice"
-	"finance-manager-backend/internal/finance-mngr/stockservice/fmstockservice"
+	"finance-manager-backend/internal/finance-mngr/service/polygonservice"
 	"finance-manager-backend/internal/finance-mngr/validation"
 	"fmt"
 	"log"
@@ -22,6 +23,9 @@ import (
 const port = 8080
 
 func main() {
+	method := "main"
+	fmlogger.Enter(method)
+
 	//set application config
 	var app application.Application
 	var appConfig = config.GetDefaultConfig()
@@ -56,32 +60,35 @@ func main() {
 	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 	app.JSONUtil = &jsonutils.JSONUtil{}
 
-	stockService := fmstockservice.FmStockService{
+	externalService := polygonservice.PolygonService{
 		StocksEnabled:        false,
 		StocksApiKeyFileName: constants.APIKeyFileName,
-		DB:                   app.DB,
+		BaseApi: config.GetEnvFromEnvValue(appConfig.PolygonApi),
 	}
 
-	stockService.LoadApiKeyFromFile()
+	externalService.LoadApiKeyFromFile()
 
-	app.StocksService = &stockService
+	app.ExternalService = &externalService
+
 	app.Handler = &fmhandler.FinanceManagerHandler{
-		JSONUtil:      &jsonutils.JSONUtil{},
-		DB:            app.DB,
-		Auth:          app.Auth,
-		Validator:     &validation.FinanceManagerValidator{DB: app.DB},
-		Version:       constants.AppVersion,
-		StocksService: &stockService,
-		Service:       &fmservice.FMService{DB: app.DB},
-		ApiPort:       port,
+		JSONUtil:        &jsonutils.JSONUtil{},
+		DB:              app.DB,
+		Auth:            app.Auth,
+		Validator:       &validation.FinanceManagerValidator{DB: app.DB},
+		Version:         constants.AppVersion,
+		ExternalService: &externalService,
+		Service: &fmservice.FMService{
+			DB: app.DB,
+		},
+		ApiPort: port,
 	}
 
 	defer app.DB.Connection().Close()
 
 	app.Domain = "fm.com"
 
-	log.Println("Starting application on port", port)
-
+	fmlogger.Info(method, "starting application on port %d", port)
+	
 	//Kick off Scheduled Jobs
 	go jobs.ScheduledMinuteJobs(time.NewTicker(time.Minute*1), app)
 
@@ -90,4 +97,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmlogger.Exit(method)
 }
