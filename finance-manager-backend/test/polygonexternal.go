@@ -2,7 +2,6 @@ package test
 
 import (
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/models/restmodels"
 	"fmt"
@@ -10,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jon-kamis/klogger"
 )
 
 type MockPolygonApi struct {
@@ -26,14 +26,14 @@ func (m *MockPolygonApi) Routes() http.Handler {
 	// Create a router r
 	r := chi.NewRouter()
 
-	r.Get(fmt.Sprintf("%s", fmt.Sprintf(constants.PolygonGetPrevCloseAPI, "{ticker}")), m.Handler.MockGetStockByTicker)
-	r.Get(fmt.Sprintf("%s", fmt.Sprintf(constants.PolygonGetDateRangeAPI, "{ticker}", "{startDt}", "{endDt}")), m.Handler.MockGetStockByTicker)
+	r.Get(fmt.Sprintf(constants.PolygonGetPrevCloseAPI, "{ticker}"), m.Handler.MockGetStockByTicker)
+	r.Get(fmt.Sprintf(constants.PolygonGetDateRangeAPI, "{ticker}", "{startDt}", "{endDt}"), m.Handler.MockGetStockByTicker)
 	return r
 }
 
 func (h *MockPolygonHandler) MockGetStockByTicker(w http.ResponseWriter, r *http.Request) {
 	method := "polygonexternal.MockGetStockByTicker"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ticker := chi.URLParam(r, "ticker")
 
@@ -63,5 +63,5 @@ func (h *MockPolygonHandler) MockGetStockByTicker(w http.ResponseWriter, r *http
 	}
 
 	h.JSONUtil.WriteJSON(w, http.StatusOK, pc)
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

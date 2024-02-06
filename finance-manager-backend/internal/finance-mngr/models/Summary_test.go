@@ -1,15 +1,15 @@
 package models
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"testing"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCalculateExpenses(t *testing.T) {
 	method := "Summary_test.TestCalculateExpenses"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	e := ExpenseSummary{
 		LoanCost:          1,
@@ -25,12 +25,12 @@ func TestCalculateExpenses(t *testing.T) {
 	assert.Equal(t, 4.0, e.TotalCost)
 	assert.Equal(t, 2.0, e.TotalBalance)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestFinalize(t *testing.T) {
 	method := "Summary_test.TestFinalize"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	s := Summary{
 		IncomeSummary: IncomeSummary{
@@ -44,12 +44,12 @@ func TestFinalize(t *testing.T) {
 	s.Finalize()
 	assert.Equal(t, 1.0, s.NetFunds)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestLoadLoans(t *testing.T) {
 	method := "Summary_test.TestLoadLoans"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var s Summary
 	larr := mockLoans()
@@ -65,12 +65,12 @@ func TestLoadLoans(t *testing.T) {
 	//Expenses should have the same length as larr since only loans were added
 	assert.Equal(t, len(larr), len(s.ExpenseSummary.Expenses))
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestLoadBills(t *testing.T) {
 	method := "Summary_test.TestLoadBills"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var s Summary
 	barr := mockBills()
@@ -85,12 +85,12 @@ func TestLoadBills(t *testing.T) {
 	//Expenses should have the same length as array since only it was loaded
 	assert.Equal(t, len(barr), len(s.ExpenseSummary.Expenses))
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestLoadCreditCards(t *testing.T) {
 	method := "Summary_test.TestLoadCreditCards"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var s Summary
 	carr := mockCreditCards()
@@ -109,12 +109,12 @@ func TestLoadCreditCards(t *testing.T) {
 	//Expenses should have the same length as array since only it was loaded
 	assert.Equal(t, len(carr), len(s.ExpenseSummary.Expenses))
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestLoadIncomes(t *testing.T) {
 	method := "Summary_test.TestLoadIncomes"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var s Summary
 	iarr := mockIncomes()
@@ -128,7 +128,7 @@ func TestLoadIncomes(t *testing.T) {
 	//Incomes should have the same length as array since only it was loaded
 	assert.Equal(t, len(iarr), len(s.IncomeSummary.Incomes))
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func mockLoans() []*Loan {

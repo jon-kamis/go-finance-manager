@@ -3,11 +3,11 @@ package test
 import (
 	"database/sql"
 	"finance-manager-backend/internal/finance-mngr/config"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"fmt"
 	"log"
 	"testing"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"gorm.io/gorm"
@@ -48,7 +48,7 @@ func GetDefaultConfig() DockerDBConfig {
 
 func Setup(m *testing.M) DockerTestPlatform {
 	method := "dockerdb.Setup"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var err error
 	var pool *dockertest.Pool
@@ -103,7 +103,7 @@ func Setup(m *testing.M) DockerTestPlatform {
 		log.Fatalf("Could not connect to database: %s", err)
 	}
 
-	fmlogger.Info(method, "DB Connection complete")
+	klogger.Info(method, "DB Connection complete")
 	gormDb := GetGormDB(resource.GetPort("5432/tcp"))
 	plat := DockerTestPlatform{
 		DB:       testDB,
@@ -112,21 +112,21 @@ func Setup(m *testing.M) DockerTestPlatform {
 		Pool:     pool,
 	}
 
-	fmlogger.Info(method, "Initializing tables and seeding test data")
+	klogger.Info(method, "Initializing tables and seeding test data")
 	InitTables(plat.GormDB)
-	fmlogger.Info(method, "Table initialization and test data seeding complete")
+	klogger.Info(method, "Table initialization and test data seeding complete")
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return plat
 }
 
 func TearDown(p DockerTestPlatform) {
 	method := "dockerdb.TearDown"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	if err := p.Pool.Purge(p.Resource); err != nil {
 		log.Fatalf("Could not purge resource: %s", err)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

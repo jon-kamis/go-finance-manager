@@ -3,18 +3,18 @@ package fmservice
 import (
 	"database/sql"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"fmt"
 	"testing"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetUserPortfolioBalanceHistory(t *testing.T) {
 	method := "fm_stockservice.TestGetUserPortfolioBalanceHistory"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	d := time.Now() //This method pulls records based on current time, so we will use current time to set up data
 	d = time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.Local)
@@ -113,5 +113,5 @@ func TestGetUserPortfolioBalanceHistory(t *testing.T) {
 	p.GormDB.Exec("DELETE FROM user_stocks")
 	p.GormDB.Exec("DELETE FROM stock_data")
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

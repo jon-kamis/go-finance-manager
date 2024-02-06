@@ -1,16 +1,16 @@
 package models
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"testing"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func TestPasswordMatches(t *testing.T) {
 	method := "User_test.TestPasswordMatches"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	password := "abc123"
 	encryptedPass, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
@@ -29,5 +29,5 @@ func TestPasswordMatches(t *testing.T) {
 	assert.False(t, success)
 	assert.Nil(t, err)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

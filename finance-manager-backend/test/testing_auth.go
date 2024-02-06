@@ -3,9 +3,10 @@ package test
 import (
 	"finance-manager-backend/internal/finance-mngr/authentication"
 	"finance-manager-backend/internal/finance-mngr/config"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"testing"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func GetTestAuth() authentication.Auth {
@@ -23,7 +24,7 @@ func GetTestAuth() authentication.Auth {
 
 func GetAdminJWT(t *testing.T) (token string) {
 	method := "testing_auth.GetAdminJWT"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	u := authentication.JwtUser{
 		ID:        TestingAdmin.ID,
@@ -39,14 +40,14 @@ func GetAdminJWT(t *testing.T) (token string) {
 		t.Errorf("error occured when generating tokens: %s", err)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return tokens.Token
 
 }
 
 func GetUserJWT(t *testing.T) (token string) {
 	method := "testing_auth.GetUserJWT"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	u := authentication.JwtUser{
 		ID:        TestingUser.ID,
@@ -63,14 +64,14 @@ func GetUserJWT(t *testing.T) (token string) {
 		t.Errorf("error occured when generating tokens: %s", err)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return tokens.Token
 
 }
 
 func GetUserJWTWithId(t *testing.T, id int) (token string) {
 	method := "testing_auth.GetUserJWT"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	u := authentication.JwtUser{
 		ID:        id,
@@ -87,7 +88,7 @@ func GetUserJWTWithId(t *testing.T, id int) (token string) {
 		t.Errorf("error occured when generating tokens: %s", err)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return tokens.Token
 
 }

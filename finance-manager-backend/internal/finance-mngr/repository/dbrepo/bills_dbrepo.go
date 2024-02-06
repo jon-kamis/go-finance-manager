@@ -3,19 +3,20 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"strings"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func (m *PostgresDBRepo) GetAllUserBills(userId int, search string) ([]*models.Bill, error) {
+	method := "bills_dbrepo.GetAllUserBills"
+	klogger.Enter(method)
+
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-
-	method := "bills_dbrepo.GetAllUserBills"
-	fmlogger.Enter(method)
 
 	var query string
 	var err error
@@ -52,7 +53,7 @@ func (m *PostgresDBRepo) GetAllUserBills(userId int, search string) ([]*models.B
 		if err == sql.ErrNoRows {
 			return bills, nil
 		} else {
-			fmlogger.ExitError(method, "database call returned with error", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -72,7 +73,7 @@ func (m *PostgresDBRepo) GetAllUserBills(userId int, search string) ([]*models.B
 		)
 
 		if err != nil {
-			fmlogger.ExitError(method, "error occured when attempting to scan db result into rows", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -80,14 +81,14 @@ func (m *PostgresDBRepo) GetAllUserBills(userId int, search string) ([]*models.B
 		bills = append(bills, &bill)
 	}
 
-	fmt.Printf("[%s] retrieved %d records\n", method, recordCount)
-	fmlogger.Exit(method)
+	klogger.Debug(method, "retrieved %d records\n", recordCount)
+	klogger.Exit(method)
 	return bills, nil
 }
 
 func (m *PostgresDBRepo) GetBillByID(id int) (models.Bill, error) {
 	method := "bills_dbrepo.GetBillsByID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -114,21 +115,21 @@ func (m *PostgresDBRepo) GetBillByID(id int) (models.Bill, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmlogger.Exit(method)
+			klogger.Exit(method)
 			return bill, nil
 		} else {
-			fmlogger.ExitError(method, "database call returned with error", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return bill, err
 		}
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return bill, nil
 }
 
 func (m *PostgresDBRepo) UpdateBill(bill models.Bill) error {
 	method := "bills_dbrepo.UpdateBill"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -150,17 +151,17 @@ func (m *PostgresDBRepo) UpdateBill(bill models.Bill) error {
 	)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when updating bill", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) InsertBill(bill models.Bill) (int, error) {
 	method := "bills_dbrepo.InsertBill"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -181,17 +182,17 @@ func (m *PostgresDBRepo) InsertBill(bill models.Bill) (int, error) {
 	).Scan(&id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when inserting new bill", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return -1, err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return id, nil
 }
 
 func (m *PostgresDBRepo) DeleteBillByID(id int) error {
 	method := "bills_dbrepo.DeleteBillByID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -205,17 +206,17 @@ func (m *PostgresDBRepo) DeleteBillByID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when deleting bill", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) DeleteBillsByUserID(id int) error {
 	method := "bills_dbrepo.DeleteBillsByUserID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -229,10 +230,10 @@ func (m *PostgresDBRepo) DeleteBillsByUserID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when deleting bills", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

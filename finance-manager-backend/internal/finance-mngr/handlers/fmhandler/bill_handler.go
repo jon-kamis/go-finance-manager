@@ -3,12 +3,12 @@ package fmhandler
 import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jon-kamis/klogger"
 )
 
 // GetAllUserBills godoc
@@ -27,14 +27,14 @@ import (
 // @Router 		/users/{userId}/bills [get]
 func (fmh *FinanceManagerHandler) GetAllUserBills(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.GetAllUserBills"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	search := r.URL.Query().Get("search")
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching bills", err)
+		klogger.ExitError(method, "unexpected error occured when fetching bills: %v", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
@@ -42,12 +42,12 @@ func (fmh *FinanceManagerHandler) GetAllUserBills(w http.ResponseWriter, r *http
 	bills, err := fmh.DB.GetAllUserBills(id, search)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching bills", err)
-		fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching incomes"), http.StatusInternalServerError)
+		klogger.ExitError(method, "unexpected error occured when fetching bills: %v", err)
+		fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching bills"), http.StatusInternalServerError)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, bills)
 }
 
@@ -67,20 +67,20 @@ func (fmh *FinanceManagerHandler) GetAllUserBills(w http.ResponseWriter, r *http
 // @Router 		/users/{userId}/bills/{billId} [get]
 func (fmh *FinanceManagerHandler) GetBillById(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.GetBillById"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	billId, err1 := strconv.Atoi(chi.URLParam(r, "billId"))
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when processing user id", err)
+		klogger.ExitError(method, "unexpected error occured when processing user id: %v", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	if err1 != nil {
-		fmlogger.ExitError(method, "error occured when processing bill id", err1)
+		klogger.ExitError(method, "error occured when processing bill id: %v", err1)
 		fmh.JSONUtil.ErrorJSON(w, err1, http.StatusInternalServerError)
 		return
 	}
@@ -88,7 +88,7 @@ func (fmh *FinanceManagerHandler) GetBillById(w http.ResponseWriter, r *http.Req
 	bill, err := fmh.DB.GetBillByID(billId)
 	if err != nil || bill.ID == 0 {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmlogger.ExitError(method, "error occured when fetching bill", err)
+		klogger.ExitError(method, "error occured when fetching bill: %v", err)
 		return
 	}
 
@@ -96,11 +96,11 @@ func (fmh *FinanceManagerHandler) GetBillById(w http.ResponseWriter, r *http.Req
 
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
-		fmlogger.ExitError(method, "bill does not belong to user", err)
+		klogger.ExitError(method, "bill does not belong to user: %v", err)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, bill)
 }
 
@@ -121,7 +121,7 @@ func (fmh *FinanceManagerHandler) GetBillById(w http.ResponseWriter, r *http.Req
 // @Router 		/users/{userId}/bills [post]
 func (fmh *FinanceManagerHandler) SaveBill(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.SaveBill"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var payload models.Bill
 
@@ -129,7 +129,7 @@ func (fmh *FinanceManagerHandler) SaveBill(w http.ResponseWriter, r *http.Reques
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when processing user id", err)
+		klogger.ExitError(method, "unexpected error occured when processing user id: %v", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
@@ -138,7 +138,7 @@ func (fmh *FinanceManagerHandler) SaveBill(w http.ResponseWriter, r *http.Reques
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmlogger.ExitError(method, "failed to parse JSON object", err)
+		klogger.ExitError(method, "failed to parse JSON object: %v", err)
 		return
 	}
 
@@ -148,18 +148,18 @@ func (fmh *FinanceManagerHandler) SaveBill(w http.ResponseWriter, r *http.Reques
 	err = payload.ValidateCanSaveBill()
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmlogger.ExitError(method, "request is invalid", err)
+		klogger.ExitError(method, "request is invalid: %v", err)
 		return
 	}
 
 	_, err = fmh.DB.InsertBill(payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmlogger.ExitError(method, "error when saving income", err)
+		klogger.ExitError(method, "error when saving income: %v", err)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, constants.SuccessMessage)
 }
 
@@ -181,20 +181,20 @@ func (fmh *FinanceManagerHandler) SaveBill(w http.ResponseWriter, r *http.Reques
 // @Router 		/users/{userId}/bills/{billId} [put]
 func (fmh *FinanceManagerHandler) UpdateBill(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.UpdateBill"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var payload models.Bill
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	billId, err1 := strconv.Atoi(chi.URLParam(r, "billId"))
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when processing user id", err)
+		klogger.ExitError(method, "unexpected error occured when processing user id: %v", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	if err1 != nil {
-		fmlogger.ExitError(method, "unexpected error occured when processing bill id", err)
+		klogger.ExitError(method, "unexpected error occured when processing bill id: %v", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
@@ -203,7 +203,7 @@ func (fmh *FinanceManagerHandler) UpdateBill(w http.ResponseWriter, r *http.Requ
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmlogger.ExitError(method, "failed to parse JSON object", err)
+		klogger.ExitError(method, "failed to parse JSON object: %v", err)
 		return
 	}
 
@@ -211,7 +211,7 @@ func (fmh *FinanceManagerHandler) UpdateBill(w http.ResponseWriter, r *http.Requ
 	bill, err := fmh.DB.GetBillByID(billId)
 	if err != nil || bill.ID == 0 {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmlogger.ExitError(method, "bill does not exist", err)
+		klogger.ExitError(method, "bill does not exist: %v", err)
 		return
 	}
 
@@ -219,7 +219,7 @@ func (fmh *FinanceManagerHandler) UpdateBill(w http.ResponseWriter, r *http.Requ
 	err = fmh.Validator.BillBelongsToUser(bill, userId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
-		fmlogger.ExitError(method, "bill does not belong to logged in user", err)
+		klogger.ExitError(method, "bill does not belong to logged in user: %v", err)
 		return
 	}
 
@@ -230,11 +230,11 @@ func (fmh *FinanceManagerHandler) UpdateBill(w http.ResponseWriter, r *http.Requ
 	err = fmh.DB.UpdateBill(payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmlogger.ExitError(method, "failed to update bill", err)
+		klogger.ExitError(method, "failed to update bill: %v", err)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, "Bill updated successfully")
 }
 
@@ -254,19 +254,19 @@ func (fmh *FinanceManagerHandler) UpdateBill(w http.ResponseWriter, r *http.Requ
 // @Router 		/users/{userId}/bills/{billId} [delete]
 func (fmh *FinanceManagerHandler) DeleteBillById(w http.ResponseWriter, r *http.Request) {
 	method := "bill_handler.DeleteBillById"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	billId, err1 := strconv.Atoi(chi.URLParam(r, "billId"))
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when processing user id", err)
+		klogger.ExitError(method, "unexpected error occured when processing user id: %v", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	if err1 != nil {
-		fmlogger.ExitError(method, "unexpected error occured when processing bill id", err)
+		klogger.ExitError(method, "unexpected error occured when processing bill id: %v", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
@@ -275,7 +275,7 @@ func (fmh *FinanceManagerHandler) DeleteBillById(w http.ResponseWriter, r *http.
 	bill, err := fmh.DB.GetBillByID(billId)
 	if err != nil || bill.ID == 0 {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmlogger.ExitError(method, "bill does not exist", err)
+		klogger.ExitError(method, "bill does not exist", err)
 		return
 	}
 
@@ -283,7 +283,7 @@ func (fmh *FinanceManagerHandler) DeleteBillById(w http.ResponseWriter, r *http.
 	err = fmh.Validator.BillBelongsToUser(bill, userId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
-		fmlogger.ExitError(method, "bill does not belong to logged in user", err)
+		klogger.ExitError(method, "bill does not belong to logged in user: %v", err)
 		return
 	}
 
@@ -291,10 +291,10 @@ func (fmh *FinanceManagerHandler) DeleteBillById(w http.ResponseWriter, r *http.
 	err = fmh.DB.DeleteBillByID(billId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmlogger.ExitError(method, "failed to delete bill", err)
+		klogger.ExitError(method, "failed to delete bill: %v", err)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, "bill deleted successfully")
 }

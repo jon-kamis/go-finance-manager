@@ -1,16 +1,16 @@
 package models
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"math"
 	"testing"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPerformPaymentCalc(t *testing.T) {
 	method := "Loan_test.TestPerformPaymentCalc"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	expectedPayment := 184.17
 	l := Loan{
@@ -27,12 +27,12 @@ func TestPerformPaymentCalc(t *testing.T) {
 	err = l.PerformPaymentCalc()
 	assert.NotNil(t, err)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestPerformCalc(t *testing.T) {
 	method := "Loan_test.TestPerformCalc"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	expectedInterest := 1049.30
 	expectedTotalCost := 11049.30
@@ -56,12 +56,12 @@ func TestPerformCalc(t *testing.T) {
 	assert.Equal(t, expectedTotalPayment, math.Round(l.TotalPayment*100)/100)
 	assert.Equal(t, l.LoanTerm, len(l.PaymentSchedule))
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestValidateCanPerformCalc(t *testing.T) {
 	method := "Loan_test.TestPerformCalc"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var lt Loan
 	l := Loan{
@@ -91,12 +91,12 @@ func TestValidateCanPerformCalc(t *testing.T) {
 	err = lt.ValidateCanPerformCalc()
 	assert.NotNil(t, err)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestValidateCanSaveLoan(t *testing.T) {
 	method := "Loan_test.TestPerformCalc"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var lt Loan
 	l := Loan{
@@ -162,5 +162,5 @@ func TestValidateCanSaveLoan(t *testing.T) {
 	err = lt.ValidateCanSaveLoan()
 	assert.NotNil(t, err)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

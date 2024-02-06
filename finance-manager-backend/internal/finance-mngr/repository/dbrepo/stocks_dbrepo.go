@@ -5,15 +5,16 @@ import (
 	"database/sql"
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"fmt"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func (m *PostgresDBRepo) InsertStock(s models.Stock) (int, error) {
 	method := "stock_dbrepo.InsertStock"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -37,17 +38,17 @@ func (m *PostgresDBRepo) InsertStock(s models.Stock) (int, error) {
 	).Scan(&id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when inserting new stock", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return -1, err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return id, nil
 }
 
 func (m *PostgresDBRepo) InsertStockData(sl []models.Stock) error {
 	method := "stock_dbrepo.InsertStockData"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -62,7 +63,7 @@ func (m *PostgresDBRepo) InsertStockData(sl []models.Stock) error {
 
 	var id int
 
-	fmt.Printf("[%s] inserting %d records\n", method, len(sl))
+	klogger.Debug(method, "inserting %d records\n", len(sl))
 	for _, s := range sl {
 		err := m.DB.QueryRowContext(ctx, stmt,
 			s.Ticker,
@@ -85,20 +86,21 @@ func (m *PostgresDBRepo) InsertStockData(sl []models.Stock) error {
 
 	if foundErr {
 		for _, err := range errList {
-			fmlogger.Info(method, err.Error())
+			klogger.Error(method, err.Error())
 		}
+
 		err := errors.New(constants.InsertMultStockDataError)
-		fmlogger.ExitError(method, constants.InsertMultStockDataError, err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) GetLatestStockDataByTicker(t string) (models.Stock, error) {
 	method := "stocks_dbrepo.GetLatestStockDataByTicker"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -129,21 +131,22 @@ func (m *PostgresDBRepo) GetLatestStockDataByTicker(t string) (models.Stock, err
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmlogger.Exit(method)
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return s, nil
 		} else {
-			fmlogger.ExitError(method, "database call returned with error", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return s, err
 		}
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return s, nil
 }
 
 func (m *PostgresDBRepo) GetStockDataByTickerAndDateRange(t string, sd time.Time, ed time.Time) ([]models.Stock, error) {
 	method := "stocks_dbrepo.GetStockDataByTickerAndDateRange"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -165,10 +168,11 @@ func (m *PostgresDBRepo) GetStockDataByTickerAndDateRange(t string, sd time.Time
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmlogger.Exit(method)
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return stocks, nil
 		} else {
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -191,7 +195,7 @@ func (m *PostgresDBRepo) GetStockDataByTickerAndDateRange(t string, sd time.Time
 		)
 
 		if err != nil {
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -199,13 +203,13 @@ func (m *PostgresDBRepo) GetStockDataByTickerAndDateRange(t string, sd time.Time
 		stocks = append(stocks, s)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return stocks, nil
 }
 
 func (m *PostgresDBRepo) GetStockByTicker(t string) (models.Stock, error) {
 	method := "stocks_dbrepo.GetStockByTicker"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -235,21 +239,22 @@ func (m *PostgresDBRepo) GetStockByTicker(t string) (models.Stock, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmlogger.Exit(method)
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return s, nil
 		} else {
-			fmlogger.ExitError(method, "database call returned with error", err)
+			klogger.ExitError(method, "database call returned with error", err)
 			return s, err
 		}
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return s, nil
 }
 
 func (m *PostgresDBRepo) GetOldestStock() (models.Stock, error) {
 	method := "stocks_dbrepo.GetOldestStock"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -279,21 +284,22 @@ func (m *PostgresDBRepo) GetOldestStock() (models.Stock, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmlogger.Exit(method)
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return s, nil
 		} else {
-			fmlogger.ExitError(method, "database call returned with error", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return s, err
 		}
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return s, nil
 }
 
 func (m *PostgresDBRepo) UpdateStock(s models.Stock) error {
 	method := "stocks_dbrepo.UpdateStock"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -321,10 +327,10 @@ func (m *PostgresDBRepo) UpdateStock(s models.Stock) error {
 	)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when updating stock", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

@@ -2,19 +2,19 @@ package dbrepo
 
 import (
 	"errors"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
 
 func TestGetAllUserCreditCards(t *testing.T) {
 	method := "creditcards_test.TestGetAllUserCreditCards"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	cc1 := models.CreditCard{ID: 1, UserID: 1, Name: "cc1", Balance: 1000.0, APR: 0.26, MinPayment: 35.00, MinPaymentPercentage: 0.1, CreateDt: time.Now(), LastUpdateDt: time.Now()}
 	cc2 := models.CreditCard{ID: 2, UserID: 1, Name: "cc2", Balance: 1000.0, APR: 0.26, MinPayment: 35.00, MinPaymentPercentage: 0.1, CreateDt: time.Now(), LastUpdateDt: time.Now()}
@@ -27,7 +27,6 @@ func TestGetAllUserCreditCards(t *testing.T) {
 	ccs, err := d.GetAllUserCreditCards(1, "")
 
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
 		t.Errorf(err.Error())
 	}
 
@@ -37,7 +36,6 @@ func TestGetAllUserCreditCards(t *testing.T) {
 
 	ccs, err = d.GetAllUserCreditCards(1, "1")
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
 		t.Errorf(err.Error())
 	}
 
@@ -48,7 +46,6 @@ func TestGetAllUserCreditCards(t *testing.T) {
 	//CC that does not exist
 	ccs, err = d.GetAllUserCreditCards(1, "3")
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
 		t.Errorf(err.Error())
 	}
 
@@ -58,12 +55,12 @@ func TestGetAllUserCreditCards(t *testing.T) {
 
 	tearDown()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetCreditCardById(t *testing.T) {
 	method := "creditcards_test.TestGetCreditCardById"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Insert Credit Card
 	cc1 := models.CreditCard{ID: 1, UserID: 1, Name: "loan1", Balance: 1000.0, APR: 0.26, MinPayment: 35.00, MinPaymentPercentage: 0.1, CreateDt: time.Now(), LastUpdateDt: time.Now()}
@@ -90,12 +87,12 @@ func TestGetCreditCardById(t *testing.T) {
 	}
 
 	tearDown()
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestInsertCreditCard(t *testing.T) {
 	method := "creditcards_test.TestInsertCreditCard"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	p.GormDB.Exec("DELETE FROM credit_cards")
 	name := "TestInsertCreditCard"
@@ -129,12 +126,12 @@ func TestInsertCreditCard(t *testing.T) {
 		t.Errorf("Value commited to DB does not match expectations. Expected %s but found %s", name, ccDb.Name)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestDeleteCreditCardsByUserID(t *testing.T) {
 	method := "creditcards_dbrepo_test.TestDeleteCreditCardsByUserID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 	id1 := 43
 	id2 := 44
 
@@ -186,12 +183,12 @@ func TestDeleteCreditCardsByUserID(t *testing.T) {
 	}
 
 	tearDown()
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestDeleteCreditCardsByID(t *testing.T) {
 	method := "creditcards_dbrepo_test.TestDeleteCreditCardsByID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	id := 43
 
@@ -219,14 +216,14 @@ func TestDeleteCreditCardsByID(t *testing.T) {
 		t.Errorf("expected ErrRecordNotFound after deleting entry but a different error was thrown by gorm: %v", err)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestUpdateCreditCard(t *testing.T) {
 	method := "creditcards_dbrepo_test.TestUpdateCreditCard"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 	var ccDb models.CreditCard
-	
+
 	//Insert Credit Card
 	cc1 := models.CreditCard{ID: 1, UserID: 1, Name: "loan1", Balance: 1000.0, APR: 0.26, MinPayment: 35.00, MinPaymentPercentage: 0.1, CreateDt: time.Now(), LastUpdateDt: time.Now()}
 	p.GormDB.Create(&cc1)
@@ -243,7 +240,7 @@ func TestUpdateCreditCard(t *testing.T) {
 	assert.Equal(t, cc2.MinPaymentPercentage, ccDb.MinPaymentPercentage)
 
 	tearDown()
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func tearDown() {

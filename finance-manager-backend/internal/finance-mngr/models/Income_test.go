@@ -3,10 +3,10 @@ package models
 import (
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/fmUtil"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"testing"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +14,7 @@ var testDate = time.Date(2024, 1, 23, 7, 45, 23, 0, time.UTC)
 
 func TestPopulateEmptyValues(t *testing.T) {
 	method := "Income_test.TestPopulateEmptyValues"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var i Income
 
@@ -37,11 +37,11 @@ func TestPopulateEmptyValues(t *testing.T) {
 		t.Errorf("unexpcted error thrown for good case")
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 func TestPopulateEmptyValues_weekly(t *testing.T) {
 	method := "Income_test.TestPopulateEmptyValues_weekly"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	i := Income{
 		Name:          "Weekly Income",
@@ -71,12 +71,12 @@ func TestPopulateEmptyValues_weekly(t *testing.T) {
 	assert.Equal(t, 250.0, i.Taxes)
 	assert.Equal(t, 750.0, i.NetPay)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestPopulateEmptyValues_biweekly(t *testing.T) {
 	method := "Income_test.TestPopulateEmptyValues_biweekly"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	i := Income{
 		Name:          "Bi-Weekly Income",
@@ -109,7 +109,7 @@ func TestPopulateEmptyValues_biweekly(t *testing.T) {
 
 func TestPopulateEmptyValues_monthly(t *testing.T) {
 	method := "Income_test.TestPopulateEmptyValues_monthly"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	i := Income{
 		Name:          "Monthly Income",
@@ -142,7 +142,7 @@ func TestPopulateEmptyValues_monthly(t *testing.T) {
 
 func TestGetPaysForMonthContainingDate_weekly(t *testing.T) {
 	method := "Income_test.TestGetPaysForMonthContainingDate_weekly"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Testing with Feb 2024
 	//There are 5 Thursdays, and 4 of every other date
@@ -174,12 +174,12 @@ func TestGetPaysForMonthContainingDate_weekly(t *testing.T) {
 	p = i.GetPaysForMonthContainingDate(d1)
 	assert.Equal(t, 2, p)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetPaysForMonthContainingDate_biweekly(t *testing.T) {
 	method := "Income_test.TestGetPaysForMonthContainingDate_biweekly"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	d1 := time.Date(2024, 1, 23, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(2024, 2, 23, 0, 0, 0, 0, time.UTC)
@@ -199,12 +199,12 @@ func TestGetPaysForMonthContainingDate_biweekly(t *testing.T) {
 	p = i.GetPaysForMonthContainingDate(d3)
 	assert.Equal(t, 2, p)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetPaysForMonthContainingDate_monthly(t *testing.T) {
 	method := "Income_test.TestGetPaysForMonthContainingDate_monthly"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	d1 := time.Date(2024, 1, 23, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(2024, 2, 23, 0, 0, 0, 0, time.UTC)
@@ -220,12 +220,12 @@ func TestGetPaysForMonthContainingDate_monthly(t *testing.T) {
 	p = i.GetPaysForMonthContainingDate(d2)
 	assert.Equal(t, 1, p)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetMonthlyNetPay(t *testing.T) {
 	method := "Income_test.TestGetMonthlyNetPay"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	d1 := time.Date(2024, 1, 23, 0, 0, 0, 0, time.UTC)
 	d2 := time.Date(2024, 2, 23, 0, 0, 0, 0, time.UTC)
@@ -246,12 +246,12 @@ func TestGetMonthlyNetPay(t *testing.T) {
 	p = i.GetMonthlyNetPay(d2)
 	assert.Equal(t, 31250.0, p)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestValidateTypeAndFrequency(t *testing.T) {
 	method := "Income_test.TestValidateTypeAndFrequency"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	i := Income{
 		Type:      constants.IncomeTypeHourly,
@@ -296,12 +296,12 @@ func TestValidateTypeAndFrequency(t *testing.T) {
 	err = i.ValidateTypeAndFrequency()
 	assert.NotNil(t, err)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestValidateCanSaveIncome(t *testing.T) {
 	method := "Income_test.TestValidateCanSaveIncome"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var it Income
 	i := Income{
@@ -321,7 +321,7 @@ func TestValidateCanSaveIncome(t *testing.T) {
 
 	//Name is required
 	it = i
-	it.Name=""
+	it.Name = ""
 	err = it.ValidateCanSaveIncome()
 	assert.NotNil(t, err)
 
@@ -368,14 +368,12 @@ func TestValidateCanSaveIncome(t *testing.T) {
 	err = it.ValidateCanSaveIncome()
 	assert.NotNil(t, err)
 
-
-
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetPayStartingDtForMonth(t *testing.T) {
 	method := "Income_test.TestGetPayStartingDtForMonth"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Date to test against (only month matters)
 	d := time.Date(2024, 2, 12, 20, 45, 6, 8, time.UTC)
@@ -397,5 +395,5 @@ func TestGetPayStartingDtForMonth(t *testing.T) {
 	assert.Equal(t, fmUtil.GetMonthBeginDate(d), td2)
 	assert.Equal(t, fmUtil.GetStartOfDay(s3), td3)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

@@ -1,16 +1,17 @@
 package validation
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/test"
 	"testing"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func TestUserRoleBelongsToUser(t *testing.T) {
 	method := "userroles_validation_test.TestUserRoleBelongsToUser"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	userId := test.TestingAdmin.ID
 
@@ -47,13 +48,13 @@ func TestUserRoleBelongsToUser(t *testing.T) {
 		t.Errorf("unexpected error was thrown for valid case")
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 
 }
 
 func TestUserRoleExistsAndBelongsToUser(t *testing.T) {
 	method := "userroles_validation_test.TestUserRoleExistsAndBelongsToUser"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	userId := 23
 
@@ -90,6 +91,6 @@ func TestUserRoleExistsAndBelongsToUser(t *testing.T) {
 	//Cleanup DB column
 	p.GormDB.Delete(&userRole)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 
 }

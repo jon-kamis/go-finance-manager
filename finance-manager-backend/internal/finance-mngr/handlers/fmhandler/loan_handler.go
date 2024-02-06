@@ -2,12 +2,13 @@ package fmhandler
 
 import (
 	"errors"
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jon-kamis/klogger"
 )
 
 // CalculateLoan godoc
@@ -28,39 +29,35 @@ import (
 // @Router 		/users/{userId}/loans/{loanId}/calculate [post]
 func (fmh *FinanceManagerHandler) CalculateLoan(w http.ResponseWriter, r *http.Request) {
 	method := "loan_handler.CalculateLoan"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	var payload models.Loan
-	idStr := chi.URLParam(r, "userId")
+	uId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
-	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		fmt.Printf("[%v] the supplied id was invalid and returned the error: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("invalid user id"), http.StatusBadRequest)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
-	payload.ID = id
+	payload.ID = uId
 
 	// Read in loan from payload
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmt.Printf("[%s] failed to parse JSON payload\n", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
 		return
 	}
 
 	err = payload.PerformCalc()
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] %s\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, err.Error())
 		return
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, payload)
 }
 
@@ -82,31 +79,35 @@ func (fmh *FinanceManagerHandler) CalculateLoan(w http.ResponseWriter, r *http.R
 // @Router 		/users/{userId}/loans/{loanId}/compare-payments [post]
 func (fmh *FinanceManagerHandler) CompareLoanPayments(w http.ResponseWriter, r *http.Request) {
 	method := "loan_handler.CompareLoanPayments"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	loanId, err1 := strconv.Atoi(chi.URLParam(r, "loanId"))
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
 	if err1 != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err1)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err1, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.ProcessIdError, err1)
 		return
 	}
 
 	loan, err := fmh.DB.GetLoanByID(loanId)
-	if err != nil || loan.ID == 0 {
-		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] failed to retrieve loan", method)
-		fmt.Printf("[EXIT %s]\n", method)
+
+	if err != nil {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
+		return
+	}
+
+	if loan.ID == 0 {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
+		klogger.ExitError(method, constants.EntityNotFoundError)
 		return
 	}
 
@@ -115,8 +116,7 @@ func (fmh *FinanceManagerHandler) CompareLoanPayments(w http.ResponseWriter, r *
 
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
-		fmt.Printf("[%s] %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.GenericUnprocessableEntityErrLog, err)
 		return
 	}
 
@@ -125,8 +125,7 @@ func (fmh *FinanceManagerHandler) CompareLoanPayments(w http.ResponseWriter, r *
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmt.Printf("[%s] failed to read JSON payload: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
 		return
 	}
 
@@ -137,17 +136,20 @@ func (fmh *FinanceManagerHandler) CompareLoanPayments(w http.ResponseWriter, r *
 		fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured during calculation"), http.StatusInternalServerError)
 
 		if err != nil {
-			fmt.Printf("[%s] error occured during calculation: %v\n", method, err)
+			klogger.Error(method, constants.GenericUnexpectedErrorLog, err)
 		}
 
 		if err1 != nil {
-			fmt.Printf("[%s] error occured during calculation: %v\n", method, err1)
+			klogger.Error(method, constants.GenericUnexpectedErrorLog, err1)
 		}
+
+		klogger.Exit(method)
+		return
 	}
 
 	cs := loan.CompareLoanPayments(payload)
 
-	fmt.Printf("[EXIT %s]", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, cs)
 }
 
@@ -167,29 +169,27 @@ func (fmh *FinanceManagerHandler) CompareLoanPayments(w http.ResponseWriter, r *
 // @Router 		/users/{userId}/loans [get]
 func (fmh *FinanceManagerHandler) GetAllUserLoans(w http.ResponseWriter, r *http.Request) {
 	method := "loan_handler.GetAllUserLoans"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	search := r.URL.Query().Get("search")
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
 	loans, err := fmh.DB.GetAllUserLoans(id, search)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching loans"), http.StatusInternalServerError)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, loans)
 }
 
@@ -209,31 +209,34 @@ func (fmh *FinanceManagerHandler) GetAllUserLoans(w http.ResponseWriter, r *http
 // @Router 		/users/{userId}/loans/{loanId} [get]
 func (fmh *FinanceManagerHandler) GetLoanById(w http.ResponseWriter, r *http.Request) {
 	method := "loan_handler.GetLoanById"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	loanId, err1 := strconv.Atoi(chi.URLParam(r, "loanId"))
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
 	if err1 != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err1)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err1, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.ProcessIdError, err1)
 		return
 	}
 
 	loan, err := fmh.DB.GetLoanByID(loanId)
-	if err != nil || loan.ID == 0 {
+	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] failed to retrieve loan", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
+		return
+	}
+
+	if loan.ID == 0 {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
+		klogger.ExitError(method, constants.EntityNotFoundError)
 		return
 	}
 
@@ -241,12 +244,11 @@ func (fmh *FinanceManagerHandler) GetLoanById(w http.ResponseWriter, r *http.Req
 
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
-		fmt.Printf("[%s] %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, loan)
 }
 
@@ -266,31 +268,34 @@ func (fmh *FinanceManagerHandler) GetLoanById(w http.ResponseWriter, r *http.Req
 // @Router 		/users/{userId}/loans/{loanId} [delete]
 func (fmh *FinanceManagerHandler) DeleteLoanById(w http.ResponseWriter, r *http.Request) {
 	method := "loan_handler.DeleteLoanById"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	loanId, err1 := strconv.Atoi(chi.URLParam(r, "loanId"))
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
 	if err1 != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err1)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err1, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.ProcessIdError, err1)
 		return
 	}
 
 	// Validate that the loan exists
 	loan, err := fmh.DB.GetLoanByID(loanId)
-	if err != nil || loan.ID == 0 {
+	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] failed to retrieve loan", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
+		return
+	}
+
+	if loan.ID == 0 {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
+		klogger.ExitError(method, constants.EntityNotFoundError)
 		return
 	}
 
@@ -298,8 +303,7 @@ func (fmh *FinanceManagerHandler) DeleteLoanById(w http.ResponseWriter, r *http.
 	err = fmh.Validator.LoanBelongsToUser(loan, userId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
@@ -307,12 +311,11 @@ func (fmh *FinanceManagerHandler) DeleteLoanById(w http.ResponseWriter, r *http.
 	err = fmh.DB.DeleteLoanByID(loanId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmt.Printf("[%s] %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, "Loan deleted successfully")
 }
 
@@ -333,7 +336,7 @@ func (fmh *FinanceManagerHandler) DeleteLoanById(w http.ResponseWriter, r *http.
 // @Router 		/users/{userId}/loans [post]
 func (fmh *FinanceManagerHandler) SaveLoan(w http.ResponseWriter, r *http.Request) {
 	method := "loan_handler.SaveLoan"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	var payload models.Loan
 
@@ -341,9 +344,8 @@ func (fmh *FinanceManagerHandler) SaveLoan(w http.ResponseWriter, r *http.Reques
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
@@ -351,8 +353,7 @@ func (fmh *FinanceManagerHandler) SaveLoan(w http.ResponseWriter, r *http.Reques
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmt.Printf("[%s] failed to read JSON payload: %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
 		return
 	}
 
@@ -361,20 +362,18 @@ func (fmh *FinanceManagerHandler) SaveLoan(w http.ResponseWriter, r *http.Reques
 	err = payload.ValidateCanSaveLoan()
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmt.Printf("[%s] request is invalid: %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.GenericUnprocessableEntityErrLog, err)
 		return
 	}
 
 	_, err = fmh.DB.InsertLoan(payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmt.Printf("[%s] failed to insert loan", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, "new loan was saved successfully")
 }
 
@@ -396,23 +395,21 @@ func (fmh *FinanceManagerHandler) SaveLoan(w http.ResponseWriter, r *http.Reques
 // @Router 		/users/{userId}/loans/{loanId} [put]
 func (fmh *FinanceManagerHandler) UpdateLoan(w http.ResponseWriter, r *http.Request) {
 	method := "loan_handler.UpdateLoan"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	var payload models.Loan
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	loanId, err1 := strconv.Atoi(chi.URLParam(r, "loanId"))
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
 	if err1 != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err1)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err1, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.ProcessIdError, err1)
 		return
 	}
 
@@ -420,17 +417,22 @@ func (fmh *FinanceManagerHandler) UpdateLoan(w http.ResponseWriter, r *http.Requ
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmt.Printf("[%s] failed to parse JSON payload\n", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
 		return
 	}
 
 	// Validate that the loan exists
 	loan, err := fmh.DB.GetLoanByID(loanId)
-	if err != nil || loan.ID == 0 {
+
+	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] failed to retrieve loan", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
+		return
+	}
+
+	if loan.ID == 0 {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
+		klogger.ExitError(method, constants.EntityNotFoundError)
 		return
 	}
 
@@ -438,8 +440,8 @@ func (fmh *FinanceManagerHandler) UpdateLoan(w http.ResponseWriter, r *http.Requ
 	err = fmh.Validator.LoanBelongsToUser(loan, userId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.GenericUnprocessableEntityErrLog, err)
+
 		return
 	}
 
@@ -447,12 +449,12 @@ func (fmh *FinanceManagerHandler) UpdateLoan(w http.ResponseWriter, r *http.Requ
 	err = fmh.DB.UpdateLoan(payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmt.Printf("[%s] %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
+
 		return
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, "Loan updated successfully")
 }
 
@@ -472,25 +474,23 @@ func (fmh *FinanceManagerHandler) UpdateLoan(w http.ResponseWriter, r *http.Requ
 // @Router 		/users/{userId}/loans-summary [get]
 func (fmh *FinanceManagerHandler) GetLoanSummary(w http.ResponseWriter, r *http.Request) {
 	method := "loan_handler.GetLoanSummary"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	search := r.URL.Query().Get("search")
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
 	loans, err := fmh.DB.GetAllUserLoans(id, search)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching loans"), http.StatusInternalServerError)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
@@ -508,6 +508,6 @@ func (fmh *FinanceManagerHandler) GetLoanSummary(w http.ResponseWriter, r *http.
 	summary.MonthlyCost = monthlyCost
 	summary.TotalBalance = totalBalance
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, summary)
 }

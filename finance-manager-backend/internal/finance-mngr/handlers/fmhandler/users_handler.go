@@ -2,12 +2,12 @@ package fmhandler
 
 import (
 	"errors"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
-	"fmt"
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jon-kamis/klogger"
 )
 
 // GetUserByID godoc
@@ -25,7 +25,7 @@ import (
 // @Router 		/users/{userId} [get]
 func (fmh *FinanceManagerHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	method := "users_handler.GetUserByID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	idStr := chi.URLParam(r, "userId")
 	var id int
@@ -33,8 +33,8 @@ func (fmh *FinanceManagerHandler) GetUserByID(w http.ResponseWriter, r *http.Req
 	loggedInUserId, err := fmh.Auth.GetLoggedInUserId(w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching logged in user", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching user"), http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
@@ -44,8 +44,8 @@ func (fmh *FinanceManagerHandler) GetUserByID(w http.ResponseWriter, r *http.Req
 
 		id, err = strconv.Atoi(idStr)
 		if err != nil {
-			fmlogger.ExitError(method, "the supplied id was invalid", err)
 			fmh.JSONUtil.ErrorJSON(w, errors.New("invalid id"), http.StatusBadRequest)
+			klogger.ExitError(method, constants.ProcessIdError, err)
 			return
 		}
 
@@ -53,12 +53,13 @@ func (fmh *FinanceManagerHandler) GetUserByID(w http.ResponseWriter, r *http.Req
 			isValid, err := fmh.Validator.IsValidToViewOtherUserData(loggedInUserId)
 
 			if err != nil {
-				fmlogger.ExitError(method, "unexpected error occured when fetching the selected user", err)
 				fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching user"), http.StatusInternalServerError)
+				klogger.ExitError(method, constants.GenericUnexpectedErrorLog, err)
+
 				return
 			} else if !isValid {
-				fmlogger.ExitError(method, "user is forbidden to view other user data", err)
 				fmh.JSONUtil.ErrorJSON(w, errors.New("forbidden"), http.StatusForbidden)
+				klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 				return
 			}
 
@@ -68,12 +69,18 @@ func (fmh *FinanceManagerHandler) GetUserByID(w http.ResponseWriter, r *http.Req
 	user, err := fmh.DB.GetUserByID(id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "requested user was not found", err)
-		fmh.JSONUtil.ErrorJSON(w, errors.New("user not found"), http.StatusNotFound)
+		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.GenericServerError), http.StatusInternalServerError)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
-	fmlogger.Exit(method)
+	if user.ID <= 0 {
+		fmh.JSONUtil.ErrorJSON(w, errors.New("user not found"), http.StatusNotFound)
+		klogger.ExitError(method, constants.EntityNotFoundError)
+		return
+	}
+
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, user)
 }
 
@@ -92,7 +99,7 @@ func (fmh *FinanceManagerHandler) GetUserByID(w http.ResponseWriter, r *http.Req
 // @Router 		/users/{userId} [delete]
 func (fmh *FinanceManagerHandler) DeleteUserById(w http.ResponseWriter, r *http.Request) {
 	method := "users_handler.DeleteUserById"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	idStr := chi.URLParam(r, "userId")
 	var id int
@@ -100,8 +107,8 @@ func (fmh *FinanceManagerHandler) DeleteUserById(w http.ResponseWriter, r *http.
 	loggedInUserId, err := fmh.Auth.GetLoggedInUserId(w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching logged in user", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching user"), http.StatusInternalServerError)
+		klogger.ExitError(method, constants.FailedToReadUserIdFromAuthHeaderError, err)
 		return
 	}
 
@@ -111,21 +118,22 @@ func (fmh *FinanceManagerHandler) DeleteUserById(w http.ResponseWriter, r *http.
 
 		id, err = strconv.Atoi(idStr)
 		if err != nil {
-			fmlogger.ExitError(method, "the supplied id was invalid", err)
 			fmh.JSONUtil.ErrorJSON(w, errors.New("invalid id"), http.StatusBadRequest)
+			klogger.ExitError(method, constants.ProcessIdError, err)
 			return
 		}
 
 		if id != loggedInUserId {
-			isValid, err := fmh.Validator.IsValidToDeleteOtherUserData(loggedInUserId)
+			isValid, err := fmh.Validator.IsValidToViewOtherUserData(loggedInUserId)
 
 			if err != nil {
-				fmlogger.ExitError(method, "unexpected error occured when fetching the selected user", err)
 				fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching user"), http.StatusInternalServerError)
+				klogger.ExitError(method, constants.GenericUnexpectedErrorLog, err)
+
 				return
 			} else if !isValid {
-				fmlogger.ExitError(method, "user is forbidden to delete other user data", err)
 				fmh.JSONUtil.ErrorJSON(w, errors.New("forbidden"), http.StatusForbidden)
+				klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 				return
 			}
 
@@ -135,52 +143,52 @@ func (fmh *FinanceManagerHandler) DeleteUserById(w http.ResponseWriter, r *http.
 	_, err = fmh.DB.GetUserByID(id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "requested user was not found", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("user not found"), http.StatusNotFound)
+		klogger.ExitError(method, constants.EntityNotFoundError)
 		return
 	}
 
 	err = fmh.DB.DeleteBillsByUserID(id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error when deleting bills by userId", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("an unexpected error occured while attempting to delete the user"), http.StatusNotFound)
+		klogger.ExitError(method, "failed to delete user bills:\n%v", err)
 		return
 	}
 
 	err = fmh.DB.DeleteIncomesByUserID(id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error when deleting incomes by userId", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("an unexpected error occured while attempting to delete the user"), http.StatusNotFound)
+		klogger.ExitError(method, "failed to delete user incomes:\n%v", err)
 		return
 	}
 
 	err = fmh.DB.DeleteLoansByUserID(id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error when deleting loans by userId", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("an unexpected error occured while attempting to delete the user"), http.StatusNotFound)
+		klogger.ExitError(method, "failed to delete user loans:\n%v", err)
 		return
 	}
 
 	err = fmh.DB.DeleteCreditCardsByUserID(id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error when deleting credit cards by userId", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("an unexpected error occured while attempting to delete the user"), http.StatusNotFound)
+		klogger.ExitError(method, "failed to delete user credit cards:\n%v", err)
 		return
 	}
 
 	err = fmh.DB.DeleteUserByID(id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error when deleting user by id", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("an unexpected error occured while attempting to delete the user"), http.StatusNotFound)
+		klogger.ExitError(method, "failed to delete user:\n%v", err)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, "success")
 }
 
@@ -199,18 +207,17 @@ func (fmh *FinanceManagerHandler) DeleteUserById(w http.ResponseWriter, r *http.
 // @Router 		/users [get]
 func (fmh *FinanceManagerHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	method := "users_handler.GetAllUsers"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	search := r.URL.Query().Get("search")
 	users, err := fmh.DB.GetAllUsers(search)
 
 	if err != nil {
-		fmt.Printf("[%s] caught unexpected error when attempting to fetch users from database\n", method)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching users"), http.StatusInternalServerError)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
-	fmt.Printf("[EXIT %s]", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, users)
 }

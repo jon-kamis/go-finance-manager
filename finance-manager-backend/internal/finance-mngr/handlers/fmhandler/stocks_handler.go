@@ -3,7 +3,6 @@ package fmhandler
 import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/internal/finance-mngr/models/restmodels"
 	"net/http"
@@ -11,49 +10,50 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jon-kamis/klogger"
 )
 
 // Loads a stock from the remote API
 func (fmh *FinanceManagerHandler) loadStock(ticker string) error {
 	method := "stocks_handler.loadStock"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	s, err := fmh.DB.GetStockByTicker(ticker)
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
 	if s.ID != 0 {
 		//Stock is loaded, no action needed
-		fmlogger.Info(method, "stock is already loaded")
-		fmlogger.Exit(method)
+		klogger.Info(method, "stock is already loaded")
+		klogger.Exit(method)
 		return nil
 	}
 
 	sl, err := fmh.ExternalService.FetchStockWithTickerForPastYear(ticker)
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.UnexpectedExternalCallError, err)
+		klogger.ExitError(method, constants.UnexpectedExternalCallError, err)
 		return err
 	}
 
 	_, err = fmh.DB.InsertStock(sl[len(sl)-1])
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
 	err = fmh.DB.InsertStockData(sl)
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
@@ -74,7 +74,7 @@ func (fmh *FinanceManagerHandler) loadStock(ticker string) error {
 // @Router 		/users/{userId}/stocks [post]
 func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.Request) {
 	method := "stocks_handler.PostStocksAPIKey"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var payload models.UserStock
 
@@ -82,7 +82,7 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "user is not authorized to access other user data", err)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
@@ -91,7 +91,7 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmlogger.ExitError(method, "failed to parse json payload", err)
+		klogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
 		return
 	}
 
@@ -100,7 +100,7 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 	err = payload.ValidateCanSaveUserStock()
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmlogger.ExitError(method, "request is not valid", err)
+		klogger.ExitError(method, constants.GenericBadRequestErrorLog, err)
 		return
 	}
 
@@ -110,7 +110,7 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 	if err != nil {
 		rerr := errors.New(constants.GenericServerError)
 		fmh.JSONUtil.ErrorJSON(w, rerr, http.StatusInternalServerError)
-		fmlogger.ExitError(method, constants.UnexpectedExternalCallError, err)
+		klogger.ExitError(method, constants.UnexpectedExternalCallError, err)
 		return
 	}
 
@@ -118,11 +118,11 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 	_, err = fmh.DB.InsertUserStock(payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmlogger.ExitError(method, "unexpected error occured when inserting credit card", err)
+		klogger.ExitError(method, constants.FailedToSaveEntityError, err)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
 }
 
@@ -143,7 +143,7 @@ func (fmh *FinanceManagerHandler) SaveUserStock(w http.ResponseWriter, r *http.R
 // @Router 		/users/{userId}/stock-operation [post]
 func (fmh *FinanceManagerHandler) ModifyStockOperation(w http.ResponseWriter, r *http.Request) {
 	method := "stocks_handler.ModifyStockOperation"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var p restmodels.ModifyStockRequest
 
@@ -151,7 +151,7 @@ func (fmh *FinanceManagerHandler) ModifyStockOperation(w http.ResponseWriter, r 
 	uId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "user is not authorized to access other user data", err)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
@@ -160,7 +160,7 @@ func (fmh *FinanceManagerHandler) ModifyStockOperation(w http.ResponseWriter, r 
 	err = fmh.JSONUtil.ReadJSON(w, r, &p)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmlogger.ExitError(method, "failed to parse json payload", err)
+		klogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
 		return
 	}
 
@@ -170,7 +170,7 @@ func (fmh *FinanceManagerHandler) ModifyStockOperation(w http.ResponseWriter, r 
 	if !isValid {
 		err = errors.New(errMsg)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmlogger.ExitError(method, errMsg, err)
+		klogger.ExitError(method, errMsg)
 		return
 	}
 
@@ -180,7 +180,7 @@ func (fmh *FinanceManagerHandler) ModifyStockOperation(w http.ResponseWriter, r 
 	if err != nil {
 		rerr := errors.New(constants.GenericServerError)
 		fmh.JSONUtil.ErrorJSON(w, rerr, http.StatusInternalServerError)
-		fmlogger.ExitError(method, constants.UnexpectedExternalCallError, err)
+		klogger.ExitError(method, constants.UnexpectedExternalCallError, err)
 		return
 	}
 
@@ -197,7 +197,7 @@ func (fmh *FinanceManagerHandler) ModifyStockOperation(w http.ResponseWriter, r 
 	err = fmh.Service.LoadPriorUserStockForTransaction(p, &usp, &us)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmlogger.ExitError(method, constants.UnexpectedExternalCallError, err)
+		klogger.ExitError(method, constants.UnexpectedExternalCallError, err)
 		return
 	}
 
@@ -207,7 +207,7 @@ func (fmh *FinanceManagerHandler) ModifyStockOperation(w http.ResponseWriter, r 
 
 		if err != nil {
 			fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-			fmlogger.ExitError(method, "unexpected error occured when inserting credit card", err)
+			klogger.ExitError(method, constants.FailedToUpdateEntityError, err)
 			return
 		}
 	}
@@ -218,12 +218,12 @@ func (fmh *FinanceManagerHandler) ModifyStockOperation(w http.ResponseWriter, r 
 
 		if err != nil {
 			fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-			fmlogger.ExitError(method, "unexpected error occured when inserting credit card", err)
+			klogger.ExitError(method, constants.FailedToSaveEntityError, err)
 			return
 		}
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
 }
 
@@ -245,14 +245,14 @@ func (fmh *FinanceManagerHandler) ModifyStockOperation(w http.ResponseWriter, r 
 // @Router 		/users/{userId}/stocks [get]
 func (fmh *FinanceManagerHandler) GetUserStocks(w http.ResponseWriter, r *http.Request) {
 	method := "stocks_handler.GetUserStocks"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	uid, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "user is not authorized to access other user data", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
@@ -263,8 +263,8 @@ func (fmh *FinanceManagerHandler) GetUserStocks(w http.ResponseWriter, r *http.R
 	usl, err := fmh.DB.GetAllUserStocks(uid, stockType, search, time.Now())
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.FailedToRetrieveEntityError, err)
 		return
 	}
 
@@ -272,8 +272,8 @@ func (fmh *FinanceManagerHandler) GetUserStocks(w http.ResponseWriter, r *http.R
 		s, err := fmh.DB.GetStockByTicker(us.Ticker)
 
 		if err != nil {
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
 			fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return
 		}
 
@@ -281,7 +281,7 @@ func (fmh *FinanceManagerHandler) GetUserStocks(w http.ResponseWriter, r *http.R
 	}
 
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, sl)
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 // GetStockHistory godoc
@@ -301,7 +301,7 @@ func (fmh *FinanceManagerHandler) GetUserStocks(w http.ResponseWriter, r *http.R
 // @Router 		/stocks [get]
 func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http.Request) {
 	method := "stocks_handler.GetStockHistory"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	tickers := r.URL.Query().Get("tickers")
 	hlStr := r.URL.Query().Get("histLength")
@@ -313,7 +313,7 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 	if tickers == "" {
 		err = errors.New("tickers param is required")
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, constants.GenericBadRequestErrorLog, err)
 		return
 	}
 
@@ -343,7 +343,7 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 
 		if err != nil {
 			fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return
 		}
 
@@ -390,7 +390,7 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 	}
 
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, rArr)
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 // GetStockHistory godoc
@@ -410,7 +410,7 @@ func (fmh *FinanceManagerHandler) GetStockHistory(w http.ResponseWriter, r *http
 // @Router 		/users/{userId}/stock-portfolio-history [get]
 func (fmh *FinanceManagerHandler) GetUserStockPortfolioHistory(w http.ResponseWriter, r *http.Request) {
 	method := "stocks_handler.GetUserStockPortfolioHistory"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var resp models.StockPortfolioHistoryResponse
 	var err error
@@ -421,8 +421,8 @@ func (fmh *FinanceManagerHandler) GetUserStockPortfolioHistory(w http.ResponseWr
 	hlStr := r.URL.Query().Get("histLength")
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when reading url parameters", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
@@ -469,10 +469,10 @@ func (fmh *FinanceManagerHandler) GetUserStockPortfolioHistory(w http.ResponseWr
 
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.GenericServerError), http.StatusInternalServerError)
-		fmlogger.ExitError(method, constants.GenericServerError, err)
+		klogger.ExitError(method, constants.GenericServerError, err)
 		return
 	}
 
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, resp)
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

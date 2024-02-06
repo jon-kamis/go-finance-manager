@@ -1,0 +1,3 @@
+klogger:
+  LogLevel: 1
+  LogFileLevel: 6

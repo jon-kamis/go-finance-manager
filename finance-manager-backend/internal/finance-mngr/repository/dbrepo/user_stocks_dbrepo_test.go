@@ -3,17 +3,17 @@ package dbrepo
 import (
 	"database/sql"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"testing"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestInsertUserStock(t *testing.T) {
 	method := "user_stocks_dbrepo_test.TestInsertUserStock"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	s := models.UserStock{
 		UserId:      1,
@@ -53,12 +53,12 @@ func TestInsertUserStock(t *testing.T) {
 
 	p.GormDB.Delete(sDb2)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetAllUserStocks(t *testing.T) {
 	method := "user_stocks_dbrepo_test.TestGetAllUserStocks"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	s1 := models.UserStock{
 		UserId:      1,
@@ -132,12 +132,12 @@ func TestGetAllUserStocks(t *testing.T) {
 	p.GormDB.Delete(s3)
 	p.GormDB.Delete(s4)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetAllUserStocksByDateRange(t *testing.T) {
 	method := "user_stocks_dbrepo_test.TestGetAllUserStocksByDateRange"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	s1 := models.UserStock{
 		ID:           17,
@@ -150,12 +150,12 @@ func TestGetAllUserStocksByDateRange(t *testing.T) {
 	}
 
 	s2 := models.UserStock{
-		ID:          18,
-		UserId:      1,
-		Type:        constants.UserStockTypeOwn,
-		Ticker:      "MSFT",
-		Quantity:    2,
-		EffectiveDt: time.Date(2024, 1, 4, 0, 0, 0, 0, time.Local),
+		ID:           18,
+		UserId:       1,
+		Type:         constants.UserStockTypeOwn,
+		Ticker:       "MSFT",
+		Quantity:     2,
+		EffectiveDt:  time.Date(2024, 1, 4, 0, 0, 0, 0, time.Local),
 		ExpirationDt: sql.NullTime{Time: time.Date(2024, 1, 7, 23, 59, 59, 999, time.Local), Valid: true},
 	}
 
@@ -199,12 +199,12 @@ func TestGetAllUserStocksByDateRange(t *testing.T) {
 	p.GormDB.Delete(&s2)
 	p.GormDB.Delete(&s3)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestUpdateUserStock(t *testing.T) {
 	method := "user_stocks_dbrepo_test.TestUpdateUserStock"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	s1 := models.UserStock{
 		ID:          27,
@@ -241,12 +241,12 @@ func TestUpdateUserStock(t *testing.T) {
 	//Cleanup Record
 	p.GormDB.Delete(&s1)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetUserStockByUserIdTickerAndDate(t *testing.T) {
 	method := "user_stocks_dbrepo_test.TestGetUserStockByUserIdTickerAndDate"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	s1 := models.UserStock{
 		ID:           37,
@@ -289,5 +289,5 @@ func TestGetUserStockByUserIdTickerAndDate(t *testing.T) {
 	p.GormDB.Delete(&s1)
 	p.GormDB.Delete(&s2)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

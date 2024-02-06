@@ -4,18 +4,18 @@ import (
 	"context"
 	"database/sql"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func (m *PostgresDBRepo) GetAllUserRoles(id int) ([]*models.UserRole, error) {
+	method := "userRoles_dbrepo.GetUserRoles"
+	klogger.Enter(method)
+
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-
-	method := "userRoles_dbrepo.GetUserRoles"
-	fmt.Println("[ENTER " + method + "]")
 
 	query := `select id, user_id, role_id, code, create_dt, last_update_dt
 		FROM user_roles
@@ -24,8 +24,7 @@ func (m *PostgresDBRepo) GetAllUserRoles(id int) ([]*models.UserRole, error) {
 	rows, err := m.DB.QueryContext(ctx, query, id)
 
 	if err != nil {
-		fmt.Printf("[%s] database call returned with error\n", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -45,23 +44,22 @@ func (m *PostgresDBRepo) GetAllUserRoles(id int) ([]*models.UserRole, error) {
 		)
 
 		if err != nil {
-			fmt.Printf("[%s] %s\n", method, "returned with error")
-			fmt.Println("[EXIT  " + method + "]")
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 		recordCount = recordCount + 1
 		userRoles = append(userRoles, &userRole)
 	}
 
-	fmt.Printf("[%s] loaded %d roles for user with id %d\n", method, recordCount, id)
+	klogger.Debug(method, "loaded %d roles for user with id %d", recordCount, id)
 
-	fmt.Println("[EXIT  " + method + "]")
+	klogger.Exit(method)
 	return userRoles, nil
 }
 
 func (m *PostgresDBRepo) GetUserRoleByID(id int) (models.UserRole, error) {
 	method := "userRoles_dbRepo.GetUserRoleById"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -84,23 +82,23 @@ func (m *PostgresDBRepo) GetUserRoleByID(id int) (models.UserRole, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmlogger.Info(method, constants.EntityNotFoundError)
-			fmlogger.Exit(method)
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return userRole, nil
 		} else {
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return userRole, err
 		}
 
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return userRole, nil
 }
 
 func (m *PostgresDBRepo) GetUserRoleByRoleIDAndUserID(rId int, uId int) (models.UserRole, error) {
 	method := "userRoles_dbRepo.GetUserRoleByRoleId"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -125,26 +123,26 @@ func (m *PostgresDBRepo) GetUserRoleByRoleIDAndUserID(rId int, uId int) (models.
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmlogger.Info(method, constants.EntityNotFoundError)
-			fmlogger.Exit(method)
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return userRole, nil
 		} else {
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return userRole, err
 		}
 
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return userRole, nil
 }
 
 func (m *PostgresDBRepo) InsertUserRole(userRole models.UserRole) (int, error) {
+	method := "userRoles_dbrepo.InsertUserRole"
+	klogger.Enter(method)
+
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-
-	method := "userRoles_dbrepo.InsertUserRole"
-	fmt.Printf("[ENTER %s]", method)
 
 	stmt :=
 		`INSERT INTO user_roles 
@@ -162,18 +160,17 @@ func (m *PostgresDBRepo) InsertUserRole(userRole models.UserRole) (int, error) {
 	).Scan(&id)
 
 	if err != nil {
-		fmt.Printf("[%s] error when attempting to save new user role\n", method)
-		fmt.Printf("[EXIT %s]", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return -1, err
 	}
 
-	fmt.Printf("[EXIT %s]", method)
+	klogger.Enter(method)
 	return id, nil
 }
 
 func (m *PostgresDBRepo) DeleteUserRolesByUserID(id int) error {
 	method := "userRoles_dbRepo.DeleteUserRolesByUserID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -187,17 +184,17 @@ func (m *PostgresDBRepo) DeleteUserRolesByUserID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "database call returned with error", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) DeleteUserRoleByID(id int) error {
 	method := "userRoles_dbRepo.DeleteUserRoleByID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -211,17 +208,17 @@ func (m *PostgresDBRepo) DeleteUserRoleByID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "database call returned with error", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) DeleteUserRoleByRoleID(id int) error {
 	method := "userRoles_dbRepo.DeleteUserRoleByRoleID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -235,10 +232,10 @@ func (m *PostgresDBRepo) DeleteUserRoleByRoleID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "database call returned with error", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

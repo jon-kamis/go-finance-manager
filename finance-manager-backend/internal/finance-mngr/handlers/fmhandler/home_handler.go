@@ -1,10 +1,11 @@
 package fmhandler
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models/restmodels"
 	"html/template"
 	"net/http"
+
+	"github.com/jon-kamis/klogger"
 )
 
 // Home godoc
@@ -19,7 +20,7 @@ import (
 func (fmh *FinanceManagerHandler) Home(w http.ResponseWriter, r *http.Request) {
 
 	method := "home_handler.Home"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	tmpl := template.Must(template.ParseFiles("./web/template/home.html"))
 
@@ -36,5 +37,5 @@ func (fmh *FinanceManagerHandler) Home(w http.ResponseWriter, r *http.Request) {
 		ApiInfo: apiInfo,
 		Port:    fmh.ApiPort,
 	})
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

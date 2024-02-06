@@ -3,12 +3,12 @@ package fmhandler
 import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jon-kamis/klogger"
 )
 
 // SaveCreditcard godoc
@@ -27,7 +27,7 @@ import (
 // @Router 		/users/{userId}/credit-cards [post]
 func (fmh *FinanceManagerHandler) SaveCreditCard(w http.ResponseWriter, r *http.Request) {
 	method := "creditcard_handler.SaveCreditCard"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var payload models.CreditCard
 
@@ -35,7 +35,7 @@ func (fmh *FinanceManagerHandler) SaveCreditCard(w http.ResponseWriter, r *http.
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "user is not authorized to view other user data", err)
+		klogger.ExitError(method, "user is not authorized to view other user data: %v", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
@@ -44,7 +44,7 @@ func (fmh *FinanceManagerHandler) SaveCreditCard(w http.ResponseWriter, r *http.
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmlogger.ExitError(method, "failed to parse json payload", err)
+		klogger.ExitError(method, "failed to parse json payload: %v", err)
 		return
 	}
 
@@ -53,18 +53,18 @@ func (fmh *FinanceManagerHandler) SaveCreditCard(w http.ResponseWriter, r *http.
 	err = payload.ValidateCanSaveCreditCard()
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmlogger.ExitError(method, "credit card request is not valid", err)
+		klogger.ExitError(method, "credit card request is not valid: %v", err)
 		return
 	}
 
 	_, err = fmh.DB.InsertCreditCard(payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmlogger.ExitError(method, "unexpected error occured when inserting credit card", err)
+		klogger.ExitError(method, "unexpected error occured when inserting credit card: %v", err)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, "success")
 }
 
@@ -84,14 +84,14 @@ func (fmh *FinanceManagerHandler) SaveCreditCard(w http.ResponseWriter, r *http.
 // @Router 		/users/{userId}/credit-cards [get]
 func (fmh *FinanceManagerHandler) GetAllUserCreditCards(w http.ResponseWriter, r *http.Request) {
 	method := "creditcard_handler.GetAllUserCreditCards"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	search := r.URL.Query().Get("search")
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching credit cards", err)
+		klogger.ExitError(method, "unexpected error occured when fetching credit cards: %v", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
@@ -104,12 +104,12 @@ func (fmh *FinanceManagerHandler) GetAllUserCreditCards(w http.ResponseWriter, r
 	}
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching credit cards", err)
+		klogger.ExitError(method, "unexpected error occured when fetching credit cards: %v", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, ccs)
 }
 
@@ -129,20 +129,20 @@ func (fmh *FinanceManagerHandler) GetAllUserCreditCards(w http.ResponseWriter, r
 // @Router 		/users/{userId}/credit-cards/{ccId} [get]
 func (fmh *FinanceManagerHandler) GetCreditCardById(w http.ResponseWriter, r *http.Request) {
 	method := "creditcard_handler.GetCreditCardById"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	ccId, err1 := strconv.Atoi(chi.URLParam(r, "ccId"))
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.FailedToReadUserIdFromAuthHeaderError, err)
+		klogger.ExitError(method, constants.ProcessUserIdError, err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
 
 	if err1 != nil {
-		fmlogger.ExitError(method, "error occured when processing credit card id", err1)
+		klogger.ExitError(method, constants.ProcessIdError, err1)
 		fmh.JSONUtil.ErrorJSON(w, err1, http.StatusBadRequest)
 		return
 	}
@@ -151,14 +151,14 @@ func (fmh *FinanceManagerHandler) GetCreditCardById(w http.ResponseWriter, r *ht
 
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
 	if cc.ID == 0 {
 		err = errors.New(constants.EntityNotFoundError)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
-		fmlogger.ExitError(method, constants.EntityNotFoundError, err)
+		klogger.ExitError(method, constants.EntityNotFoundError, err)
 		return
 	}
 
@@ -166,14 +166,14 @@ func (fmh *FinanceManagerHandler) GetCreditCardById(w http.ResponseWriter, r *ht
 
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
-		fmlogger.ExitError(method, constants.UserForbiddenToViewOtherUserDataError, err)
+		klogger.ExitError(method, constants.UserForbiddenToViewOtherUserDataError, err)
 		return
 	}
 
 	//Calculate Payment
 	cc.CalcPayment()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, cc)
 }
 
@@ -193,19 +193,19 @@ func (fmh *FinanceManagerHandler) GetCreditCardById(w http.ResponseWriter, r *ht
 // @Router 		/users/{userId}/credit-cards/{ccId} [delete]
 func (fmh *FinanceManagerHandler) DeleteCreditCardById(w http.ResponseWriter, r *http.Request) {
 	method := "creditcard_handler.DeleteCreditCardById"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	_, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	ccId, err1 := strconv.Atoi(chi.URLParam(r, "ccId"))
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when processing user id", err)
+		klogger.ExitError(method, constants.ProcessUserIdError, err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
 
 	if err1 != nil {
-		fmlogger.ExitError(method, "unexpected error occured when processing credit card id", err)
+		klogger.ExitError(method, constants.ProcessIdError, err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
 		return
 	}
@@ -214,7 +214,7 @@ func (fmh *FinanceManagerHandler) DeleteCreditCardById(w http.ResponseWriter, r 
 	cc, err := fmh.DB.GetCreditCardByID(ccId)
 	if err != nil || cc.ID == 0 {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
-		fmlogger.ExitError(method, "credit card does not exist", err)
+		klogger.ExitError(method, "credit card does not exist", err)
 		return
 	}
 
@@ -222,8 +222,8 @@ func (fmh *FinanceManagerHandler) DeleteCreditCardById(w http.ResponseWriter, r 
 	loggedInUserId, err := fmh.Auth.GetLoggedInUserId(w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when retrieving logged in userId from HTTP Header", err)
-		fmh.JSONUtil.ErrorJSON(w, errors.New("an unexpected error has occured"), http.StatusInternalServerError)
+		klogger.ExitError(method, constants.FailedToReadUserIdFromAuthHeaderError, err)
+		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.GenericServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -231,7 +231,7 @@ func (fmh *FinanceManagerHandler) DeleteCreditCardById(w http.ResponseWriter, r 
 	err = fmh.Validator.CreditCardBelongsToUser(cc, loggedInUserId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
-		fmlogger.ExitError(method, "credit card does not belong to logged in user", err)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
@@ -239,11 +239,11 @@ func (fmh *FinanceManagerHandler) DeleteCreditCardById(w http.ResponseWriter, r 
 	err = fmh.DB.DeleteCreditCardsByID(ccId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmlogger.ExitError(method, "failed to delete credit card", err)
+		klogger.ExitError(method, constants.FailedToDeleteEntityError, err)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
 }
 
@@ -263,20 +263,20 @@ func (fmh *FinanceManagerHandler) DeleteCreditCardById(w http.ResponseWriter, r 
 // @Router 		/users/{userId}/credit-cards/{ccId} [put]
 func (fmh *FinanceManagerHandler) UpdateCreditCard(w http.ResponseWriter, r *http.Request) {
 	method := "creditcard_handler.UpdateCreditCard"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var payload models.CreditCard
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	ccId, err1 := strconv.Atoi(chi.URLParam(r, "ccId"))
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.UserForbiddenToViewOtherUserDataError, err)
+		klogger.ExitError(method, constants.UserForbiddenToViewOtherUserDataError, err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
 
 	if err1 != nil {
-		fmlogger.ExitError(method, "unexpected error occured when processing credit card id", err)
+		klogger.ExitError(method, "unexpected error occured when processing credit card id", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
 		return
 	}
@@ -285,7 +285,7 @@ func (fmh *FinanceManagerHandler) UpdateCreditCard(w http.ResponseWriter, r *htt
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmlogger.ExitError(method, "failed to parse JSON object", err)
+		klogger.ExitError(method, "failed to parse JSON object", err)
 		return
 	}
 
@@ -293,7 +293,7 @@ func (fmh *FinanceManagerHandler) UpdateCreditCard(w http.ResponseWriter, r *htt
 	cc, err := fmh.DB.GetCreditCardByID(ccId)
 	if err != nil || cc.ID == 0 {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
-		fmlogger.ExitError(method, "credit card does not exist", err)
+		klogger.ExitError(method, constants.EntityNotFoundError, err)
 		return
 	}
 
@@ -301,7 +301,7 @@ func (fmh *FinanceManagerHandler) UpdateCreditCard(w http.ResponseWriter, r *htt
 	err = fmh.Validator.CreditCardBelongsToUser(cc, userId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.EntityNotFoundError), http.StatusNotFound)
-		fmlogger.ExitError(method, "credit card does not belong to logged in user", err)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
@@ -312,10 +312,10 @@ func (fmh *FinanceManagerHandler) UpdateCreditCard(w http.ResponseWriter, r *htt
 	err = fmh.DB.UpdateCreditCard(payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmlogger.ExitError(method, "failed to update credit card", err)
+		klogger.ExitError(method, constants.FailedToUpdateEntityError, err)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
 }

@@ -2,10 +2,13 @@ package authentication
 
 import (
 	"finance-manager-backend/internal/finance-mngr/config"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
+	"finance-manager-backend/test/logtest"
+	"os"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 var testAppConfig = config.GetDefaultConfig()
@@ -27,9 +30,22 @@ var usr = JwtUser{
 	Roles:     "admin",
 }
 
+func TestMain(m *testing.M) {
+	logtest.SetKloggerTestFileNameEnv()
+
+	method := "auth_test.TestMain"
+	klogger.Enter(method)
+
+	//Execute Code
+	code := m.Run()
+
+	klogger.Exit(method)
+	os.Exit(code)
+}
+
 func TestGenerateTokenPairAndParseAndVerifyToken(t *testing.T) {
 	method := "auth_test.TestGenerateTokenPair"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	tokenPairs, err := auth.GenerateTokenPair(&usr)
 
@@ -57,5 +73,5 @@ func TestGenerateTokenPairAndParseAndVerifyToken(t *testing.T) {
 		t.Errorf("decoded claims subject does not match original value")
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

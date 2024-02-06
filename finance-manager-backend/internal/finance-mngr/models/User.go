@@ -2,9 +2,9 @@ package models
 
 import (
 	"errors"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -21,20 +21,20 @@ type User struct {
 
 func (u *User) PasswordMatches(plainText string) (bool, error) {
 	method := "User.PasswordMatches"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plainText))
 	if err != nil {
 		switch {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
-			fmlogger.ExitError(method, "invalid password", err)
+			klogger.ExitError(method, "invalid password")
 			return false, nil
 		default:
-			fmlogger.ExitError(method, "unexpected error", err)
+			klogger.ExitError(method, "unexpected error")
 			return false, err
 		}
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return true, nil
 }

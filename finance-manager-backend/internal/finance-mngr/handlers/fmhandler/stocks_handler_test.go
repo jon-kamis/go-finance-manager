@@ -3,19 +3,19 @@ package fmhandler
 import (
 	"encoding/json"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/test"
 	"net/http"
 	"testing"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetUserStocks_200(t *testing.T) {
 	method := "stocks_handler_test.TestGetUserSTocks"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	token := test.GetUserJWTWithId(t, 3)
 	var resp []models.Stock
@@ -35,19 +35,19 @@ func TestGetUserStocks_200(t *testing.T) {
 
 	teardownStockHandlertestData()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetUserStocks_403(t *testing.T) {
 	method := "stocks_handler_test.TestGetUserSTocks"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	token := test.GetUserJWTWithId(t, 3)
 
 	writer := MakeRequest(http.MethodGet, "/users/2/stocks", nil, true, token)
 	assert.Equal(t, http.StatusForbidden, writer.Code)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func setupStockHandlerTestData() {

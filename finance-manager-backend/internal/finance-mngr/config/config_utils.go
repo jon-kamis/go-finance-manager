@@ -2,10 +2,10 @@ package config
 
 import (
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"fmt"
 	"os"
 
+	"github.com/jon-kamis/klogger"
 	"gopkg.in/yaml.v3"
 )
 
@@ -24,34 +24,30 @@ type propData struct {
 // returns the default value associated with an Env_value object
 func GetEnvFromEnvValue(env Env_value) string {
 	method := "config_utils.GetEnvFromEnvValue"
-	fmlogger.Enter(method)
-
+	klogger.Trace(method, constants.EnterLog)
 	value := os.Getenv(env.envName)
+	
 	if value == "" {
 		pwd, _ := os.Getwd()
 		propFile, err := os.ReadFile(pwd + constants.PropertyFileName)
 
-		if err != nil {
-			fmlogger.Info(method, "property file not found")
-		} else {
+		if err == nil {
 			var props propData
 			err = yaml.Unmarshal(propFile, &props)
 
 			if err != nil {
-				fmlogger.Info(method, "error Reading property file")
+				klogger.Error(method, "error Reading property file")
 			} else if props.Config[env.envName] != "" {
-				fmlogger.Info(method, "loaded value from properties file for %s", env.envName)
-				fmlogger.Exit(method)
-				return fmt.Sprintf("%v",props.Config[env.envName])
+				klogger.Trace(method, "loaded property file value for property: %s", env.envName)
+				return fmt.Sprintf("%v", props.Config[env.envName])
 			}
 		}
 
-		fmlogger.Info(method, "using fallback value for environment variable %s", env.envName)
-		fmlogger.Exit(method)
+		klogger.Trace(method, "used default value for property: %s", env.envName)
+		klogger.Trace(method, constants.ExitLog)
 		return env.defaultVal
 	}
-	
-	fmlogger.Info(method, "loaded environment value for %s\n", env.envName)
-	fmlogger.Exit(method)
+	klogger.Trace(method, "loaded env value for property: %s", env.envName)
+	klogger.Trace(method, constants.ExitLog)
 	return value
 }

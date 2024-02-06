@@ -1,10 +1,11 @@
 package models
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"math"
 	"sort"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 const expenseType = "expense"
@@ -57,17 +58,17 @@ type Summary struct {
 
 func (e *ExpenseSummary) CalculateExpenses() {
 	method := "Summary.CalculateExpenses"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	e.TotalCost = e.LoanCost + e.Taxes + e.BillCost + e.CreditCardCost
 	e.TotalBalance = e.LoanBalance + e.CreditCardBalance
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func (s *Summary) Finalize() {
 	method := "Summary.Finalize"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	s.NetFunds = s.IncomeSummary.TotalIncome - s.ExpenseSummary.TotalCost
 
@@ -81,12 +82,12 @@ func (s *Summary) Finalize() {
 		return s.IncomeSummary.Incomes[i].Amount > s.IncomeSummary.Incomes[j].Amount
 	})
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func (s *Summary) LoadLoans(larr []*Loan) {
 	method := "Summary.loadLoans"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	loanBalance := 0.0
 	loanCost := 0.0
@@ -112,12 +113,12 @@ func (s *Summary) LoadLoans(larr []*Loan) {
 	s.ExpenseSummary.LoanCost = loanCost
 	s.ExpenseSummary.CalculateExpenses()
 
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 }
 
 func (s *Summary) LoadIncomes(iarr []*Income) {
 	method := "Summary.LoadIncomes"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	totalIncome := 0.0
 	taxes := 0.0
@@ -155,12 +156,12 @@ func (s *Summary) LoadIncomes(iarr []*Income) {
 	s.ExpenseSummary.Taxes = taxes
 	s.ExpenseSummary.CalculateExpenses()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func (s *Summary) LoadBills(barr []*Bill) {
 	method := "Summary.LoadBills"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	totalCost := 0.0
 
@@ -184,12 +185,12 @@ func (s *Summary) LoadBills(barr []*Bill) {
 	//Recalculate total cost
 	s.ExpenseSummary.CalculateExpenses()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func (s *Summary) LoadCreditCards(carr []*CreditCard) {
 	method := "Summary.LoadCreditCards"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	tcost := 0.0
 	tbalance := 0.0
@@ -235,5 +236,5 @@ func (s *Summary) LoadCreditCards(carr []*CreditCard) {
 	//Recalculate total cost
 	s.ExpenseSummary.CalculateExpenses()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

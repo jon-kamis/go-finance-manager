@@ -2,18 +2,20 @@ package validation
 
 import (
 	"errors"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/models"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func (fmv *FinanceManagerValidator) UserRoleExistsAndBelongsToUser(roleId int, userId int) error {
 	method := "userroles_validation.UserRoleExistsAndBelongsToUser"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	userRole, err := fmv.DB.GetUserRoleByRoleIDAndUserID(roleId, userId)
 
 	if err != nil {
-		fmlogger.ExitError(method, "database call returned with unexpected error", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
@@ -24,31 +26,30 @@ func (fmv *FinanceManagerValidator) UserRoleExistsAndBelongsToUser(roleId int, u
 		err = fmv.UserRoleBelongsToUser(userRole, userId)
 
 		if err != nil {
-			fmlogger.ExitError(method, "user role does not belong to user", err)
+			klogger.ExitError(method, "user role does not belong to user")
 			return err
 		}
 
 	} else {
 		err = errors.New("userRole does not exist")
-		fmlogger.ExitError(method, "userRole does not exist", err)
+		klogger.ExitError(method, "userRole does not exist")
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 
 }
 
 func (fmv *FinanceManagerValidator) UserRoleBelongsToUser(userRole models.UserRole, userId int) error {
 	method := "userroles_validation.UserRoleBelongsToUser"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	if userRole.ID == 0 || userRole.UserId == 0 || userId == 0 || userRole.UserId != userId {
-		err := errors.New("user role does not belong to the user requesting it")
-		fmlogger.ExitError(method, "user role does not belong to the user requesting it", err)
+		klogger.ExitError(method, "user role does not belong to the user requesting it")
 		return errors.New("forbidden")
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

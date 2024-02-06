@@ -4,18 +4,18 @@ import (
 	"database/sql"
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/enums/stockoperation"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/internal/finance-mngr/models/restmodels"
 	"testing"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestLoadPriorUserStockForTransaction(t *testing.T) {
 	method := "user_stock_service_test.TestLoadPriorUserStockForTransaction"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	createTestLoadPriorUserStockForTransactionData()
 
@@ -35,7 +35,7 @@ func TestLoadPriorUserStockForTransaction(t *testing.T) {
 	err := fms.LoadPriorUserStockForTransaction(r, &p, &u)
 	assert.Nil(t, err)
 
-	assert.Equal(t, d.Add(-1 * time.Millisecond), p.ExpirationDt.Time)
+	assert.Equal(t, d.Add(-1*time.Millisecond), p.ExpirationDt.Time)
 	assert.Equal(t, time.Date(2024, 1, 13, 23, 59, 59, 0, time.Local), u.ExpirationDt.Time)
 	assert.Equal(t, 15.0, u.Quantity)
 
@@ -44,7 +44,7 @@ func TestLoadPriorUserStockForTransaction(t *testing.T) {
 	err = fms.LoadPriorUserStockForTransaction(r, &p, &u)
 	assert.Nil(t, err)
 
-	assert.Equal(t, d.Add(-1 * time.Millisecond), p.ExpirationDt.Time)
+	assert.Equal(t, d.Add(-1*time.Millisecond), p.ExpirationDt.Time)
 	assert.Equal(t, time.Date(2024, 1, 13, 23, 59, 59, 0, time.Local), u.ExpirationDt.Time)
 	assert.Equal(t, 5.0, u.Quantity)
 
@@ -72,7 +72,7 @@ func TestLoadPriorUserStockForTransaction(t *testing.T) {
 
 	tearDownTestLoadPriorUserStockForTransactionData()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func createTestLoadPriorUserStockForTransactionData() {

@@ -1,15 +1,15 @@
 package models
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"testing"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateCanSaveCreditCard(t *testing.T) {
 	method := "creditcard_test.TestValidateCanSaveCreditCard"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Valid Case
 	cc := CreditCard{
@@ -32,7 +32,7 @@ func TestValidateCanSaveCreditCard(t *testing.T) {
 		t.Errorf("[%s] expected error for invalid credit card but none was thrown", err)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestCalcPayment(t *testing.T) {

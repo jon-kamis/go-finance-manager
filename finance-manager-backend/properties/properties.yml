@@ -1,2 +1,4 @@
 config:
   DSN: "host=192.168.1.86 port=5432 user=postgres password=postgres dbname=financemanager sslmode=disable timezone=UTC connect_timeout=5"
+logger:
+  logFile: "/logs/application.log"

@@ -1,11 +1,11 @@
 package test
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"fmt"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -17,9 +17,9 @@ var UserRole = models.Role{ID: 2, Code: "user", CreateDt: time.Now(), LastUpdate
 
 func GetGormDB(port string) *gorm.DB {
 	method := "dockerdb.GetGormDB"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
-	fmlogger.Info(method, "attemting to connect to DB via GORM")
+	klogger.Info(method, "attemting to connect to DB via GORM")
 	config := GetDefaultConfig()
 	dsn := fmt.Sprintf("postgres://%s:%s@localhost:%s/%s", config.DB_username, config.DB_password, port, config.DB_name)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -28,18 +28,18 @@ func GetGormDB(port string) *gorm.DB {
 		panic("failed to connect to db")
 	}
 
-	fmlogger.Info(method, "successfully connected to DB")
+	klogger.Info(method, "successfully connected to DB")
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return db
 }
 
 func InitTables(db *gorm.DB) {
 	method := "dockerdb.InitTables"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Init Tables
-	fmlogger.Info(method, "initializing tables")
+	klogger.Info(method, "initializing tables")
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Role{})
 	db.AutoMigrate(&models.UserRole{})
@@ -48,46 +48,46 @@ func InitTables(db *gorm.DB) {
 	db.AutoMigrate(&models.Stock{})
 	db.AutoMigrate(&models.UserStock{})
 	db.AutoMigrate(&models.StockData{})
-	fmlogger.Info(method, "tables initialized")
+	klogger.Info(method, "tables initialized")
 
 	//Seed Data
-	fmlogger.Info(method, "seeding data")
+	klogger.Info(method, "seeding data")
 	seedUsers(db)
 	seedRoles(db)
 	seedUserRoles(db)
-	fmlogger.Info(method, "data seeded")
+	klogger.Info(method, "data seeded")
 
-	fmlogger.Info(method, "db initialization successful")
-	fmlogger.Exit(method)
+	klogger.Info(method, "db initialization successful")
+	klogger.Exit(method)
 }
 
 func seedUsers(db *gorm.DB) {
 	method := "dockerdb.seedUsers"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	db.Create(&TestingAdmin)
 	db.Create(&TestingUser)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func seedRoles(db *gorm.DB) {
 	method := "dockerdb.seedRoles"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	db.Create(&AdminRole)
 	db.Create(&UserRole)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func seedUserRoles(db *gorm.DB) {
 	method := "dockerdb.seedUserRoles"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	db.Create(&models.UserRole{ID: 1, UserId: TestingAdmin.ID, RoleId: 1, Code: "admin", CreateDt: time.Now(), LastUpdateDt: time.Now()})
 	db.Create(&models.UserRole{ID: 2, UserId: TestingAdmin.ID, RoleId: 2, Code: "user", CreateDt: time.Now(), LastUpdateDt: time.Now()})
 	db.Create(&models.UserRole{ID: 3, UserId: TestingUser.ID, RoleId: 2, Code: "user", CreateDt: time.Now(), LastUpdateDt: time.Now()})
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

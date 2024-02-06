@@ -1,18 +1,18 @@
 package fmhandler
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/test"
 	"net/http"
 	"testing"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetIsModuleEnabled(t *testing.T) {
 	method := "modules_handler_test.TestGetIsModuleEnabled"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	token := test.GetAdminJWT(t)
 
@@ -28,5 +28,5 @@ func TestGetIsModuleEnabled(t *testing.T) {
 	writer = MakeRequest(http.MethodGet, "/modules/something-that-does-not-exist", nil, true, token)
 	assert.Equal(t, http.StatusNotFound, writer.Code)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

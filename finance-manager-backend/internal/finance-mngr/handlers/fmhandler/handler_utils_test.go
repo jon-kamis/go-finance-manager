@@ -1,13 +1,14 @@
 package fmhandler
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"testing"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func TestInsertCreditCard(t *testing.T) {
 	method := "handler_utils_test.TestInsertCreditCard"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

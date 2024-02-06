@@ -4,16 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"strings"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func (m *PostgresDBRepo) GetAllUserCreditCards(userId int, search string) ([]*models.CreditCard, error) {
 	method := "creditcards.GetAllUserCreditCards"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -24,7 +24,7 @@ func (m *PostgresDBRepo) GetAllUserCreditCards(userId int, search string) ([]*mo
 
 	if search != "" {
 		search = strings.ToLower(search)
-		fmt.Printf("[%s] Searching for creditcards meeting criteria: %s\n", method, search)
+		klogger.Debug("Searching for creditcards meeting criteria: %s", search)
 		query = `
 		SELECT
 			id, user_id, name, balance, credit_limit, apr, min_pay, min_pay_percentage,
@@ -51,11 +51,11 @@ func (m *PostgresDBRepo) GetAllUserCreditCards(userId int, search string) ([]*mo
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmlogger.Info(method, constants.NoRowsReturnedMsg)
-			fmlogger.Exit(method)
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return creditcards, nil
 		} else {
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -79,7 +79,7 @@ func (m *PostgresDBRepo) GetAllUserCreditCards(userId int, search string) ([]*mo
 		)
 
 		if err != nil {
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -87,14 +87,14 @@ func (m *PostgresDBRepo) GetAllUserCreditCards(userId int, search string) ([]*mo
 		creditcards = append(creditcards, &cc)
 	}
 
-	fmt.Printf("[%s] retrieved %d records\n", method, recordCount)
-	fmlogger.Exit(method)
+	klogger.Debug(method, "retrieved %d records\n", recordCount)
+	klogger.Exit(method)
 	return creditcards, nil
 }
 
 func (m *PostgresDBRepo) GetCreditCardByID(id int) (models.CreditCard, error) {
 	method := "creditcards_dbrepo.GetCreditCardsByID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -125,22 +125,22 @@ func (m *PostgresDBRepo) GetCreditCardByID(id int) (models.CreditCard, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmlogger.Info(method, "entity with specified ID does not exist")
-			fmlogger.Exit(method)
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return cc, nil
 		} else {
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return cc, err
 		}
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return cc, nil
 }
 
 func (m *PostgresDBRepo) InsertCreditCard(cc models.CreditCard) (int, error) {
 	method := "creditcards_dbrepo.InsertCreditCard"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -165,17 +165,17 @@ func (m *PostgresDBRepo) InsertCreditCard(cc models.CreditCard) (int, error) {
 	).Scan(&id)
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return -1, err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return id, nil
 }
 
 func (m *PostgresDBRepo) DeleteCreditCardsByUserID(id int) error {
 	method := "creditcardss_dbrepo.DeleteCreditCardsByUserID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -189,17 +189,17 @@ func (m *PostgresDBRepo) DeleteCreditCardsByUserID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when deleting credit cards", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) DeleteCreditCardsByID(id int) error {
 	method := "creditcardss_dbrepo.DeleteCreditCardsByUserID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -213,17 +213,17 @@ func (m *PostgresDBRepo) DeleteCreditCardsByID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when deleting credit cards", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) UpdateCreditCard(cc models.CreditCard) error {
 	method := "creditcards_dbrepo.UpdateCreditCard"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -257,10 +257,10 @@ func (m *PostgresDBRepo) UpdateCreditCard(cc models.CreditCard) error {
 	)
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

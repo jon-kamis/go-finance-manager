@@ -3,16 +3,16 @@ package restmodels
 import (
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/enums/stockoperation"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"testing"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestIsValidRequest(t *testing.T) {
 	method := "ModifyStockRequest_test.TestIsValidRequest"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	r := ModifyStockRequest{
 		Ticker:    "AAPL",
@@ -60,5 +60,5 @@ func TestIsValidRequest(t *testing.T) {
 	assert.False(t, v)
 	assert.Equal(t, constants.StockOperationInvalidDateError, m)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

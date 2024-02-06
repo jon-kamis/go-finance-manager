@@ -3,9 +3,10 @@ package fmhandler
 import (
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 // Register godoc
@@ -22,8 +23,8 @@ import (
 // @Failure 	500 {object} jsonutils.JSONResponse
 // @Router 		/register [post]
 func (fmh *FinanceManagerHandler) Register(w http.ResponseWriter, r *http.Request) {
-	method := "login_handler.Register"
-	fmt.Printf("[ENTER %s]\n", method)
+	method := "register_handler.Register"
+	klogger.Enter(method)
 
 	var payload models.User
 
@@ -31,8 +32,7 @@ func (fmh *FinanceManagerHandler) Register(w http.ResponseWriter, r *http.Reques
 	err := fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err)
-		fmt.Printf("[%s] failed to read JSON payload", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
 		return
 	}
 
@@ -40,8 +40,7 @@ func (fmh *FinanceManagerHandler) Register(w http.ResponseWriter, r *http.Reques
 	err = fmh.Validator.IsValidToEnterNewUser(payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err)
-		fmt.Printf("[%s] %s", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.GenericUnprocessableEntityErrLog, err)
 		return
 	}
 
@@ -49,16 +48,14 @@ func (fmh *FinanceManagerHandler) Register(w http.ResponseWriter, r *http.Reques
 	role, err := fmh.DB.GetRoleByCode("user")
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err)
-		fmt.Printf("[%s] failed to load default role for new user\n", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
 	userId, err := fmh.DB.InsertUser(payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err)
-		fmt.Printf("[%s] failed to insert new user", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
@@ -73,11 +70,10 @@ func (fmh *FinanceManagerHandler) Register(w http.ResponseWriter, r *http.Reques
 	_, err = fmh.DB.InsertUserRole(userRole)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err)
-		fmt.Printf("[%s] failed to insert new userRole", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, constants.SuccessMessage)
 }

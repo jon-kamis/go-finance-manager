@@ -3,11 +3,13 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func (m *PostgresDBRepo) GetAllUserIncomes(userId int, search string) ([]*models.Income, error) {
@@ -15,7 +17,7 @@ func (m *PostgresDBRepo) GetAllUserIncomes(userId int, search string) ([]*models
 	defer cancel()
 
 	method := "incomes_dbrepo.GetAllUserIncomes"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	var query string
 	var err error
@@ -23,7 +25,7 @@ func (m *PostgresDBRepo) GetAllUserIncomes(userId int, search string) ([]*models
 
 	if search != "" {
 		search = strings.ToLower(search)
-		fmt.Printf("[%s] Searching for incomes meeting criteria: %s\n", method, search)
+		klogger.Debug(method, "searching for incomes meeting criteria: %s", search)
 		query = `
 		SELECT
 			id, user_id, name, type, rate, hours, amount, frequency, tax_percentage, start_dt,
@@ -52,8 +54,7 @@ func (m *PostgresDBRepo) GetAllUserIncomes(userId int, search string) ([]*models
 		if err == sql.ErrNoRows {
 			return incomes, nil
 		} else {
-			fmt.Printf("[%s] database call returned with error %s\n", method, err)
-			fmt.Printf("[EXIT %s]\n", method)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -79,8 +80,7 @@ func (m *PostgresDBRepo) GetAllUserIncomes(userId int, search string) ([]*models
 		)
 
 		if err != nil {
-			fmt.Printf("[%s] error occured when attempting to scan rows into objects\n", method)
-			fmt.Printf("[EXIT %s]\n", method)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -88,14 +88,14 @@ func (m *PostgresDBRepo) GetAllUserIncomes(userId int, search string) ([]*models
 		incomes = append(incomes, &income)
 	}
 
-	fmt.Printf("[%s] retrieved %d records\n", method, recordCount)
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Debug(method, "retrieved %d records\n", recordCount)
+	klogger.Exit(method)
 	return incomes, nil
 }
 
 func (m *PostgresDBRepo) GetIncomeByID(id int) (models.Income, error) {
 	method := "incomes_dbrepo.GetIncomeByID"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -130,20 +130,19 @@ func (m *PostgresDBRepo) GetIncomeByID(id int) (models.Income, error) {
 		if err == sql.ErrNoRows {
 			return income, nil
 		} else {
-			fmt.Printf("[%s] database call returned with error %s\n", method, err)
-			fmt.Printf("[EXIT %s]\n", method)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return income, err
 		}
 
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return income, nil
 }
 
 func (m *PostgresDBRepo) UpdateIncome(income models.Income) error {
 	method := "incomes_dbrepo.UpdateIncome"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -177,18 +176,17 @@ func (m *PostgresDBRepo) UpdateIncome(income models.Income) error {
 	)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when updating income\n", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) InsertIncome(income models.Income) (int, error) {
 	method := "incomes_dbrepo.InsertIncome"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -215,8 +213,7 @@ func (m *PostgresDBRepo) InsertIncome(income models.Income) (int, error) {
 	).Scan(&id)
 
 	if err != nil {
-		fmt.Printf("[%s] threw error %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return -1, err
 	}
 
@@ -226,7 +223,7 @@ func (m *PostgresDBRepo) InsertIncome(income models.Income) (int, error) {
 
 func (m *PostgresDBRepo) DeleteIncomeByID(id int) error {
 	method := "incomes_dbrepo.DeleteIncomeByID"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -240,18 +237,17 @@ func (m *PostgresDBRepo) DeleteIncomeByID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmt.Printf("[%s] database call returned with error %s\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) DeleteIncomesByUserID(id int) error {
 	method := "incomes_dbrepo.DeleteIncomesByUserID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -265,10 +261,9 @@ func (m *PostgresDBRepo) DeleteIncomesByUserID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "database call returned with error", err)
-		return err
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

@@ -1,15 +1,16 @@
 package validation
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/test"
 	"testing"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func TestCreditCardBelongsToUser(t *testing.T) {
 	method := "creditcards_validation_test.TestCreditCardBelongsToUser"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	userId := test.TestingAdmin.ID
 
@@ -48,6 +49,6 @@ func TestCreditCardBelongsToUser(t *testing.T) {
 		t.Errorf("unexpected error thrown for valid test case")
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 
 }
