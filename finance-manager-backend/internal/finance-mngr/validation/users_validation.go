@@ -3,49 +3,44 @@ package validation
 import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"slices"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func (fmv *FinanceManagerValidator) IsValidToEnterNewUser(user models.User) error {
 	method := "users_validation.isValidToEnterNewUser"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//validate required fields are present
 	if user.Username == "" {
 		errMsg := "username is required"
-		fmt.Printf("[%s] %s", method, errMsg)
-		fmlogger.Exit(method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if user.Email == "" {
 		errMsg := "email is required"
-		fmt.Printf("[%s] %s", method, errMsg)
-		fmlogger.Exit(method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if user.Password == "" {
 		errMsg := "password is required"
-		fmt.Printf("[%s] %s", method, errMsg)
-		fmlogger.Exit(method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if user.FirstName == "" {
 		errMsg := "first name is required"
-		fmt.Printf("[%s] %s", method, errMsg)
-		fmlogger.Exit(method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if user.LastName == "" {
 		errMsg := "last name is required"
-		fmt.Printf("[%s] %s", method, errMsg)
-		fmlogger.Exit(method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
@@ -53,59 +48,58 @@ func (fmv *FinanceManagerValidator) IsValidToEnterNewUser(user models.User) erro
 	u, err := fmv.DB.GetUserByUsernameOrEmail(user.Username, user.Email)
 
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, constants.GenericUnexpectedErrorLog, err)
 		return err
 	}
 
 	if u.ID > 0 {
 		err := errors.New(constants.UsernameOrEmailExistError)
-		fmlogger.ExitError(method, constants.UsernameOrEmailExistError, err)
+		klogger.ExitError(method, constants.UsernameOrEmailExistError)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (fmv *FinanceManagerValidator) IsValidToViewOtherUserData(loggedInUserId int) (bool, error) {
 	method := "users_validation.isValidToViewOtherUserData"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	valid, err := fmv.CheckIfUserHasRole(loggedInUserId, "admin")
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error retruned while checking if user possesed desired role", err)
+		klogger.ExitError(method, "unexpected error retruned while checking if user possesed desired role:\n%v", err)
 		return false, err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return valid, nil
 }
 
 func (fmv *FinanceManagerValidator) IsValidToDeleteOtherUserData(loggedInUserId int) (bool, error) {
 	method := "users_validation.IsValidToDeleteOtherUserData"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	valid, err := fmv.CheckIfUserHasRole(loggedInUserId, "admin")
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error retruned while checking if user possesed desired role", err)
+		klogger.ExitError(method, "unexpected error retruned while checking if user possesed desired role:\n%v", err)
 		return false, err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return valid, nil
 }
 
 func (fmv *FinanceManagerValidator) CheckIfUserHasRole(id int, desiredRole string) (bool, error) {
 	method := "users_validation.CheckIfUserHasRole"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	userRoles, err := fmv.DB.GetAllUserRoles(id)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching user roles\n", method)
-		fmlogger.Exit(method)
+		klogger.ExitError(method, constants.GenericUnexpectedErrorLog, err)
 		return false, err
 	}
 
@@ -114,6 +108,6 @@ func (fmv *FinanceManagerValidator) CheckIfUserHasRole(id int, desiredRole strin
 		userRoleCodes = append(userRoleCodes, userRole.Code)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return slices.Contains(userRoleCodes, desiredRole), nil
 }

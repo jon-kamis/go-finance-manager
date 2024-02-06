@@ -1,16 +1,16 @@
 package models
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"testing"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCalcDailyTotals(t *testing.T) {
 	method := "UserStockPortfolioSummary_test.TestCalcDailyTotals"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var sum UserStockPortfolioSummary
 	var pl []PortfolioPosition
@@ -35,12 +35,12 @@ func TestCalcDailyTotals(t *testing.T) {
 	sum.CalcDailyTotals()
 	assert.Equal(t, d2, sum.AsOfDate)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestLoadPositions(t *testing.T) {
 	method := "UserStockPortfolioSummary_test.TestLoadPositions"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var sum UserStockPortfolioSummary
 	var pl []PortfolioPosition
@@ -60,5 +60,5 @@ func TestLoadPositions(t *testing.T) {
 	//Assert positions were loaded
 	assert.Equal(t, 1, len(sum.Positions))
 
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 }

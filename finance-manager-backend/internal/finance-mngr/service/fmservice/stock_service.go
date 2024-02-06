@@ -3,10 +3,11 @@ package fmservice
 import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"sort"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 // Function GetUserPortfolioBalanceHistory fetches the Portfolio Balance History for a user for a given timeframe
@@ -14,7 +15,7 @@ import (
 // d - The number of past days to pull history for. Maximum is 365
 func (fms *FMService) GetUserPortfolioBalanceHistory(uId int, d int) ([]models.PortfolioBalanceHistory, error) {
 	method := "fm_stockservice.GetUserPortfolioBalanceHistory"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var hist []models.PortfolioBalanceHistory
 	var sd time.Time
@@ -24,13 +25,13 @@ func (fms *FMService) GetUserPortfolioBalanceHistory(uId int, d int) ([]models.P
 	//Validate passed values
 	if uId <= 0 {
 		err = errors.New("uId is required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return hist, err
 	}
 
 	if d < 1 || d > 365 {
 		err = errors.New("d must be between 1 and 365 inclusively")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return hist, err
 	}
 
@@ -40,14 +41,14 @@ func (fms *FMService) GetUserPortfolioBalanceHistory(uId int, d int) ([]models.P
 	usl, err := fms.DB.GetAllUserStocksByDateRange(uId, "", sd, ed)
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return hist, err
 	}
 
 	//No stocks exist
 	if len(usl) == 0 {
-		fmlogger.Info(method, "User has no stocks for this timeframe")
-		fmlogger.Exit(method)
+		klogger.Info(method, "User has no stocks for this timeframe")
+		klogger.Exit(method)
 		return hist, nil
 	}
 
@@ -74,7 +75,7 @@ func (fms *FMService) GetUserPortfolioBalanceHistory(uId int, d int) ([]models.P
 		sl, err := fms.DB.GetStockDataByTickerAndDateRange(us.Ticker, d1, d2)
 
 		if err != nil {
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return hist, err
 		}
 
@@ -121,6 +122,6 @@ func (fms *FMService) GetUserPortfolioBalanceHistory(uId int, d int) ([]models.P
 		hist = append(hist, histMap[key])
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return hist, nil
 }

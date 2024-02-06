@@ -2,6 +2,7 @@ package fmhandler
 
 import (
 	"errors"
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"fmt"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jon-kamis/klogger"
 )
 
 // GetAllUserIncomes godoc
@@ -27,25 +29,23 @@ import (
 // @Router 		/users/{userId}/incomes [get]
 func (fmh *FinanceManagerHandler) GetAllUserIncomes(w http.ResponseWriter, r *http.Request) {
 	method := "income_handler.GetAllUserIncomes"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	search := r.URL.Query().Get("search")
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching incomes: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
 	incomes, err := fmh.DB.GetAllUserIncomes(id, search)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching incomes: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching incomes"), http.StatusInternalServerError)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (fmh *FinanceManagerHandler) GetAllUserIncomes(w http.ResponseWriter, r *ht
 		i.PopulateEmptyValues(time.Now())
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, incomes)
 }
 
@@ -73,31 +73,34 @@ func (fmh *FinanceManagerHandler) GetAllUserIncomes(w http.ResponseWriter, r *ht
 // @Router 		/users/{userId}/incomes/{incomeId} [get]
 func (fmh *FinanceManagerHandler) GetIncomeById(w http.ResponseWriter, r *http.Request) {
 	method := "income_handler.GetIncomeById"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	incomeId, err1 := strconv.Atoi(chi.URLParam(r, "incomeId"))
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching income: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
 	if err1 != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching income: %v\n", method, err1)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err1, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.ProcessIdError, err)
 		return
 	}
 
 	income, err := fmh.DB.GetIncomeByID(incomeId)
-	if err != nil || income.ID == 0 {
-		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] failed to retrieve income", method)
-		fmt.Printf("[EXIT %s]\n", method)
+	if err != nil {
+		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
+		return
+	}
+
+	if income.ID == 0 {
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
+		klogger.ExitError(method, constants.EntityNotFoundError)
 		return
 	}
 
@@ -105,16 +108,14 @@ func (fmh *FinanceManagerHandler) GetIncomeById(w http.ResponseWriter, r *http.R
 
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
-		fmt.Printf("[%s] %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
 	err = income.PopulateEmptyValues(time.Now())
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.GenericUnprocessableEntityErrLog, err)
 		return
 	}
 
@@ -139,7 +140,7 @@ func (fmh *FinanceManagerHandler) GetIncomeById(w http.ResponseWriter, r *http.R
 // @Router 		/users/{userId}/incomes [post]
 func (fmh *FinanceManagerHandler) SaveIncome(w http.ResponseWriter, r *http.Request) {
 	method := "income_handler.SaveIncome"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	var payload models.Income
 
@@ -147,9 +148,8 @@ func (fmh *FinanceManagerHandler) SaveIncome(w http.ResponseWriter, r *http.Requ
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching loans: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
@@ -157,8 +157,7 @@ func (fmh *FinanceManagerHandler) SaveIncome(w http.ResponseWriter, r *http.Requ
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmt.Printf("[%s] failed to read JSON payload: %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
 		return
 	}
 
@@ -169,20 +168,18 @@ func (fmh *FinanceManagerHandler) SaveIncome(w http.ResponseWriter, r *http.Requ
 	err = payload.ValidateCanSaveIncome()
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmt.Printf("[%s] request is invalid: %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.GenericUnprocessableEntityErrLog, err)
 		return
 	}
 
 	_, err = fmh.DB.InsertIncome(payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmt.Printf("[%s] failed to insert income", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.FailedToSaveEntityError, err)
 		return
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, "new loan was saved successfully")
 }
 
@@ -204,41 +201,37 @@ func (fmh *FinanceManagerHandler) SaveIncome(w http.ResponseWriter, r *http.Requ
 // @Router 		/users/{userId}/incomes/{incomeId} [put]
 func (fmh *FinanceManagerHandler) UpdateIncome(w http.ResponseWriter, r *http.Request) {
 	method := "income_handler.UpdateIncome"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	var payload models.Income
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	incomeId, err1 := strconv.Atoi(chi.URLParam(r, "incomeId"))
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching income: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
 	if err1 != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching income: %v\n", method, err1)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err1, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.ProcessIdError, err)
 		return
 	}
 
-	// Read in loan from payload
+	// Read in income from payload
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
-		fmt.Printf("[%s] failed to parse JSON payload\n", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
 		return
 	}
 
-	// Validate that the loan exists
+	// Validate that the income exists
 	income, err := fmh.DB.GetIncomeByID(incomeId)
 	if err != nil || income.ID == 0 {
-		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] failed to retrieve income", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
+		klogger.ExitError(method, constants.EntityNotFoundError)
 		return
 	}
 
@@ -246,8 +239,7 @@ func (fmh *FinanceManagerHandler) UpdateIncome(w http.ResponseWriter, r *http.Re
 	err = fmh.Validator.IncomeBelongsToUser(income, userId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
@@ -261,12 +253,11 @@ func (fmh *FinanceManagerHandler) UpdateIncome(w http.ResponseWriter, r *http.Re
 	err = fmh.DB.UpdateIncome(payload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmt.Printf("[%s] %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, "Loan updated successfully")
 }
 
@@ -286,31 +277,28 @@ func (fmh *FinanceManagerHandler) UpdateIncome(w http.ResponseWriter, r *http.Re
 // @Router 		/users/{userId}/incomes/{incomeId} [delete]
 func (fmh *FinanceManagerHandler) DeleteIncomeById(w http.ResponseWriter, r *http.Request) {
 	method := "income_handler.DeleteIncomeById"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	userId, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 	incomeId, err1 := strconv.Atoi(chi.URLParam(r, "incomeId"))
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching income: %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.BillDoesNotBelongToUserError, err)
 		return
 	}
 
 	if err1 != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching income: %v\n", method, err1)
-		fmt.Printf("[EXIT %s]\n", method)
 		fmh.JSONUtil.ErrorJSON(w, err1, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.ProcessIdError, err)
 		return
 	}
 
 	// Validate that the loan exists
 	income, err := fmh.DB.GetIncomeByID(incomeId)
 	if err != nil || income.ID == 0 {
-		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] failed to retrieve income", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
+		klogger.ExitError(method, constants.EntityNotFoundError)
 		return
 	}
 
@@ -318,8 +306,7 @@ func (fmh *FinanceManagerHandler) DeleteIncomeById(w http.ResponseWriter, r *htt
 	err = fmh.Validator.IncomeBelongsToUser(income, userId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusUnprocessableEntity)
-		fmt.Printf("[%s] %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError)
 		return
 	}
 
@@ -327,11 +314,10 @@ func (fmh *FinanceManagerHandler) DeleteIncomeById(w http.ResponseWriter, r *htt
 	err = fmh.DB.DeleteIncomeByID(incomeId)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
-		fmt.Printf("[%s] %v", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.FailedToDeleteEntityError, err)
 		return
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, "Loan deleted successfully")
 }

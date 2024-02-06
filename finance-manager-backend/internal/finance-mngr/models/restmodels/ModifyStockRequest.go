@@ -3,8 +3,9 @@ package restmodels
 import (
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/enums/stockoperation"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 // Type ModifyStockRequest holds data for a PATCH modify stocks request
@@ -24,7 +25,7 @@ type ModifyStockRequest struct {
 
 func (m *ModifyStockRequest) IsValidRequest() (bool, string) {
 	method := "ModifyStockRequest.isValidRequest"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	isValid := true
 	var msg string
@@ -49,6 +50,6 @@ func (m *ModifyStockRequest) IsValidRequest() (bool, string) {
 		isValid = false
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return isValid, msg
 }

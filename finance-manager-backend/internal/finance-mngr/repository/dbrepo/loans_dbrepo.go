@@ -3,19 +3,20 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"strings"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func (m *PostgresDBRepo) GetAllUserLoans(userId int, search string) ([]*models.Loan, error) {
+	method := "loans_dbrepo.GetAllUserLoans"
+	klogger.Enter(method)
+
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-
-	method := "loans_dbrepo.GetAllUserLoans"
-	fmt.Printf("[ENTER %s]\n", method)
 
 	var query string
 	var err error
@@ -23,7 +24,7 @@ func (m *PostgresDBRepo) GetAllUserLoans(userId int, search string) ([]*models.L
 
 	if search != "" {
 		search = strings.ToLower(search)
-		fmt.Printf("[%s] Searching for loans meeting criteria: %s\n", method, search)
+		klogger.Debug(method, "searching for loans meeting criteria: %s", search)
 		query = `
 		SELECT
 			id, user_id, loan_name, total_balance, total_cost, total_principal, total_interest, monthly_payment, interest_rate, loan_term,
@@ -52,8 +53,7 @@ func (m *PostgresDBRepo) GetAllUserLoans(userId int, search string) ([]*models.L
 		if err == sql.ErrNoRows {
 			return loans, nil
 		} else {
-			fmt.Printf("[%s] database call returned with error %s\n", method, err)
-			fmt.Printf("[EXIT %s]\n", method)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -79,8 +79,7 @@ func (m *PostgresDBRepo) GetAllUserLoans(userId int, search string) ([]*models.L
 		)
 
 		if err != nil {
-			fmt.Printf("[%s] error occured when attempting to scan rows into objects\n", method)
-			fmt.Printf("[EXIT %s]\n", method)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -88,14 +87,14 @@ func (m *PostgresDBRepo) GetAllUserLoans(userId int, search string) ([]*models.L
 		loans = append(loans, &loan)
 	}
 
-	fmt.Printf("[%s] retrieved %d records\n", method, recordCount)
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Debug(method, "retrieved %d records\n", recordCount)
+	klogger.Exit(method)
 	return loans, nil
 }
 
 func (m *PostgresDBRepo) GetLoanByID(id int) (models.Loan, error) {
 	method := "loans_dbrepo.GetLoanByID"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -126,22 +125,23 @@ func (m *PostgresDBRepo) GetLoanByID(id int) (models.Loan, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return loan, nil
 		} else {
-			fmt.Printf("[%s] database call returned with error %s\n", method, err)
-			fmt.Printf("[EXIT %s]\n", method)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return loan, err
 		}
 
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return loan, nil
 }
 
 func (m *PostgresDBRepo) DeleteLoanByID(id int) error {
 	method := "loans_dbrepo.DeleteLoanByID"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -155,18 +155,17 @@ func (m *PostgresDBRepo) DeleteLoanByID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmt.Printf("[%s] database call returned with error %s\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) InsertLoan(loan models.Loan) (int, error) {
 	method := "loans_dbrepo.InsertLoan"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -193,18 +192,17 @@ func (m *PostgresDBRepo) InsertLoan(loan models.Loan) (int, error) {
 	).Scan(&id)
 
 	if err != nil {
-		fmt.Printf("[%s] threw error %v\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return -1, err
 	}
 
-	fmt.Println("[EXIT  " + method + "]")
+	klogger.Exit(method)
 	return id, nil
 }
 
 func (m *PostgresDBRepo) UpdateLoan(loan models.Loan) error {
 	method := "loans_dbrepo.UpdateLoan"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -238,18 +236,17 @@ func (m *PostgresDBRepo) UpdateLoan(loan models.Loan) error {
 	)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when updating loan\n", method)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) DeleteLoansByUserID(id int) error {
 	method := "loans_dbrepo.DeleteLoansByUserID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -263,10 +260,10 @@ func (m *PostgresDBRepo) DeleteLoansByUserID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "database call returned with error", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

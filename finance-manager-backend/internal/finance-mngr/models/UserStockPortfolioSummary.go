@@ -1,9 +1,10 @@
 package models
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"math"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 type UserStockPortfolioSummary struct {
@@ -55,7 +56,7 @@ type PositionHistory struct {
 // Calculates the daily totals for a portfolio. Expects Positions to be loaded
 func (u *UserStockPortfolioSummary) CalcDailyTotals() {
 	method := "UserStockPortfolioSummary.CalcDailyTotals"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var h float64   //high
 	var l float64   //low
@@ -83,16 +84,16 @@ func (u *UserStockPortfolioSummary) CalcDailyTotals() {
 	u.CurrentValue = math.Round(t*100) / 100
 	u.AsOfDate = d
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 // Loads Positions into the summary and triggers the calculation of daily total values
 func (u *UserStockPortfolioSummary) LoadPositions(p []PortfolioPosition) {
 	method := "UserStockPortfolioSummary.LoadPositions"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	u.Positions = p
 	u.CalcDailyTotals()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

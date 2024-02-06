@@ -1,16 +1,16 @@
 package dbrepo
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"testing"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestInsertStock(t *testing.T) {
 	method := "user_stocks_dbrepo_test.TestInsertStock"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	s := models.Stock{
 		Ticker: "TEST1",
@@ -35,11 +35,13 @@ func TestInsertStock(t *testing.T) {
 
 	//Clenaup
 	p.GormDB.Delete(sDb)
+
+	klogger.Exit(method)
 }
 
 func TestGetStockByTicker(t *testing.T) {
 	method := "user_stocks_dbrepo_test.TestGetStockByTicker"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	setupStocks()
 
@@ -54,8 +56,8 @@ func TestGetStockByTicker(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 0, sDb.ID)
 
-
 	tearDownStocks()
+	klogger.Exit(method)
 }
 
 func setupStocks() {

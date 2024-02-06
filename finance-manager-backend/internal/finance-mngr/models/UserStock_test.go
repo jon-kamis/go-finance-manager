@@ -1,15 +1,15 @@
 package models
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"testing"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateCanSaveUserStock(t *testing.T) {
 	method := "UserStock_test.TestValidateCanSaveUserStock"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	u := UserStock{
 		UserId:   1,
@@ -35,5 +35,5 @@ func TestValidateCanSaveUserStock(t *testing.T) {
 	err = ut.ValidateCanSaveUserStock()
 	assert.NotNil(t, err)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

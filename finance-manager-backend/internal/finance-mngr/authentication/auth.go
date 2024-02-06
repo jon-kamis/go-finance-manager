@@ -1,10 +1,9 @@
-//Package authentication contains files required to generate and parse JWT tokens in order to handle user security
+// Package authentication contains files required to generate and parse JWT tokens in order to handle user security
 package authentication
 
 import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -12,6 +11,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/jon-kamis/klogger"
 )
 
 // Type Auth contains details the application uses to generate and validate JWT Tokens and refresh tokens
@@ -127,7 +127,7 @@ func (j *Auth) GetExpiredRefreshCookie() *http.Cookie {
 // Function GetTokenFromHeaderAndVerify reads in a bearer token from an HTTP request and validates that the token is valid
 func (j *Auth) GetTokenFromHeaderAndVerify(w http.ResponseWriter, r *http.Request) (string, *Claims, error) {
 	method := "auth.GetTokenFromHeaderAndVerify"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	w.Header().Add("Vary", "Authorization")
 
@@ -145,14 +145,14 @@ func (j *Auth) GetTokenFromHeaderAndVerify(w http.ResponseWriter, r *http.Reques
 	headerParts := strings.Split(authHeader, " ")
 	if len(headerParts) != 2 {
 		err := errors.New(constants.InvalidAuthHeaderError)
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error(), err)
 		return "", nil, err
 	}
 
 	// check to see if we have the word Bearer
 	if headerParts[0] != "Bearer" {
 		err := errors.New(constants.InvalidAuthHeaderError)
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error(), err)
 		return "", nil, err
 	}
 
@@ -162,11 +162,11 @@ func (j *Auth) GetTokenFromHeaderAndVerify(w http.ResponseWriter, r *http.Reques
 	token, claims, err := j.ParseAndVerifyToken(token)
 
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error(), err)
 		return "", nil, err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return token, claims, nil
 
 }
@@ -175,7 +175,7 @@ func (j *Auth) GetTokenFromHeaderAndVerify(w http.ResponseWriter, r *http.Reques
 // This function also verifies that the issuer and expiration are valid
 func (j *Auth) ParseAndVerifyToken(token string) (string, *Claims, error) {
 	method := "auth.ParseAndVerifyToken"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	// decare an empty claims
 	claims := &Claims{}
@@ -183,7 +183,7 @@ func (j *Auth) ParseAndVerifyToken(token string) (string, *Claims, error) {
 	// parse the token
 	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			fmlogger.ExitError(method, constants.InvalidSigningMethodError, errors.New(constants.InvalidSigningMethodError))
+			klogger.ExitError(method, constants.InvalidSigningMethodError, errors.New(constants.InvalidSigningMethodError))
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(j.Secret), nil
@@ -191,43 +191,43 @@ func (j *Auth) ParseAndVerifyToken(token string) (string, *Claims, error) {
 
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "token is expired by") {
-			fmlogger.ExitError(method, constants.ExpiredTokenError, err)
+			klogger.ExitError(method, constants.ExpiredTokenError, err)
 			return "", nil, errors.New(constants.ExpiredTokenError)
 		}
 
-		fmlogger.ExitError(method, "unexpected error", err)
+		klogger.ExitError(method, "unexpected error", err)
 		return "", nil, err
 	}
 
 	if claims.Issuer != j.Issuer {
 		err := errors.New(constants.InvalidIssuerError)
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error(), err)
 		return "", nil, err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return token, claims, nil
 }
 
 // Function GetLoggedInUserId parses a JWT token and returns the subject claim, which is also the user's id
 func (j *Auth) GetLoggedInUserId(w http.ResponseWriter, r *http.Request) (int, error) {
 	method := "auth.GetLoggedInUserId"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//This also verifies that the token is valid
 	_, claims, err := j.GetTokenFromHeaderAndVerify(w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error fetching claims", err)
+		klogger.ExitError(method, "unexpected error fetching claims", err)
 		return -1, err
 	}
 
 	id, err := strconv.Atoi(claims.Subject)
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error decoding claims subject", err)
+		klogger.ExitError(method, "unexpected error decoding claims subject", err)
 		return -1, err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return id, nil
 }

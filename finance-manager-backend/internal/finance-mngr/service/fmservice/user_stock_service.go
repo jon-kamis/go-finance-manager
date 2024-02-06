@@ -5,15 +5,16 @@ import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/enums/stockoperation"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/internal/finance-mngr/models/restmodels"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func (fms *FMService) LoadPriorUserStockForTransaction(r restmodels.ModifyStockRequest, usp *models.UserStock, us *models.UserStock) error {
 	method := "stock_service.LoadPriorUserStockForTransaction"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var err error
 
@@ -21,7 +22,7 @@ func (fms *FMService) LoadPriorUserStockForTransaction(r restmodels.ModifyStockR
 	*usp, err = fms.DB.GetUserStockByUserIdTickerAndDate(us.UserId, r.Ticker, r.Date)
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
@@ -40,7 +41,7 @@ func (fms *FMService) LoadPriorUserStockForTransaction(r restmodels.ModifyStockR
 			if us.Quantity < 0 {
 				//Quantity cannot be reduced below 0
 				err := errors.New(constants.StockOperationBelowZeroError)
-				fmlogger.ExitError(method, err.Error(), err)
+				klogger.ExitError(method, err.Error())
 				return err
 			}
 		}
@@ -49,7 +50,7 @@ func (fms *FMService) LoadPriorUserStockForTransaction(r restmodels.ModifyStockR
 
 		if r.Operation == stockoperation.Remove {
 			err := errors.New(constants.StockOperationBelowZeroError)
-			fmlogger.ExitError(method, err.Error(), err)
+			klogger.ExitError(method, err.Error())
 			return err
 		}
 
@@ -57,6 +58,6 @@ func (fms *FMService) LoadPriorUserStockForTransaction(r restmodels.ModifyStockR
 
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

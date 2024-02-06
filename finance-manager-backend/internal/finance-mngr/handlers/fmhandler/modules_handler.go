@@ -3,11 +3,11 @@ package fmhandler
 import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jon-kamis/klogger"
 )
 
 // GetIsModuleEnabled godoc
@@ -23,7 +23,7 @@ import (
 // @Router 		/modules/{moduleName} [get]
 func (fmh *FinanceManagerHandler) GetIsModuleEnabled(w http.ResponseWriter, r *http.Request) {
 	method := "modules_handler.GetIsModuleEnabled"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	name := chi.URLParam(r, "moduleName")
 
@@ -36,12 +36,12 @@ func (fmh *FinanceManagerHandler) GetIsModuleEnabled(w http.ResponseWriter, r *h
 		//Requested module does not exist
 		err := errors.New(constants.GenericNotFoundError)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
-		fmlogger.ExitError(method, "module not found", err)
+		klogger.ExitError(method, constants.GenericNotFoundErrorLog, err)
 		return
 	}
 
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, re)
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 // PostModuleAPIKey godoc
@@ -58,14 +58,14 @@ func (fmh *FinanceManagerHandler) GetIsModuleEnabled(w http.ResponseWriter, r *h
 // @Router 		/modules/{moduleName}/key [post]
 func (fmh *FinanceManagerHandler) PostModuleAPIKey(w http.ResponseWriter, r *http.Request) {
 	method := "modules_handler.PostStocksAPIKey"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	uId, err := fmh.Auth.GetLoggedInUserId(w, r)
 
 	//uId must be loaded successfully to proceed
 	if err != nil {
-		fmlogger.ExitError(method, constants.FailedToReadUserIdFromAuthHeaderError, err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.FailedToReadUserIdFromAuthHeaderError), http.StatusInternalServerError)
+		klogger.ExitError(method, constants.FailedToReadUserIdFromAuthHeaderError, err)
 		return
 	}
 
@@ -73,16 +73,16 @@ func (fmh *FinanceManagerHandler) PostModuleAPIKey(w http.ResponseWriter, r *htt
 	hasRole, err := fmh.Validator.CheckIfUserHasRole(uId, "admin")
 
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.GenericUnexpectedErrorLog, err)
 		return
 	}
 
 	//User must be admin to proceed
 	if !hasRole {
 		err = errors.New(constants.GenericForbiddenError)
-		fmlogger.ExitError(method, err.Error(), err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
+		klogger.ExitError(method, err.Error())
 		return
 	}
 
@@ -91,8 +91,8 @@ func (fmh *FinanceManagerHandler) PostModuleAPIKey(w http.ResponseWriter, r *htt
 	// Read payload
 	err = fmh.JSONUtil.ReadJSON(w, r, &payload)
 	if err != nil {
-		fmlogger.ExitError(method, constants.GenericBadRequestError, err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.GenericBadRequestError), http.StatusBadRequest)
+		klogger.ExitError(method, constants.GenericBadRequestErrorLog, err)
 		return
 	}
 
@@ -103,18 +103,18 @@ func (fmh *FinanceManagerHandler) PostModuleAPIKey(w http.ResponseWriter, r *htt
 	case constants.StockModuleName:
 		err = fmh.ExternalService.UpdateAndPersistAPIKey(payload.Key)
 		if err != nil {
-			fmlogger.ExitError(method, constants.GenericServerError, err)
 			fmh.JSONUtil.ErrorJSON(w, errors.New(constants.GenericServerError), http.StatusInternalServerError)
+			klogger.ExitError(method, constants.GenericUnexpectedErrorLog, err)
 			return
 		}
 	default:
 		//Requested module does not exist
 		err := errors.New(constants.GenericNotFoundError)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusNotFound)
-		fmlogger.ExitError(method, "module not found", err)
+		klogger.ExitError(method, constants.GenericNotFoundErrorLog, err);
 		return
 	}
 
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, constants.SuccessMessage)
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

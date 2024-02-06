@@ -1,13 +1,14 @@
 package models
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"testing"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func TestValidateCanSaveBill(t *testing.T) {
 	method := "Bill_test.TestValidateCanSaveBill"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var b Bill
 
@@ -56,5 +57,5 @@ func TestValidateCanSaveBill(t *testing.T) {
 		t.Errorf("expected error to be thrown for empty userId amount but none was thrown")
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

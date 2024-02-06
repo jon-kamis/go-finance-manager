@@ -2,7 +2,6 @@ package fmhandler
 
 import (
 	"errors"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/test"
 	"fmt"
@@ -10,13 +9,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
 
 func TestGetAllUserCreditCards_200(t *testing.T) {
 	method := "creditcard_handler_test.TestGetAllUserCreditCards_200"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	setup()
 	token := test.GetAdminJWT(t)
@@ -26,12 +26,12 @@ func TestGetAllUserCreditCards_200(t *testing.T) {
 	assert.Equal(t, http.StatusOK, writer.Code)
 
 	tearDown()
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetAllUserCreditCards_403(t *testing.T) {
 	method := "creditcard_handler_test.TestGetAllUserCreditCards_403"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	token := test.GetUserJWT(t)
 
@@ -39,12 +39,12 @@ func TestGetAllUserCreditCards_403(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, writer.Code)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestSaveCreditCard_200(t *testing.T) {
 	method := "creditcard_handler_test.TestSaveCreditCard"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var ccDb models.CreditCard
 	cc := models.CreditCard{
@@ -72,12 +72,12 @@ func TestSaveCreditCard_200(t *testing.T) {
 	//Clear the DB
 	tearDown()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestSaveCreditCard_403(t *testing.T) {
 	method := "creditcard_handler_test.TestSaveCreditCard_403"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	cc := models.CreditCard{
 		UserID:               1,
@@ -95,12 +95,12 @@ func TestSaveCreditCard_403(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, writer.Code)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestSaveCreditCard_400(t *testing.T) {
 	method := "creditcard_handler_test.TestSaveCreditCard_400"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 	cc := models.CreditCard{
 		UserID:               0,
 		Name:                 "",
@@ -125,12 +125,12 @@ func TestSaveCreditCard_400(t *testing.T) {
 	writer = MakeRequest(http.MethodPost, "/users/1/credit-cards", cc, true, token)
 	assert.Equal(t, http.StatusBadRequest, writer.Code)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetCreditCardById_200(t *testing.T) {
 	method := "creditcard_handler_test.TestGetCreditCardById_200"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	setup()
 	token := test.GetUserJWT(t)
@@ -139,12 +139,12 @@ func TestGetCreditCardById_200(t *testing.T) {
 	assert.Equal(t, http.StatusOK, writer.Code)
 
 	tearDown()
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetCreditCardById_403(t *testing.T) {
 	method := "creditcard_handler_test.TestGetCreditCardById_403"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	setup()
 	token := test.GetUserJWT(t)
@@ -158,12 +158,12 @@ func TestGetCreditCardById_403(t *testing.T) {
 	assert.Equal(t, http.StatusForbidden, writer.Code)
 
 	tearDown()
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetCreditCardById_400(t *testing.T) {
 	method := "creditcard_handler_test.TestGetCreditCardById_403"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	setup()
 	token := test.GetUserJWT(t)
@@ -173,12 +173,12 @@ func TestGetCreditCardById_400(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, writer.Code)
 
 	tearDown()
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestGetCreditCardById_404(t *testing.T) {
 	method := "creditcard_handler_test.TestGetCreditCardById_422"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	setup()
 	token := test.GetUserJWT(t)
@@ -188,12 +188,12 @@ func TestGetCreditCardById_404(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, writer.Code)
 
 	tearDown()
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestDeleteCreditCardById_200(t *testing.T) {
 	method := "creditcard_handler_test.TestDeleteCreditCardById_200"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	setup()
 	token := test.GetAdminJWT(t)
@@ -210,12 +210,12 @@ func TestDeleteCreditCardById_200(t *testing.T) {
 
 	tearDown()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestDeleteCreditCardById_400(t *testing.T) {
 	method := "creditcard_handler_test.TestDeleteCreditCardById_400"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	setup()
 	token := test.GetAdminJWT(t)
@@ -225,12 +225,12 @@ func TestDeleteCreditCardById_400(t *testing.T) {
 
 	tearDown()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestDeleteCreditCardById_403(t *testing.T) {
 	method := "creditcard_handler_test.TestDeleteCreditCardById_404"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	setup()
 	uToken := test.GetUserJWT(t)
@@ -246,12 +246,12 @@ func TestDeleteCreditCardById_403(t *testing.T) {
 
 	tearDown()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestDeleteCreditCardById_404(t *testing.T) {
 	method := "creditcard_handler_test.TestDeleteCreditCardById_404"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	setup()
 	token := test.GetAdminJWT(t)
@@ -261,12 +261,12 @@ func TestDeleteCreditCardById_404(t *testing.T) {
 
 	tearDown()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func setup() {
 	method := "creditcard_handler_test.setup"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	cc1 := models.CreditCard{ID: 1, UserID: 1, Name: "cc1", Balance: 1000.0, APR: 0.26, MinPayment: 35.00, MinPaymentPercentage: 0.1, CreateDt: time.Now(), LastUpdateDt: time.Now()}
 	cc2 := models.CreditCard{ID: 2, UserID: 1, Name: "cc2", Balance: 1000.0, APR: 0.26, MinPayment: 35.00, MinPaymentPercentage: 0.1, CreateDt: time.Now(), LastUpdateDt: time.Now()}
@@ -275,24 +275,24 @@ func setup() {
 	p.GormDB.Create(&cc1)
 	p.GormDB.Create(&cc2)
 	p.GormDB.Create(&cc3)
-	fmlogger.Info(method, "Inserted credit card test data")
-	fmlogger.Exit(method)
+	klogger.Info(method, "Inserted credit card test data")
+	klogger.Exit(method)
 }
 
 func tearDown() {
 	method := "creditcard_handler_test.tearDown"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Clean Data
 	p.GormDB.Exec("DELETE FROM credit_cards")
 
-	fmlogger.Info(method, "Cleaned all credit card test data")
-	fmlogger.Exit(method)
+	klogger.Info(method, "Cleaned all credit card test data")
+	klogger.Exit(method)
 }
 
 func TestUpdateCreditCard_200(t *testing.T) {
 	method := "creditcard_handler_test.TestUpdateCreditCard_200"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	id := 67
 
@@ -323,12 +323,12 @@ func TestUpdateCreditCard_200(t *testing.T) {
 	//Clean up DB after test
 	p.GormDB.Delete(ccDb)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestUpdateCreditCard_403(t *testing.T) {
 	method := "creditcard_handler_test.TestUpdateCreditCard_403"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	id := 68
 
@@ -349,12 +349,12 @@ func TestUpdateCreditCard_403(t *testing.T) {
 	writer := MakeRequest(http.MethodPut, fmt.Sprintf("/users/1/credit-cards/%d", id), cc, true, token)
 	assert.Equal(t, http.StatusForbidden, writer.Code)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestUpdateCreditCard_400(t *testing.T) {
 	method := "creditcard_handler_test.TestUpdateCreditCard_400"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	cc := models.CreditCard{
 		UserID:               1,
@@ -372,12 +372,12 @@ func TestUpdateCreditCard_400(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, writer.Code)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestUpdateCreditCard_404(t *testing.T) {
 	method := "creditcard_handler_test.TestUpdateCreditCard_404"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	id := 69
 
@@ -406,5 +406,5 @@ func TestUpdateCreditCard_404(t *testing.T) {
 
 	p.GormDB.Delete(cc)
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

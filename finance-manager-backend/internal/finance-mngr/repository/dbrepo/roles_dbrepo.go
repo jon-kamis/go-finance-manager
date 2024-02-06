@@ -3,15 +3,16 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"strings"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func (m *PostgresDBRepo) GetAllRoles(search string) ([]*models.Role, error) {
 	method := "roles_dbrepo.GetAllRoles"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -42,10 +43,11 @@ func (m *PostgresDBRepo) GetAllRoles(search string) ([]*models.Role, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			//No data
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return roles, nil
 		} else {
-			fmlogger.ExitError(method, "database call returned with unexpected error", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 	}
@@ -62,7 +64,7 @@ func (m *PostgresDBRepo) GetAllRoles(search string) ([]*models.Role, error) {
 		)
 
 		if err != nil {
-			fmlogger.ExitError(method, "exception thrown when scanning sql rows", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -70,14 +72,14 @@ func (m *PostgresDBRepo) GetAllRoles(search string) ([]*models.Role, error) {
 		roles = append(roles, &role)
 	}
 
-	fmt.Printf("[%s] found %d results\n", method, recordCount)
-	fmlogger.Exit(method)
+	klogger.Debug(method, "found %d results\n", recordCount)
+	klogger.Exit(method)
 	return roles, nil
 }
 
 func (m *PostgresDBRepo) GetRoleByCode(code string) (*models.Role, error) {
 	method := "roles_dbrepo.GetRoleByCode"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -97,20 +99,17 @@ func (m *PostgresDBRepo) GetRoleByCode(code string) (*models.Role, error) {
 	)
 
 	if err != nil {
-		fmlogger.ExitError(method, "exited with error", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return nil, err
 	}
 
-	fmlogger.Info(method, "loaded roles successfully")
-	fmt.Printf("[%s] \n", method)
-
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return &role, nil
 }
 
 func (m *PostgresDBRepo) GetRoleById(id string) (*models.Role, error) {
 	method := "roles_dbrepo.GetRoleById"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -130,13 +129,10 @@ func (m *PostgresDBRepo) GetRoleById(id string) (*models.Role, error) {
 	)
 
 	if err != nil {
-		fmlogger.ExitError(method, "exited with error", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return nil, err
 	}
 
-	fmlogger.Info(method, "loaded roles successfully")
-	fmt.Printf("[%s] \n", method)
-
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return &role, nil
 }

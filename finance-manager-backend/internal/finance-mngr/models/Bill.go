@@ -2,8 +2,9 @@ package models
 
 import (
 	"errors"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 type Bill struct {
@@ -17,26 +18,26 @@ type Bill struct {
 
 func (b *Bill) ValidateCanSaveBill() error {
 	method := "Bill.ValidateCanSaveBill"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	if b.Name == "" {
 		err := errors.New("name is required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
 	if b.Amount < 0 {
 		err := errors.New("amount cannot be negative")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
 	if b.UserID <= 0 {
 		err := errors.New("userId is required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

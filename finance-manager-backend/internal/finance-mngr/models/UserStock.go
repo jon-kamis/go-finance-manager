@@ -3,8 +3,9 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 // UserStock struct contains a data link between user's and their stocks
@@ -22,28 +23,28 @@ type UserStock struct {
 
 func (u *UserStock) ValidateCanSaveUserStock() error {
 	method := "UserStock.ValidateCanSaveUserStock"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var err error
 
 	if u.UserId <= 0 {
 		err = errors.New("userId is required")
-		fmlogger.ExitError(method, "userId is required", err)
+		klogger.ExitError(method, "userId is required")
 		return err
 	}
 
 	if u.Ticker == "" {
 		err = errors.New("ticker is required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
 	if u.Quantity < 0 {
 		err = errors.New("quantity must be at least 0")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

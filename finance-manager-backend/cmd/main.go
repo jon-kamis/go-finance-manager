@@ -5,7 +5,6 @@ import (
 	"finance-manager-backend/internal/finance-mngr/authentication"
 	"finance-manager-backend/internal/finance-mngr/config"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/handlers/fmhandler"
 	"finance-manager-backend/internal/finance-mngr/jobs"
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
@@ -18,13 +17,15 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 const port = 8080
 
 func main() {
 	method := "main"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//set application config
 	var app application.Application
@@ -63,7 +64,7 @@ func main() {
 	externalService := polygonservice.PolygonService{
 		StocksEnabled:        false,
 		StocksApiKeyFileName: constants.APIKeyFileName,
-		BaseApi: config.GetEnvFromEnvValue(appConfig.PolygonApi),
+		BaseApi:              config.GetEnvFromEnvValue(appConfig.PolygonApi),
 	}
 
 	externalService.LoadApiKeyFromFile()
@@ -87,8 +88,8 @@ func main() {
 
 	app.Domain = "fm.com"
 
-	fmlogger.Info(method, "starting application on port %d", port)
-	
+	klogger.Info(method, "starting application on port %d", port)
+
 	//Kick off Scheduled Jobs
 	go jobs.ScheduledMinuteJobs(time.NewTicker(time.Minute*1), app)
 
@@ -98,5 +99,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

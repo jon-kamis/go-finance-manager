@@ -26,3 +26,6 @@ API.key
 
 # Go workspace file
 go.work
+
+# Logs
+**/logs

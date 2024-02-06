@@ -2,8 +2,9 @@ package fmhandler
 
 import (
 	"errors"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"net/http"
+
+	"github.com/jon-kamis/klogger"
 )
 
 // GetAllRoles godoc
@@ -19,17 +20,17 @@ import (
 // @Router 		/roles [get]
 func (fmh *FinanceManagerHandler) GetAllRoles(w http.ResponseWriter, r *http.Request) {
 	method := "role_handler.GetAllRoles"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	search := r.URL.Query().Get("search")
 	roles, err := fmh.DB.GetAllRoles(search)
 
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when fetching roles", err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New("unexpected error occured when fetching roles list"), http.StatusInternalServerError)
+		klogger.ExitError(method, "error occured when fetching roles:\n%v", err)
 		return
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, roles)
 }

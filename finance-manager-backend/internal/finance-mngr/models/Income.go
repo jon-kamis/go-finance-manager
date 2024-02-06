@@ -4,9 +4,10 @@ import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/fmUtil"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"strings"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 // Type Income contains methods and fields related to a user's income source
@@ -33,18 +34,18 @@ type Income struct {
 // Values calculated are Hours, GrossPay, Taxes, and NetPay
 func (i *Income) PopulateEmptyValues(t time.Time) error {
 	method := "Income.PopulateEmptyValues"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Do validations first
 	if i.Rate <= 0 {
 		err := errors.New("rate is required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
 	if i.TaxPercentage < 0 {
 		err := errors.New("tax rate must be positive")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
@@ -115,17 +116,17 @@ func (i *Income) PopulateEmptyValues(t time.Time) error {
 		i.NetPay = i.GrossPay - i.Taxes
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (i *Income) ValidateTypeAndFrequency() error {
 	method := "Income.ValidateTypeAndFrequency"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	if i.Type == "" || i.Frequency == "" {
 		err := errors.New("type and frequency are required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
@@ -146,83 +147,83 @@ func (i *Income) ValidateTypeAndFrequency() error {
 
 	if !isValidType || !isValidFrequency {
 		err := errors.New("type or frequency is invalid")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (i *Income) ValidateCanSaveIncome() error {
 	method := "Income.ValidateCanSaveIncome"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	if i.Name == "" {
 		err := errors.New("cannot save income without a name")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
 	if i.GrossPay <= 0 {
 		err := errors.New("gross pay is required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
 	if i.Hours <= 0 {
 		err := errors.New("hours are required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
 	if i.Rate <= 0 {
 		err := errors.New("pay rate is required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
 	if i.StartDt.IsZero() {
 		err := errors.New("start date is required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
 	if i.TaxPercentage < 0 {
 		err := errors.New("tax percentage is required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
 	if i.UserID <= 0 {
 		err := errors.New("userId is required")
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
 	err := i.ValidateTypeAndFrequency()
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (i *Income) GetPaysForMonthContainingDate(t time.Time) int {
 	method := "Income.GetPaysForMonthContainingDate"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	e := fmUtil.GetMonthEndDate(t)
 	if i.StartDt.After(e) {
-		fmlogger.Info(method, "income begin date is after this month")
-		fmlogger.Exit(method)
+		klogger.Info(method, "income begin date is after this month")
+		klogger.Exit(method)
 		return 0
 	}
 
 	if strings.Compare(i.Frequency, constants.IncomeFreqMonthly) == 0 {
-		fmlogger.Exit(method)
+		klogger.Exit(method)
 		return 1
 	} else if strings.Compare(i.Frequency, constants.IncomeFreqWeekly) == 0 {
 		payday := int(i.StartDt.Weekday())
@@ -230,7 +231,7 @@ func (i *Income) GetPaysForMonthContainingDate(t time.Time) int {
 
 		date := getWeeklyPayStartingDtForMonth(t, i.StartDt)
 		monthEndDt := fmUtil.GetMonthEndDate(t)
-		
+
 		for int(date.Weekday()) != payday {
 			date = date.AddDate(0, 0, 1)
 		}
@@ -240,7 +241,7 @@ func (i *Income) GetPaysForMonthContainingDate(t time.Time) int {
 			date = date.AddDate(0, 0, 7)
 		}
 
-		fmlogger.Exit(method)
+		klogger.Exit(method)
 		return pays
 	} else {
 		pays := 0
@@ -259,38 +260,38 @@ func (i *Income) GetPaysForMonthContainingDate(t time.Time) int {
 			date = date.AddDate(0, 0, 14)
 		}
 
-		fmlogger.Exit(method)
+		klogger.Exit(method)
 		return pays
 	}
 }
 
 func (i *Income) GetMonthlyNetPay(t time.Time) float64 {
 	method := "Income.GetMonthlyNetPay"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	netPay := i.NetPay * float64(i.GetPaysForMonthContainingDate(t))
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return netPay
 }
 
 func (i *Income) GetMonthlyGrossPay(t time.Time) float64 {
 	method := "Income.GetMonthlyNetPay"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	grossPay := i.GrossPay * float64(i.GetPaysForMonthContainingDate(t))
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return grossPay
 }
 
 func (i *Income) GetMonthlyTaxes(t time.Time) float64 {
 	method := "Income.GetMonthlyTaxes"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	taxes := i.Taxes * float64(i.GetPaysForMonthContainingDate(t))
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return taxes
 }
 
@@ -300,16 +301,16 @@ func (i *Income) GetMonthlyTaxes(t time.Time) float64 {
 // s is the StartDt of the income this is being called for
 func getWeeklyPayStartingDtForMonth(t time.Time, s time.Time) time.Time {
 	method := "Income.getPayStartingDtForMonth"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	monthBeginDt := fmUtil.GetMonthBeginDate(t)
 	startDt := fmUtil.GetStartOfDay(s)
 
 	if startDt.Before(monthBeginDt) {
-		fmlogger.Exit(method)
+		klogger.Exit(method)
 		return monthBeginDt
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return startDt
 }

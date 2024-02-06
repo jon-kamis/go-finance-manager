@@ -1,85 +1,72 @@
 package validation
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"fmt"
 	"testing"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func TestIsValidToViewOtherUserData(t *testing.T) {
 	method := "users_validation_test.TestIsValidToViewOtherUserData"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	isValid, err := fmv.IsValidToViewOtherUserData(1)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching user roles\n", method)
-		fmlogger.Exit(method)
 		t.Errorf("unexpected error when fetching user roles: %s\n", err)
 	}
 
 	if !isValid {
-		fmlogger.Info(method, "unexpected result returned from test")
-		fmlogger.Exit(method)
 		t.Errorf("unexpected result returned from test")
 	}
 
 	isValid, err = fmv.IsValidToViewOtherUserData(2)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching user roles\n", method)
-		fmlogger.Exit(method)
 		t.Errorf("unexpected error when fetching user roles: %s\n", err)
 	}
 
 	if isValid {
-		fmlogger.Info(method, "unexpected result returned from test")
-		fmlogger.Exit(method)
 		t.Errorf("unexpected result returned from test")
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestIsValidToDeleteOtherUserData(t *testing.T) {
 	method := "users_validation_test.TestIsValidToDeleteOtherUserData"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	isValid, err := fmv.IsValidToDeleteOtherUserData(1)
 
 	if err != nil {
 		fmt.Printf("[%s] unexpected error occured when fetching user roles\n", method)
-		fmlogger.Exit(method)
+		klogger.Exit(method)
 		t.Errorf("unexpected error when fetching user roles: %s\n", err)
 	}
 
 	if !isValid {
-		fmlogger.Info(method, "unexpected result returned from test")
-		fmlogger.Exit(method)
 		t.Errorf("unexpected result returned from test")
 	}
 
 	isValid, err = fmv.IsValidToDeleteOtherUserData(2)
 
 	if err != nil {
-		fmt.Printf("[%s] unexpected error occured when fetching user roles\n", method)
-		fmlogger.Exit(method)
 		t.Errorf("unexpected error when fetching user roles: %s\n", err)
 	}
 
 	if isValid {
-		fmlogger.Info(method, "unexpected result returned from test")
-		fmlogger.Exit(method)
 		t.Errorf("unexpected result returned from test")
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestIsValidToEnterNewUser(t *testing.T) {
 	method := "users_validation_test.TestIsValidToEnterNewUser"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	var tu models.User
 
@@ -97,7 +84,6 @@ func TestIsValidToEnterNewUser(t *testing.T) {
 
 	if err != nil {
 		errMsg := "unexpected error occured when validating valid user case"
-		fmlogger.ExitError(method, errMsg, err)
 		t.Errorf(errMsg)
 	}
 
@@ -108,7 +94,6 @@ func TestIsValidToEnterNewUser(t *testing.T) {
 
 	if err == nil {
 		errMsg := "expected error for invalid username but none was thrown"
-		fmlogger.ExitError(method, errMsg, err)
 		t.Errorf(errMsg)
 	}
 
@@ -119,7 +104,6 @@ func TestIsValidToEnterNewUser(t *testing.T) {
 
 	if err == nil {
 		errMsg := "expected error for invalid email but none was thrown"
-		fmlogger.ExitError(method, errMsg, err)
 		t.Errorf(errMsg)
 	}
 
@@ -130,7 +114,6 @@ func TestIsValidToEnterNewUser(t *testing.T) {
 
 	if err == nil {
 		errMsg := "expected error for invalid password but none was thrown"
-		fmlogger.ExitError(method, errMsg, err)
 		t.Errorf(errMsg)
 	}
 
@@ -141,7 +124,6 @@ func TestIsValidToEnterNewUser(t *testing.T) {
 
 	if err == nil {
 		errMsg := "expected error for invalid first name but none was thrown"
-		fmlogger.ExitError(method, errMsg, err)
 		t.Errorf(errMsg)
 	}
 
@@ -152,7 +134,6 @@ func TestIsValidToEnterNewUser(t *testing.T) {
 
 	if err == nil {
 		errMsg := "expected error for invalid last name but none was thrown"
-		fmlogger.ExitError(method, errMsg, err)
 		t.Errorf(errMsg)
 	}
 
@@ -163,7 +144,6 @@ func TestIsValidToEnterNewUser(t *testing.T) {
 
 	if err == nil {
 		errMsg := "expected error for username taken but none was thrown"
-		fmlogger.ExitError(method, errMsg, err)
 		t.Errorf(errMsg)
 	}
 
@@ -174,9 +154,8 @@ func TestIsValidToEnterNewUser(t *testing.T) {
 
 	if err == nil {
 		errMsg := "expected error for email taken but none was thrown"
-		fmlogger.ExitError(method, errMsg, err)
 		t.Errorf(errMsg)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

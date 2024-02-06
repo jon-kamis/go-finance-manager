@@ -1,7 +1,6 @@
 package polygonservice
 
 import (
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/test"
@@ -11,6 +10,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/jon-kamis/klogger"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +18,7 @@ var ps PolygonService
 
 func TestMain(m *testing.M) {
 	method := "validation_test.TestMain"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	mockUrl := "http://localhost"
 	mockPort := 8081
@@ -43,14 +43,14 @@ func TestMain(m *testing.M) {
 	//Execute Code
 	code := m.Run()
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	os.Exit(code)
 
 }
 
 func startMockApiServer(p int, m test.MockPolygonApi) {
 	method := "polygon_service_test.startMockApiServer"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//start a web server
 	err := http.ListenAndServe(fmt.Sprintf(":%d", p), m.Routes())
@@ -62,7 +62,7 @@ func startMockApiServer(p int, m test.MockPolygonApi) {
 
 func TestLoadApiKeyFromFile(t *testing.T) {
 	method := "polygon_service_test.TestLoadApiKeyFromFile"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Write File to read from
 	pwd, _ := os.Getwd()
@@ -98,12 +98,12 @@ func TestLoadApiKeyFromFile(t *testing.T) {
 		t.Errorf("failed to clean up test files after test completion")
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestUpdateAndPersistAPIKey(t *testing.T) {
 	method := "fm_stockservice.TestLoadApiKeyFromFile"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	pwd, _ := os.Getwd()
 	fileName := "TestUpdateAndPersistAPIKey.keytest"
@@ -131,12 +131,12 @@ func TestUpdateAndPersistAPIKey(t *testing.T) {
 		t.Errorf("failed to clean up test files after test completion")
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }
 
 func TestFetchStockWithTicker(t *testing.T) {
 	method := "polygon_service_test.TestFetchStockWithTicker"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ticker := "AAPL"
 	var s models.Stock
@@ -152,5 +152,5 @@ func TestFetchStockWithTicker(t *testing.T) {
 	assert.NotEqual(t, 0.0, s.Close)
 	assert.False(t, s.Date.IsZero())
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

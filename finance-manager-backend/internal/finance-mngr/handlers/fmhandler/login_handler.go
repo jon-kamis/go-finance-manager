@@ -3,12 +3,14 @@ package fmhandler
 import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/authentication"
+	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/models/restmodels"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/jon-kamis/klogger"
 )
 
 // Authenticate godoc
@@ -24,27 +26,31 @@ import (
 // @Failure 	500 {object} jsonutils.JSONResponse
 // @Router 		/authenticate [post]
 func (fmh *FinanceManagerHandler) Authenticate(w http.ResponseWriter, r *http.Request) {
-	// read json payload
+	method := "login_handler.Authenticate"
+	klogger.Enter(method)
 
 	var requestPayload restmodels.LoginRequest
-
 	err := fmh.JSONUtil.ReadJSON(w, r, &requestPayload)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusBadRequest)
+		klogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
 		return
 	}
 
 	// validate user against database
 	user, err := fmh.DB.GetUserByUsername((requestPayload.Username))
 	if err != nil {
-		fmh.JSONUtil.ErrorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.InvalidCredentialsError), http.StatusBadRequest)
+		klogger.ExitError(method, constants.InvalidCredentialsErrorLog, err)
 		return
 	}
 
 	// check password
 	valid, err := user.PasswordMatches(requestPayload.Password)
 	if err != nil || !valid {
-		fmh.JSONUtil.ErrorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.InvalidCredentialsError), http.StatusBadRequest)
+		klogger.ExitError(method, constants.InvalidCredentialsErrorLog, err)
+		return
 	}
 
 	// load user roles
@@ -52,6 +58,7 @@ func (fmh *FinanceManagerHandler) Authenticate(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
@@ -75,12 +82,14 @@ func (fmh *FinanceManagerHandler) Authenticate(w http.ResponseWriter, r *http.Re
 	tokens, err := fmh.Auth.GenerateTokenPair(&u)
 	if err != nil {
 		fmh.JSONUtil.ErrorJSON(w, err)
+		klogger.ExitError(method, constants.GenericUnexpectedErrorLog, err)
 		return
 	}
 
 	refreshCookie := fmh.Auth.GetRefreshCookie(tokens.RefreshToken)
 	http.SetCookie(w, refreshCookie)
 
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusAccepted, tokens)
 }
 
@@ -98,6 +107,9 @@ func (fmh *FinanceManagerHandler) Authenticate(w http.ResponseWriter, r *http.Re
 // @Failure 	500 {object} jsonutils.JSONResponse
 // @Router 		/refresh [get]
 func (fmh *FinanceManagerHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	method := "login_handler.RefreshToken"
+	klogger.Enter(method)
+
 	for _, cookie := range r.Cookies() {
 		if cookie.Name == fmh.Auth.CookieName {
 			claims := &authentication.Claims{}
@@ -105,22 +117,29 @@ func (fmh *FinanceManagerHandler) RefreshToken(w http.ResponseWriter, r *http.Re
 
 			//parse the token to get the claims
 			_, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
+				klogger.Exit(method)
 				return []byte(fmh.Auth.Secret), nil
 			})
 
 			if err != nil {
 				fmh.JSONUtil.ErrorJSON(w, errors.New("unauthorized"), http.StatusUnauthorized)
+				klogger.ExitError(method, constants.GenericUnexpectedErrorLog, err)
+				return
 			}
 
 			//get the user id from the token claims
 			userID, err := strconv.Atoi(claims.Subject)
 			if err != nil {
 				fmh.JSONUtil.ErrorJSON(w, errors.New("unknown user"), http.StatusUnauthorized)
+				klogger.ExitError(method, constants.GenericUnexpectedErrorLog, err)
+				return
 			}
 
 			user, err := fmh.DB.GetUserByID(userID)
 			if err != nil {
 				fmh.JSONUtil.ErrorJSON(w, errors.New("unknown user"), http.StatusUnauthorized)
+				klogger.ExitError(method, constants.GenericUnexpectedErrorLog, err)
+				return
 			}
 
 			u := authentication.JwtUser{
@@ -132,10 +151,13 @@ func (fmh *FinanceManagerHandler) RefreshToken(w http.ResponseWriter, r *http.Re
 			tokenPairs, err := fmh.Auth.GenerateTokenPair(&u)
 			if err != nil {
 				fmh.JSONUtil.ErrorJSON(w, errors.New("error generating tokens"), http.StatusInternalServerError)
+				klogger.ExitError(method, constants.GenericUnexpectedErrorLog, err)
+				return
 			}
 
 			http.SetCookie(w, fmh.Auth.GetRefreshCookie(tokenPairs.RefreshToken))
 
+			klogger.Exit(method)
 			fmh.JSONUtil.WriteJSON(w, http.StatusOK, tokenPairs)
 		}
 	}
@@ -149,9 +171,14 @@ func (fmh *FinanceManagerHandler) RefreshToken(w http.ResponseWriter, r *http.Re
 // @Description Returns an expired refresh cookie which prevents the user from re-authenticating
 // @Accept		json
 // @Produce 	json
-// @Success 	200 
+// @Success 	200
 // @Router 		/logout [get]
 func (fmh *FinanceManagerHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	method := "login_handler.Logout"
+	klogger.Enter(method)
+
 	http.SetCookie(w, fmh.Auth.GetExpiredRefreshCookie())
 	w.WriteHeader(http.StatusAccepted)
+
+	klogger.Exit(method)
 }

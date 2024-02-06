@@ -2,9 +2,10 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 type Loan struct {
@@ -59,7 +60,7 @@ type LoansSummary struct {
 
 func (l *Loan) PerformCalc() error {
 	method := "Loan.performCalc"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	totalCalc := l.Total
 	months := 0
@@ -78,9 +79,8 @@ func (l *Loan) PerformCalc() error {
 		err := l.PerformPaymentCalc()
 
 		if err != nil {
-			errMsg := "Loan calculation request is invalid"
-			fmt.Printf("[%s] %s\n", method, errMsg)
-			fmt.Printf("[EXIT %s]\n", method)
+			errMsg := "Loan calculation request is invalid:\n%s"
+			klogger.ExitError(method, errMsg, err)
 			return err
 		}
 	}
@@ -114,8 +114,8 @@ func (l *Loan) PerformCalc() error {
 	}
 
 	calcErr := l.Total - totalPayment
-	fmt.Printf("Total: %f, totalPayment: %f, totalInterest: %f, Calculation Err: %f\n", l.Total, totalPayment, totalInterest, calcErr)
-  
+	klogger.Info(method, "Total: %f, totalPayment: %f, totalInterest: %f, Calculation Err: %f\n", l.Total, totalPayment, totalInterest, calcErr)
+
 	totalPayment += calcErr
 	totalInterest -= calcErr
 
@@ -125,20 +125,19 @@ func (l *Loan) PerformCalc() error {
 	l.LoanTerm = months
 	l.PaymentSchedule = paymentSchedule
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (l *Loan) PerformPaymentCalc() error {
 	method := "Loan.PerformPaymentCalc"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	err := l.ValidateCanPerformCalc()
 
 	if err != nil {
-		errMsg := "Loan payment calculation request is invalid"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		errMsg := "Loan payment calculation request is invalid:\n%v"
+		klogger.ExitError(method, errMsg, err)
 		return err
 	}
 
@@ -150,106 +149,95 @@ func (l *Loan) PerformPaymentCalc() error {
 	n := l.LoanTerm
 	l.MonthlyPayment = p / ((math.Pow((i+1), float64(n)) - 1) / (i * math.Pow((i+1), float64(n))))
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (l *Loan) ValidateCanPerformCalc() error {
 	method := "Loan.ValidateCanPerformCalc"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	if l.Total <= 0 {
 		errMsg := "cannot perform calculation without total loan amount"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if l.InterestRate < 0 {
 		errMsg := "cannot perform calculation without interest rate"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if l.LoanTerm <= 0 {
 		errMsg := "cannot perform calculation without loan term"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (l *Loan) ValidateCanSaveLoan() error {
 	method := "Loan.ValidateCanPerformCalc"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	if l.Name == "" {
 		errMsg := "cannot save loan without loan name"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if l.Total <= 0 {
 		errMsg := "cannot save loan without total loan amount"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if l.InterestRate < 0 {
 		errMsg := "cannot save loan without interest rate"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if l.LoanTerm <= 0 {
 		errMsg := "cannot save loan without loan term"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if l.UserID <= 0 {
 		errMsg := "cannot save loan without userId"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if l.TotalCost <= 0 {
 		errMsg := "cannot save loan without total_cost"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if l.TotalPayment <= 0 {
 		errMsg := "cannot save loan without total payment"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
 	if l.Interest < 0 {
 		errMsg := "cannot save loan without total interest"
-		fmt.Printf("[%s] %s\n", method, errMsg)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, errMsg)
 		return errors.New(errMsg)
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (l *Loan) CompareLoanPayments(c Loan) []PaymentScheduleComparisonItem {
 	method := "Loan.CompareLoanPayments"
-	fmt.Printf("[ENTER %s]\n", method)
+	klogger.Enter(method)
 
 	//m := int(math.Max(float64(len(l.PaymentSchedule)), float64(len(c.PaymentSchedule))))
 	n := len(l.PaymentSchedule)
@@ -344,6 +332,6 @@ func (l *Loan) CompareLoanPayments(c Loan) []PaymentScheduleComparisonItem {
 		r = append(r, j)
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return r
 }

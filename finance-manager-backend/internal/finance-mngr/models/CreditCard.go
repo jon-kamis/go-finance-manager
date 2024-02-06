@@ -3,9 +3,10 @@ package models
 import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"math"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 type CreditCard struct {
@@ -24,21 +25,21 @@ type CreditCard struct {
 
 func (cc *CreditCard) ValidateCanSaveCreditCard() error {
 	method := "creditcard.ValidateCanSaveCreditCard"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	if cc.UserID == 0 || cc.Name == "" || cc.MinPayment == 0 || cc.MinPaymentPercentage == 0 {
 		err := errors.New(constants.InvalidCreditCardError)
-		fmlogger.ExitError(method, "one or more required fields is blank", err)
+		klogger.ExitError(method, err.Error())
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (cc *CreditCard) CalcPayment() {
 	method := "creditcard.CalcPayment"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Values are stored as percentages, divide by 100
 	minPercent := cc.MinPaymentPercentage / 100
@@ -46,5 +47,5 @@ func (cc *CreditCard) CalcPayment() {
 
 	cc.Payment = minPayment
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

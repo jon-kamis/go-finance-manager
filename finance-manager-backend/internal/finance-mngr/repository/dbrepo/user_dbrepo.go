@@ -4,22 +4,22 @@ import (
 	"context"
 	"database/sql"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"strings"
 	"time"
 
+	"github.com/jon-kamis/klogger"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func (m *PostgresDBRepo) GetUserByID(id int) (*models.User, error) {
+	method := "user_dbrepo.GetUserByID"
+	klogger.Enter(method)
+
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	method := "user_dbrepo.GetUserByID"
-	fmt.Println("[ENTER " + method + "]")
-	fmt.Printf("[%s] %s %d\n", method, "searching for user with id ", id)
+	klogger.Debug(method, "searching for user with id: %d", id)
 
 	query := `select id, username, email, first_name, last_name, password,
 		create_dt, last_update_dt
@@ -41,12 +41,11 @@ func (m *PostgresDBRepo) GetUserByID(id int) (*models.User, error) {
 	)
 
 	if err != nil {
-		fmt.Printf("[%s] %s\n", method, "returned with error")
-		fmt.Println("[EXIT  " + method + "]")
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return nil, err
 	}
 
-	fmt.Println("[EXIT  " + method + "]")
+	klogger.Exit(method)
 	return &user, nil
 }
 
@@ -55,7 +54,7 @@ func (m *PostgresDBRepo) GetUserByUsername(username string) (*models.User, error
 	defer cancel()
 
 	method := "user_dbrepo.GetUserByUsername"
-	fmt.Println("[ENTER " + method + "]")
+	klogger.Enter(method)
 
 	query := `select id, username, email, first_name, last_name, password,
 		create_dt, last_update_dt
@@ -77,18 +76,17 @@ func (m *PostgresDBRepo) GetUserByUsername(username string) (*models.User, error
 	)
 
 	if err != nil {
-		fmt.Printf("[%s] %s\n", method, "returned with error")
-		fmt.Println("[EXIT  " + method + "]")
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return nil, err
 	}
 
-	fmt.Println("[EXIT  " + method + "]")
+	klogger.Exit(method)
 	return &user, nil
 }
 
 func (m *PostgresDBRepo) GetUserByUsernameOrEmail(username string, email string) (*models.User, error) {
 	method := "user_dbrepo.GetUserByUsernameOrEmail"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -119,12 +117,12 @@ func (m *PostgresDBRepo) GetUserByUsernameOrEmail(username string, email string)
 		if err == sql.ErrNoRows {
 			return &user, nil
 		} else {
-			fmlogger.Error(method, constants.UnexpectedSQLError, err)
+			klogger.Error(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return &user, nil
 }
 
@@ -133,14 +131,13 @@ func (m *PostgresDBRepo) InsertUser(user models.User) (int, error) {
 	defer cancel()
 
 	method := "user_dbrepo.InsertUser"
-	fmt.Println("[ENTER " + method + "]")
+	klogger.Enter(method)
 
 	// Encrypt Password
 	encryptedPass, bcErr := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 
 	if bcErr != nil {
-		fmt.Printf("[%s] %s\n", method, "error occured while encrypting password")
-		fmt.Println("[EXIT  " + method + "]")
+		klogger.ExitError(method, "error occured while encrypting password")
 		return -1, bcErr
 	}
 
@@ -163,12 +160,11 @@ func (m *PostgresDBRepo) InsertUser(user models.User) (int, error) {
 	).Scan(&id)
 
 	if err != nil {
-		fmt.Printf("[%s] %s\n", method, "returned with error")
-		fmt.Println("[EXIT  " + method + "]")
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return -1, err
 	}
 
-	fmt.Println("[EXIT  " + method + "]")
+	klogger.Exit(method)
 	return id, nil
 }
 
@@ -177,7 +173,7 @@ func (m *PostgresDBRepo) UpdateUserDetails(user models.User) error {
 	defer cancel()
 
 	method := "user_dbrepo.InsertUser"
-	fmt.Println("[ENTER " + method + "]")
+	klogger.Enter(method)
 
 	stmt :=
 		`UPDATE users 
@@ -198,21 +194,20 @@ func (m *PostgresDBRepo) UpdateUserDetails(user models.User) error {
 	).Scan()
 
 	if err != nil {
-		fmt.Printf("[%s] %s\n", method, "returned with error")
-		fmt.Println("[EXIT  " + method + "]")
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmt.Println("[EXIT  " + method + "]")
+	klogger.Exit(method)
 	return nil
 }
 
 func (m *PostgresDBRepo) GetAllUsers(search string) ([]*models.User, error) {
+	method := "user_dbrepo.GetAllUsers"
+	klogger.Enter(method)
+
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-
-	method := "user_dbrepo.GetAllUsers"
-	fmt.Printf("[ENTER %s]\n", method)
 
 	var query string
 	var err error
@@ -220,7 +215,7 @@ func (m *PostgresDBRepo) GetAllUsers(search string) ([]*models.User, error) {
 
 	if search != "" {
 		search = strings.ToLower(search)
-		fmt.Printf("[%s] Searching for user meeting criteria: %s\n", method, search)
+		klogger.Debug(method, "searching for user meeting criteria: %s", search)
 		query = `
 		SELECT
 			id, username, email, first_name, last_name, password,
@@ -245,8 +240,7 @@ func (m *PostgresDBRepo) GetAllUsers(search string) ([]*models.User, error) {
 	recordCount := 0
 
 	if err != nil {
-		fmt.Printf("[%s] database call returned with error %s\n", method, err)
-		fmt.Printf("[EXIT %s]\n", method)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return nil, err
 	}
 
@@ -266,8 +260,7 @@ func (m *PostgresDBRepo) GetAllUsers(search string) ([]*models.User, error) {
 		)
 
 		if err != nil {
-			fmt.Printf("[%s] error occured when attempting to scan rows into objects\n", method)
-			fmt.Printf("[EXIT %s]\n", method)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -275,13 +268,13 @@ func (m *PostgresDBRepo) GetAllUsers(search string) ([]*models.User, error) {
 		users = append(users, &user)
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	return users, nil
 }
 
 func (m *PostgresDBRepo) DeleteUserByID(id int) error {
 	method := "user_dbrepo.DeleteUserByID"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -295,10 +288,10 @@ func (m *PostgresDBRepo) DeleteUserByID(id int) error {
 	_, err := m.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		fmlogger.ExitError(method, "database call returned with error", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

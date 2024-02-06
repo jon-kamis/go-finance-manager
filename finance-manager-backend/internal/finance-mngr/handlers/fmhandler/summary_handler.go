@@ -3,14 +3,13 @@ package fmhandler
 import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"math"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jon-kamis/klogger"
 )
 
 // GetUserSummary godoc
@@ -29,14 +28,15 @@ import (
 // @Router 		/users/{userId}/summary [get]
 func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.Request) {
 	method := "summary_handler.GetUserSummary"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when reading url parameters", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
+
 		return
 	}
 
@@ -44,29 +44,29 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 
 	loans, err := fmh.DB.GetAllUserLoans(id, "")
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching loans", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, "failed to retrieve user loans:\n%v", err)
 		return
 	}
 
 	incomes, err := fmh.DB.GetAllUserIncomes(id, "")
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching incomes", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, "failed to retrieve user incomes:\n%v", err)
 		return
 	}
 
 	bills, err := fmh.DB.GetAllUserBills(id, "")
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching bills", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, "failed to retrieve user bills:\n%v", err)
 		return
 	}
 
 	ccs, err := fmh.DB.GetAllUserCreditCards(id, "")
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when fetching credit cards", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusInternalServerError)
+		klogger.ExitError(method, "failed to retrieve user credit cards:\n%v", err)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 
 	summary.Finalize()
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, summary)
 }
 
@@ -101,22 +101,22 @@ func (fmh *FinanceManagerHandler) GetUserSummary(w http.ResponseWriter, r *http.
 // @Router 		/users/{userId}/stock-portfolio [get]
 func (fmh *FinanceManagerHandler) GetUserStockPortfolioSummary(w http.ResponseWriter, r *http.Request) {
 	method := "summary_handler.GetUserStockPortfolioSummary"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	//Read ID from url
 	id, err := fmh.GetAndValidateUserId(chi.URLParam(r, "userId"), w, r)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when reading url parameters", err)
 		fmh.JSONUtil.ErrorJSON(w, err, http.StatusForbidden)
+		klogger.ExitError(method, constants.EntityDoesNotBelongToUserError, err)
 		return
 	}
 
 	usl, err := fmh.DB.GetAllUserStocks(id, constants.UserStockTypeOwn, "", time.Now())
 
 	if err != nil {
-		fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
 		fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return
 	}
 
@@ -129,7 +129,7 @@ func (fmh *FinanceManagerHandler) GetUserStockPortfolioSummary(w http.ResponseWr
 
 		if err != nil {
 			fmh.JSONUtil.ErrorJSON(w, errors.New(constants.UnexpectedSQLError), http.StatusInternalServerError)
-			fmlogger.ExitError(method, constants.UnexpectedSQLError, err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return
 		}
 
@@ -151,5 +151,5 @@ func (fmh *FinanceManagerHandler) GetUserStockPortfolioSummary(w http.ResponseWr
 	sum.LoadPositions(pl)
 
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, sum)
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 }

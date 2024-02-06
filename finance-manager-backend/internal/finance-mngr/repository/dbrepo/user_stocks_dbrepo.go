@@ -4,16 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"strings"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 	method := "stocks_dbrepo.InsertUserStock"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -63,18 +63,18 @@ func (m *PostgresDBRepo) InsertUserStock(s models.UserStock) (int, error) {
 	}
 
 	if err != nil {
-		fmlogger.ExitError(method, "error occured when inserting new user stock", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return -1, err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return id, nil
 }
 
 // Function GetAllUserStocks returns all user stocks with names matching search if it is included and where t is after effective dt and before expiration date if it exists
 func (m *PostgresDBRepo) GetAllUserStocks(userId int, stockType string, search string, t time.Time) ([]*models.UserStock, error) {
 	method := "stocks_dbrepo.GetAllUserStocks"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -129,9 +129,11 @@ func (m *PostgresDBRepo) GetAllUserStocks(userId int, stockType string, search s
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return usl, nil
 		} else {
-			fmlogger.ExitError(method, "database call returned with error", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -153,7 +155,7 @@ func (m *PostgresDBRepo) GetAllUserStocks(userId int, stockType string, search s
 		)
 
 		if err != nil {
-			fmlogger.ExitError(method, "error occured when attempting to scan db result into rows", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -161,15 +163,15 @@ func (m *PostgresDBRepo) GetAllUserStocks(userId int, stockType string, search s
 		usl = append(usl, &u)
 	}
 
-	fmt.Printf("[%s] retrieved %d records\n", method, recordCount)
-	fmlogger.Exit(method)
+	klogger.Debug(method, "retrieved %d records", recordCount)
+	klogger.Exit(method)
 	return usl, nil
 }
 
 // Function GetAllUserStocksByDateRange returns all user stocks with names matching search if it is included and where the userStock was active during any part of the date range
 func (m *PostgresDBRepo) GetAllUserStocksByDateRange(userId int, search string, ts time.Time, te time.Time) ([]*models.UserStock, error) {
 	method := "stocks_dbrepo.GetAllUserStocks"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -215,9 +217,11 @@ func (m *PostgresDBRepo) GetAllUserStocksByDateRange(userId int, search string, 
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return usl, nil
 		} else {
-			fmlogger.ExitError(method, "database call returned with error", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -239,7 +243,7 @@ func (m *PostgresDBRepo) GetAllUserStocksByDateRange(userId int, search string, 
 		)
 
 		if err != nil {
-			fmlogger.ExitError(method, "error occured when attempting to scan db result into rows", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return nil, err
 		}
 
@@ -247,15 +251,15 @@ func (m *PostgresDBRepo) GetAllUserStocksByDateRange(userId int, search string, 
 		usl = append(usl, &u)
 	}
 
-	fmt.Printf("[%s] retrieved %d records\n", method, recordCount)
-	fmlogger.Exit(method)
+	klogger.Debug(method, "retrieved %d records", recordCount)
+	klogger.Exit(method)
 	return usl, nil
 }
 
-//Function GetFirstUserStockBeforeDate returns the user stock with the closest effective date before or equal to d where userId and ticker match uId and t respectively
+// Function GetFirstUserStockBeforeDate returns the user stock with the closest effective date before or equal to d where userId and ticker match uId and t respectively
 func (m *PostgresDBRepo) GetUserStockByUserIdTickerAndDate(uId int, t string, d time.Time) (models.UserStock, error) {
 	method := "user_stocks_dbrepo.GetFirstUserStockBeforeDate"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -275,7 +279,7 @@ func (m *PostgresDBRepo) GetUserStockByUserIdTickerAndDate(uId int, t string, d 
 			(expiration_dt IS NULL OR expiration_dt >= $3)`
 
 	row := m.DB.QueryRowContext(ctx, query, uId, t, d)
-	
+
 	var us models.UserStock
 
 	err := row.Scan(
@@ -292,21 +296,23 @@ func (m *PostgresDBRepo) GetUserStockByUserIdTickerAndDate(uId int, t string, d 
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			klogger.Info(method, constants.NoRowsReturnedMsg)
+			klogger.Exit(method)
 			return us, nil
 		} else {
-			fmlogger.ExitError(method, "database call returned with error", err)
+			klogger.ExitError(method, constants.UnexpectedSQLError, err)
 			return us, err
 		}
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return us, nil
 }
 
-//Function UpdateUserStock updates a user stock object in the database
+// Function UpdateUserStock updates a user stock object in the database
 func (m *PostgresDBRepo) UpdateUserStock(us models.UserStock) error {
 	method := "stocks_dbrepo.UpdateStock"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -332,10 +338,10 @@ func (m *PostgresDBRepo) UpdateUserStock(us models.UserStock) error {
 	)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when updating stock", err)
+		klogger.ExitError(method, constants.UnexpectedSQLError, err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }

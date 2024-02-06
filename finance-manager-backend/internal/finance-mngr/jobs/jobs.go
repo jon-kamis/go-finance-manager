@@ -3,38 +3,36 @@ package jobs
 import (
 	"finance-manager-backend/internal/finance-mngr/application"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
-	"fmt"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 func ScheduledMinuteJobs(tick *time.Ticker, app application.Application) {
 	method := "jobs.scheduleJobs"
-	fmlogger.Enter(method)
+	klogger.Info(method, "started running in asynchronous thread")
 
 	updateStocks(time.Now(), app)
 	for t := range tick.C {
 		updateStocks(t, app)
 	}
-
-	fmlogger.Exit(method)
 }
 
 func updateStocks(t time.Time, app application.Application) {
 	method := "jobs.updateStocks"
-	fmt.Printf("[%s] began execution at %v\n", method, t)
+	klogger.Enter(method)
 
 	if !app.ExternalService.GetIsStocksEnabled() {
-		fmlogger.Info(method, "stocks are not enabled")
-		fmt.Printf("[%s] completed execution at %v\n", method, time.Now())
+		klogger.Info(method, "stocks are not enabled")
+		klogger.Exit(method)
 		return
 	}
 
 	s, err := app.DB.GetOldestStock()
 
 	if err != nil {
-		fmlogger.Error(method, constants.UnexpectedSQLError, err)
-		fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
+		klogger.Error(method, constants.UnexpectedSQLError, err)
+		klogger.Warn(method, "completed execution unsuccessfully")
 		return
 	}
 
@@ -42,8 +40,8 @@ func updateStocks(t time.Time, app application.Application) {
 	//tz, err := time.LoadLocation("EST")
 
 	if err != nil {
-		fmlogger.Error(method, constants.UnexpectedSQLError, err)
-		fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
+		klogger.Error(method, constants.UnexpectedSQLError, err)
+		klogger.Warn(method, "completed execution unsuccessfully")
 		return
 	}
 
@@ -64,12 +62,12 @@ func updateStocks(t time.Time, app application.Application) {
 	sd, err := app.DB.GetLatestStockDataByTicker(s.Ticker)
 
 	if err != nil {
-		fmlogger.Error(method, constants.UnexpectedSQLError, err)
-		fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
+		klogger.Error(method, constants.UnexpectedSQLError, err)
+		klogger.Warn(method, "completed execution unsuccessfully")
 		return
 	}
 
-	fmt.Printf("[%s] Checking if %v is before %v. Or if stock data is not loaded\n", method, s.Date, compareDt)
+	klogger.Debug(method, "Checking if %v is before %v, or if stock data is not loaded for the given ticker", s.Date, compareDt)
 
 	if s.Date.Before(compareDt) || sd.ID == 0 {
 
@@ -77,19 +75,19 @@ func updateStocks(t time.Time, app application.Application) {
 
 		//If sd is not loaded, then default to 1 year back
 		if sd.ID == 0 {
-			fmlogger.Info(method, "stock data was not loaded. Loading stock data now")
+			klogger.Debug(method, "stock data was not loaded. Loading stock data now")
 			startDt = time.Now()
 			startDt = time.Date(startDt.Year()-1, startDt.Month(), startDt.Day(), 0, 0, 0, 0, time.UTC)
 		} else {
 			startDt = sd.Date.Add(24 * time.Hour)
 		}
 
-		fmlogger.Info(method, "fetching updates for stock "+s.Ticker)
+		klogger.Debug(method, "fetching updates for stock "+s.Ticker)
 		sn, err := app.ExternalService.FetchStockWithTickerForDateRange(s.Ticker, startDt, compareDt)
 
 		if err != nil {
-			fmlogger.Error(method, constants.UnexpectedSQLError, err)
-			fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
+			klogger.Error(method, constants.UnexpectedSQLError, err)
+			klogger.Warn(method, "completed execution unsuccessfully")
 			return
 		}
 
@@ -106,8 +104,8 @@ func updateStocks(t time.Time, app application.Application) {
 		err = app.DB.UpdateStock(s)
 
 		if err != nil {
-			fmlogger.Error(method, constants.UnexpectedSQLError, err)
-			fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
+			klogger.Error(method, constants.UnexpectedSQLError, err)
+			klogger.Warn(method, "completed execution unsuccessfully")
 			return
 		}
 
@@ -115,14 +113,14 @@ func updateStocks(t time.Time, app application.Application) {
 		err = app.DB.InsertStockData(sn)
 
 		if err != nil {
-			fmlogger.Error(method, constants.UnexpectedSQLError, err)
-			fmt.Printf("[%s] completed execution unsuccessfully at %v\n", method, time.Now())
+			klogger.Error(method, constants.UnexpectedSQLError, err)
+			klogger.Warn(method, "completed execution unsuccessfully")
 			return
 		}
 
 	} else {
-		fmlogger.Info(method, "oldest stock is up to date")
+		klogger.Info(method, "oldest stock is up to date")
 	}
 
-	fmt.Printf("[%s] completed execution at %v\n", method, time.Now())
+	klogger.Exit(method)
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
-	"finance-manager-backend/internal/finance-mngr/fmlogger"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/internal/finance-mngr/models/restmodels"
 	"fmt"
@@ -12,100 +11,102 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/jon-kamis/klogger"
 )
 
 type PolygonService struct {
 	PolygonApiKey        string
 	StocksEnabled        bool
 	StocksApiKeyFileName string
-	BaseApi string
+	BaseApi              string
 }
 
 // Return if stocks is enabled
 func (ps *PolygonService) GetIsStocksEnabled() bool {
 	method := "polygon_service.GetIsStocksEnabled"
-	fmlogger.Enter(method)
-	fmlogger.Exit(method)
+	klogger.Enter(method)
+	klogger.Exit(method)
 	return ps.StocksEnabled
 }
 
 // Attempts to load an API key from a file
 func (ps *PolygonService) LoadApiKeyFromFile() error {
 	method := "polygon_service.LoadApiKeyFromFile"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	pwd, _ := os.Getwd()
 	bs, err := os.ReadFile(pwd + ps.StocksApiKeyFileName)
 
 	if err != nil {
-		fmlogger.ExitError(method, "key file not found", err)
+		klogger.ExitError(method, "key file not found:\n%v", err)
 		return err
 	}
 
-	fmlogger.Info(method, "key loaded successfully")
+	klogger.Info(method, "key loaded successfully")
 
 	ps.PolygonApiKey = string(bs)
 	ps.StocksEnabled = true
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 // Reads an API key into the application object and persists it into a file
 func (ps *PolygonService) UpdateAndPersistAPIKey(k string) error {
 	method := "polygon_service.UpdateAndPersistAPIKey"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
-	fmlogger.Info(method, "Loading key into application")
+	klogger.Info(method, "Loading key into application")
 	ps.PolygonApiKey = k
 	ps.StocksEnabled = true
 
-	fmlogger.Info(method, "attempting to persist API key file")
+	klogger.Info(method, "attempting to persist API key file")
 	pwd, _ := os.Getwd()
 
 	err := os.WriteFile(pwd+ps.StocksApiKeyFileName, []byte(k), 0666)
 
 	if err != nil {
-		fmlogger.ExitError(method, "unexpected error occured when writing key file", err)
+		klogger.ExitError(method, "unexpected error occured when writing key file:\n%v", err)
 		return err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return nil
 }
 
 func (ps *PolygonService) makeExternalCall(api string) ([]byte, error) {
 	method := "polygon_service.makeExternalCall"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	uri := api + "?apiKey=" + ps.PolygonApiKey
-	fmlogger.Info(method, "attempting to call external uri %s", api)
+	klogger.Info(method, "attempting to call external uri %s", api)
 
 	response, err := http.Get(uri)
 	if err != nil {
-		fmlogger.ExitError(method, constants.UnexpectedExternalCallError, err)
+		klogger.ExitError(method, constants.UnexpectedExternalCallError, err)
 		return nil, err
 	}
 
 	if response.StatusCode != 200 {
 		err = errors.New(constants.UnexpectedResponseCodeError)
-		fmlogger.ExitError(method, constants.UnexpectedExternalCallError, err)
+		klogger.ExitError(method, constants.UnexpectedExternalCallError, err)
 		return nil, err
 	}
 
 	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmlogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
+		klogger.ExitError(method, constants.FailedToParseJsonBodyError, err)
 		return nil, err
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return responseData, nil
 }
 
 func (ps *PolygonService) FetchStockWithTicker(ticker string) (models.Stock, error) {
 	method := "polygon_service.fetchStockWithTicker"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	api := fmt.Sprintf(ps.BaseApi+constants.PolygonGetPrevCloseAPI, ticker)
 	resp, err := ps.makeExternalCall(api)
@@ -114,13 +115,13 @@ func (ps *PolygonService) FetchStockWithTicker(ticker string) (models.Stock, err
 	var pci restmodels.AggResponseItem
 
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return s, err
 	}
 
 	err = json.Unmarshal(resp, &pc)
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return s, err
 	}
 
@@ -135,13 +136,13 @@ func (ps *PolygonService) FetchStockWithTicker(ticker string) (models.Stock, err
 		Date:   time.UnixMilli(int64(pci.UnixTime)),
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return s, nil
 }
 
 func (ps *PolygonService) FetchStockWithTickerForPastYear(ticker string) ([]models.Stock, error) {
 	method := "polygon_service.FetchStockWithTickerForPastYear"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	today := time.Now()
 	today = time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, time.Local)
@@ -154,13 +155,13 @@ func (ps *PolygonService) FetchStockWithTickerForPastYear(ticker string) ([]mode
 	var pc restmodels.AggResponse
 
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return s, err
 	}
 
 	err = json.Unmarshal(resp, &pc)
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return s, err
 	}
 
@@ -176,13 +177,13 @@ func (ps *PolygonService) FetchStockWithTickerForPastYear(ticker string) ([]mode
 		s = append(s, i)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return s, nil
 }
 
 func (ps *PolygonService) FetchStockWithTickerForDateRange(t string, d1 time.Time, d2 time.Time) ([]models.Stock, error) {
 	method := "polygon_service.FetchStockWithTickerForDateRange"
-	fmlogger.Enter(method)
+	klogger.Enter(method)
 
 	api := fmt.Sprintf(ps.BaseApi+constants.PolygonGetDateRangeAPI, t, fmt.Sprint(d1.Format("2006-01-02")), fmt.Sprint(d2.Format("2006-01-02")))
 
@@ -193,13 +194,13 @@ func (ps *PolygonService) FetchStockWithTickerForDateRange(t string, d1 time.Tim
 	var pc restmodels.AggResponse
 
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return s, err
 	}
 
 	err = json.Unmarshal(resp, &pc)
 	if err != nil {
-		fmlogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return s, err
 	}
 
@@ -215,6 +216,6 @@ func (ps *PolygonService) FetchStockWithTickerForDateRange(t string, d1 time.Tim
 		s = append(s, i)
 	}
 
-	fmlogger.Exit(method)
+	klogger.Exit(method)
 	return s, nil
 }
