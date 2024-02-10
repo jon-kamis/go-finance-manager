@@ -136,8 +136,7 @@ func (j *Auth) GetTokenFromHeaderAndVerify(w http.ResponseWriter, r *http.Reques
 
 	// Sanity Check
 	if authHeader == "" {
-		fmt.Printf("[%s] Auth header is not present\n", method)
-		fmt.Printf("[Exit %s]\n", method)
+		klogger.ExitError(method, "auth header is not present")
 		return "", nil, errors.New("no auth header")
 	}
 
@@ -145,7 +144,7 @@ func (j *Auth) GetTokenFromHeaderAndVerify(w http.ResponseWriter, r *http.Reques
 	headerParts := strings.Split(authHeader, " ")
 	if len(headerParts) != 2 {
 		err := errors.New(constants.InvalidAuthHeaderError)
-		klogger.ExitError(method, err.Error(), err)
+		klogger.ExitError(method, err.Error())
 		return "", nil, err
 	}
 

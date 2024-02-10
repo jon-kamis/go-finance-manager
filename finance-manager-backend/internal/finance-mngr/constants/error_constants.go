@@ -38,7 +38,7 @@ const InvalidCreditCardError = "credit card is invalid: \n%v"
 const UsernameOrEmailExistError = "username or email already exists: \n%v"
 
 //Auth Errors
-const InvalidAuthHeaderError = "authorization header is invalid\n%v"
+const InvalidAuthHeaderError = "authorization header is invalid"
 const InvalidSigningMethodError = "unexpected signing method\n%v"
 const ExpiredTokenError = "token is expired\n%v"
 const InvalidIssuerError = "invalid issuer\n%v"

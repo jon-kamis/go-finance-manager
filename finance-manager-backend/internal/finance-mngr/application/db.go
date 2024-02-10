@@ -7,12 +7,13 @@ import (
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jon-kamis/klogger"
+	"github.com/jon-kamis/klogger/pkg/loglevel"
 )
 
 // Function OpenDB establishes a postgres database connection and returns a pointer to the database
 func OpenDB(dsn string) (*sql.DB, error) {
 	method := "db.OpenDB"
-	klogger.Debug(method, "[ENTER]")
+	klogger.Enter(method, loglevel.Debug)
 	db, err := sql.Open("pgx", dsn)
 
 	if err != nil {
@@ -25,7 +26,7 @@ func OpenDB(dsn string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	klogger.Debug(method, "[EXIT]")
+	klogger.Exit(method, loglevel.Debug)
 	return db, nil
 }
 

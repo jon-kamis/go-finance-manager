@@ -4,7 +4,6 @@ import (
 	"errors"
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -119,7 +118,7 @@ func (fmh *FinanceManagerHandler) GetIncomeById(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	fmt.Printf("[EXIT %s]\n", method)
+	klogger.Exit(method)
 	fmh.JSONUtil.WriteJSON(w, http.StatusOK, income)
 }
 

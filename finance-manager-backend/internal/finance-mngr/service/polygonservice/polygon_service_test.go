@@ -4,6 +4,7 @@ import (
 	"finance-manager-backend/internal/finance-mngr/jsonutils"
 	"finance-manager-backend/internal/finance-mngr/models"
 	"finance-manager-backend/test"
+	"finance-manager-backend/test/logtest"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,6 +18,8 @@ import (
 var ps PolygonService
 
 func TestMain(m *testing.M) {
+	logtest.SetKloggerTestFileNameEnv()
+	
 	method := "validation_test.TestMain"
 	klogger.Enter(method)
 

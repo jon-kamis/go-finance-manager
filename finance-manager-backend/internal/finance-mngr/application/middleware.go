@@ -31,7 +31,7 @@ func (app *Application) AuthRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _, err := app.Auth.GetTokenFromHeaderAndVerify(w, r)
 		if err != nil {
-			klogger.ExitError(method, "unauthorized", err)
+			klogger.ExitError(method, "unauthorized:\n%v", err)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		} else {

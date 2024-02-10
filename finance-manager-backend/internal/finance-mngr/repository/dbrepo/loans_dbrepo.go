@@ -87,7 +87,7 @@ func (m *PostgresDBRepo) GetAllUserLoans(userId int, search string) ([]*models.L
 		loans = append(loans, &loan)
 	}
 
-	klogger.Debug(method, "retrieved %d records\n", recordCount)
+	klogger.Debug(method, "retrieved %d records", recordCount)
 	klogger.Exit(method)
 	return loans, nil
 }

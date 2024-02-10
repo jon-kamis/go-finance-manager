@@ -63,7 +63,7 @@ func (m *PostgresDBRepo) InsertStockData(sl []models.Stock) error {
 
 	var id int
 
-	klogger.Debug(method, "inserting %d records\n", len(sl))
+	klogger.Debug(method, "inserting %d records", len(sl))
 	for _, s := range sl {
 		err := m.DB.QueryRowContext(ctx, stmt,
 			s.Ticker,

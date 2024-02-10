@@ -81,7 +81,7 @@ func (m *PostgresDBRepo) GetAllUserBills(userId int, search string) ([]*models.B
 		bills = append(bills, &bill)
 	}
 
-	klogger.Debug(method, "retrieved %d records\n", recordCount)
+	klogger.Debug(method, "retrieved %d records", recordCount)
 	klogger.Exit(method)
 	return bills, nil
 }

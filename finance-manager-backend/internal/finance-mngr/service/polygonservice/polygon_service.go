@@ -80,7 +80,7 @@ func (ps *PolygonService) makeExternalCall(api string) ([]byte, error) {
 	klogger.Enter(method)
 
 	uri := api + "?apiKey=" + ps.PolygonApiKey
-	klogger.Info(method, "attempting to call external uri %s", api)
+	klogger.Debug(method, "attempting to call external uri %s", api)
 
 	response, err := http.Get(uri)
 	if err != nil {
@@ -149,7 +149,7 @@ func (ps *PolygonService) FetchStockWithTickerForPastYear(ticker string) ([]mode
 	limit := time.Date(today.Year()-1, today.Month(), today.Day(), 0, 0, 0, 0, time.Local)
 
 	api := fmt.Sprintf(ps.BaseApi+constants.PolygonGetDateRangeAPI, ticker, fmt.Sprint(limit.Format("2006-01-02")), fmt.Sprint(today.Format("2006-01-02")))
-	fmt.Printf("calling external api: %s\n", api)
+	fmt.Printf("calling external api: %s", api)
 	resp, err := ps.makeExternalCall(api)
 	var s []models.Stock
 	var pc restmodels.AggResponse
@@ -186,8 +186,6 @@ func (ps *PolygonService) FetchStockWithTickerForDateRange(t string, d1 time.Tim
 	klogger.Enter(method)
 
 	api := fmt.Sprintf(ps.BaseApi+constants.PolygonGetDateRangeAPI, t, fmt.Sprint(d1.Format("2006-01-02")), fmt.Sprint(d2.Format("2006-01-02")))
-
-	fmt.Printf("[%s] attempting to call external API: %s\n", method, api)
 
 	resp, err := ps.makeExternalCall(api)
 	var s []models.Stock

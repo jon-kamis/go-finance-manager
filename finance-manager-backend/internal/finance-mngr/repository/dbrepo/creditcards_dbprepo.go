@@ -87,7 +87,7 @@ func (m *PostgresDBRepo) GetAllUserCreditCards(userId int, search string) ([]*mo
 		creditcards = append(creditcards, &cc)
 	}
 
-	klogger.Debug(method, "retrieved %d records\n", recordCount)
+	klogger.Debug(method, "retrieved %d records", recordCount)
 	klogger.Exit(method)
 	return creditcards, nil
 }

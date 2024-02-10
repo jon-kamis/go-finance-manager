@@ -88,7 +88,7 @@ func (m *PostgresDBRepo) GetAllUserIncomes(userId int, search string) ([]*models
 		incomes = append(incomes, &income)
 	}
 
-	klogger.Debug(method, "retrieved %d records\n", recordCount)
+	klogger.Debug(method, "retrieved %d records", recordCount)
 	klogger.Exit(method)
 	return incomes, nil
 }
