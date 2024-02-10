@@ -72,7 +72,7 @@ func (m *PostgresDBRepo) GetAllRoles(search string) ([]*models.Role, error) {
 		roles = append(roles, &role)
 	}
 
-	klogger.Debug(method, "found %d results\n", recordCount)
+	klogger.Debug(method, "found %d results", recordCount)
 	klogger.Exit(method)
 	return roles, nil
 }

@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"finance-manager-backend/internal/finance-mngr/constants"
 	"finance-manager-backend/internal/finance-mngr/models"
-	"fmt"
 	"testing"
 	"time"
 
@@ -99,7 +98,7 @@ func TestGetUserPortfolioBalanceHistory(t *testing.T) {
 	dvm := make(map[time.Time]float64)
 
 	for _, h := range hist {
-		fmt.Printf("Adding date %v\n", h.Date)
+		klogger.Debug(method, "Adding date %v\n", h.Date)
 		dvm[h.Date] = h.Close
 	}
 
