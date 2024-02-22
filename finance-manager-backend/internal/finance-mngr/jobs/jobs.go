@@ -85,11 +85,12 @@ func updateStocks(t time.Time, app application.Application) {
 		klogger.Debug(method, "fetching updates for stock "+s.Ticker)
 		sn, err := app.ExternalService.FetchStockWithTickerForDateRange(s.Ticker, startDt, compareDt)
 
-		if err != nil {
+		if err != nil || len(sn) == 0 {
 			klogger.Error(method, constants.UnexpectedSQLError, err)
 			klogger.Warn(method, "completed execution unsuccessfully")
 			return
 		}
+
 
 		//Latest index should be most up to date entry
 		i := len(sn) - 1

@@ -8,6 +8,8 @@ services:
       - '8080:8080'
     env_file:
       - .go-env
+    volumes:
+      - ./logs:/go-finance-manager/logs
     depends_on:
       postgres:
         condition: service_healthy
