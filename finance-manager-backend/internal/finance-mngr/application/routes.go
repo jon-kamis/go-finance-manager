@@ -22,6 +22,8 @@ func (app *Application) Routes() http.Handler {
 
 	r.Get("/", app.Handler.Home)
 
+	r.Post("/calc-savings", app.Handler.CalcSavingsRequest)
+
 	r.Post("/authenticate", app.Handler.Authenticate)
 	r.Get("/refresh", app.Handler.RefreshToken)
 	r.Get("/logout", app.Handler.Logout)

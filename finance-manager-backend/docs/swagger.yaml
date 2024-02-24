@@ -404,6 +404,12 @@ definitions:
           $ref: '#/definitions/models.PortfolioPosition'
         type: array
     type: object
+  payfrequency.PayFrequency:
+    enum:
+    - ""
+    type: string
+    x-enum-varnames:
+    - Undefined
   restmodels.HomeResponse:
     properties:
       message:
@@ -428,6 +434,19 @@ definitions:
       ticker:
         description: The ticker to modify
         type: string
+    type: object
+  restmodels.SavingsCalculationRequest:
+    properties:
+      amount:
+        type: number
+      deadline:
+        type: string
+      goal:
+        type: number
+      nextPay:
+        type: string
+      payFrequency:
+        $ref: '#/definitions/payfrequency.PayFrequency'
     type: object
   stockoperation.ModifyStockOperation:
     enum:
@@ -478,6 +497,38 @@ paths:
       summary: Login
       tags:
       - Authentication
+  /calc-savings:
+    post:
+      description: Performs calculation on request and returns a result without saving
+      parameters:
+      - description: the request to calculate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/restmodels.SavingsCalculationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Income'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jsonutils.JSONResponse'
+      summary: Calculate Savings Request
+      tags:
+      - Savings
   /logout:
     get:
       consumes:

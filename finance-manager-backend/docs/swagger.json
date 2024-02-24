@@ -63,6 +63,55 @@
                 }
             }
         },
+        "/calc-savings": {
+            "post": {
+                "description": "Performs calculation on request and returns a result without saving",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Savings"
+                ],
+                "summary": "Calculate Savings Request",
+                "parameters": [
+                    {
+                        "description": "the request to calculate",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/restmodels.SavingsCalculationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Income"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/jsonutils.JSONResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/logout": {
             "get": {
                 "description": "Returns an expired refresh cookie which prevents the user from re-authenticating",
@@ -2904,6 +2953,15 @@
                 }
             }
         },
+        "payfrequency.PayFrequency": {
+            "type": "string",
+            "enum": [
+                ""
+            ],
+            "x-enum-varnames": [
+                "Undefined"
+            ]
+        },
         "restmodels.HomeResponse": {
             "type": "object",
             "properties": {
@@ -2940,6 +2998,26 @@
                 "ticker": {
                     "description": "The ticker to modify",
                     "type": "string"
+                }
+            }
+        },
+        "restmodels.SavingsCalculationRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "deadline": {
+                    "type": "string"
+                },
+                "goal": {
+                    "type": "number"
+                },
+                "nextPay": {
+                    "type": "string"
+                },
+                "payFrequency": {
+                    "$ref": "#/definitions/payfrequency.PayFrequency"
                 }
             }
         },
