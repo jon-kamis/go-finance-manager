@@ -105,6 +105,11 @@ type Handler interface {
 	//Initializes or overwrites the API key for a module
 	PostModuleAPIKey(w http.ResponseWriter, r *http.Request)
 
+	/*** Savings ***/
+
+	//Calculates a savings request
+	CalcSavingsRequest(w http.ResponseWriter, r *http.Request)
+
 	/*** Registration ***/
 
 	//Validates and Inserts a new User into the database

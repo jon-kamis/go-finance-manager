@@ -102,20 +102,6 @@ ALTER TABLE public.user_roles ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 );
 
 --
--- Name: bank_account; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.bank_accounts (
-    id integer NOT NULL,
-    account_name character varying(255) NOT NULL,
-    bank_name character varying(255) NOT NULL,
-    balance NUMERIC(10,2) NOT NULL,
-    user_id integer NOT NULL,
-    create_dt timestamp without time zone,
-    last_update_dt timestamp without time zone
-);
-
---
 -- Name: bank_account_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -158,6 +144,26 @@ ALTER TABLE public.loans ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     NO MINVALUE
     NO MAXVALUE
     CACHE 1
+);
+
+--
+-- Name: expenses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.expenses (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    type character varying(255) NOT NULL,
+    name character varying(255) NOT NULl,
+    dispursement_date timestamp,
+    dispursement_amnt NUMERIC(10,2),
+    balance NUMERIC(10,2),
+    limit NUMERIC(10,2),
+    apr NUMERIC(10, 2) NOT NULL,
+    payment NUMERIC(10, 2) NOT NULL,
+    min_payment_percentage NUMERIC(10, 2) NOT NULL,
+    create_dt timestamp,
+    last_update_dt timestamp
 );
 
 --

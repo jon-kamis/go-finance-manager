@@ -25,6 +25,13 @@ const NavMenu = (props) => {
             path: "/admin",
         },
         {
+            id: 9,
+            text: "Assets",
+            requiresJwt: true,
+            requiresAdmin: false,
+            path: "/assets",
+        },
+        {
             id: 5,
             text: "Bills",
             requiresJwt: true,

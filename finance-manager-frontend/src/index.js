@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import App from './App';
+import Assets from './components/assets/Assets';
 import ErrorPage from './components/misc/ErrorPage';
 import Home from './components/Home';
 import Incomes from './components/income/Incomes';
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: "/about",
         element: <About />
+      },
+      {
+        path: "/assets",
+        element: <Assets />
       },
       {
         path: "/users",

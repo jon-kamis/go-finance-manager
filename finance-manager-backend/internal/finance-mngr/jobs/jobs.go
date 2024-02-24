@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/jon-kamis/klogger"
+	"github.com/jon-kamis/klogger/pkg/loglevel"
 )
 
 func ScheduledMinuteJobs(tick *time.Ticker, app application.Application) {
@@ -23,8 +24,8 @@ func updateStocks(t time.Time, app application.Application) {
 	klogger.Enter(method)
 
 	if !app.ExternalService.GetIsStocksEnabled() {
-		klogger.Info(method, "stocks are not enabled")
-		klogger.Exit(method)
+		klogger.Trace(method, "stocks are not enabled")
+		klogger.Exit(method, loglevel.Trace)
 		return
 	}
 
@@ -67,7 +68,7 @@ func updateStocks(t time.Time, app application.Application) {
 		return
 	}
 
-	klogger.Debug(method, "Checking if %v is before %v, or if stock data is not loaded for the given ticker", s.Date, compareDt)
+	klogger.Trace(method, "Checking if %v is before %v, or if stock data is not loaded for the given ticker", s.Date, compareDt)
 
 	if s.Date.Before(compareDt) || sd.ID == 0 {
 
@@ -82,7 +83,7 @@ func updateStocks(t time.Time, app application.Application) {
 			startDt = sd.Date.Add(24 * time.Hour)
 		}
 
-		klogger.Debug(method, "fetching updates for stock "+s.Ticker)
+		klogger.Trace(method, "fetching updates for stock "+s.Ticker)
 		sn, err := app.ExternalService.FetchStockWithTickerForDateRange(s.Ticker, startDt, compareDt)
 
 		if err != nil || len(sn) == 0 {
@@ -120,7 +121,7 @@ func updateStocks(t time.Time, app application.Application) {
 		}
 
 	} else {
-		klogger.Info(method, "oldest stock is up to date")
+		klogger.Trace(method, "oldest stock is up to date")
 	}
 
 	klogger.Exit(method)
